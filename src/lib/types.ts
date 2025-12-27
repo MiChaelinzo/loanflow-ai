@@ -2,6 +2,8 @@ export type LoanStatus = 'active' | 'pending' | 'defaulted' | 'paid-off'
 export type RiskLevel = 'low' | 'medium' | 'high' | 'critical'
 export type CovenantStatus = 'compliant' | 'at-risk' | 'breached'
 export type ESGRating = 'A' | 'B' | 'C' | 'D' | 'F'
+export type TradeStatus = 'listed' | 'bidding' | 'pending-settlement' | 'settled' | 'cancelled'
+export type ComplianceLevel = 'full' | 'partial' | 'non-compliant'
 
 export interface Covenant {
   id: string
@@ -28,6 +30,55 @@ export interface RiskFactors {
   esg: number
 }
 
+export interface PredictiveAnalytics {
+  defaultProbability30d: number
+  defaultProbability60d: number
+  defaultProbability90d: number
+  covenantBreachRisk: {
+    covenantId: string
+    probability: number
+    estimatedDate: string
+  }[]
+  recommendation: string
+}
+
+export interface LMACompliance {
+  overallScore: number
+  level: ComplianceLevel
+  gaps: {
+    section: string
+    issue: string
+    severity: 'high' | 'medium' | 'low'
+  }[]
+  standardVersion: string
+  assessmentDate: string
+}
+
+export interface TradeListing {
+  id: string
+  loanId: string
+  sellerId: string
+  sellerName: string
+  askPrice: number
+  currency: string
+  minBidAmount: number
+  listedDate: string
+  expiryDate: string
+  status: TradeStatus
+  bids: TradeBid[]
+  views: number
+}
+
+export interface TradeBid {
+  id: string
+  tradeId: string
+  bidderId: string
+  bidderName: string
+  amount: number
+  bidDate: string
+  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn'
+}
+
 export interface Loan {
   id: string
   borrowerName: string
@@ -45,4 +96,7 @@ export interface Loan {
   industry: string
   purpose: string
   documentUrl?: string
+  predictiveAnalytics?: PredictiveAnalytics
+  lmaCompliance?: LMACompliance
+  tradeListing?: TradeListing
 }
