@@ -268,6 +268,139 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Can be viewed in full-screen dialog or main tab view
   - Real-time calculation from persistent alert history
 
+### 20. Team Management System (✓ IMPLEMENTED - Multi-User Collaboration)
+- **Functionality**: Comprehensive team member management with role-based access control, workload tracking, and performance metrics
+- **Purpose**: Enable organizational collaboration by managing team members, tracking capacity, and distributing work efficiently across risk analysts, portfolio managers, compliance officers, and other stakeholders
+- **Trigger**: Navigate to "Team" tab in main navigation
+- **Progression**: Team directory view → Add/edit members → Assign roles → Configure preferences → Monitor workload → Track performance
+- **Success criteria**: 
+  - **Team Member Profiles** including:
+    - Name, email, department, and role assignment
+    - Status indicators (active/away/offline)
+    - Specializations/expertise tags (industries, skills)
+    - Maximum loan capacity and current workload
+    - Alert preferences (auto-assign, max alerts per day, preferred types)
+    - Performance metrics (avg response time, alerts resolved, accuracy score)
+    - Availability settings (timezone, working hours, days off)
+  - **7 Role Types** with distinct permissions:
+    - Admin: Full system access and team management
+    - Portfolio Manager: Loan assignments and route configuration
+    - Risk Analyst: Risk assessment and monitoring
+    - Compliance Officer: Compliance review and reporting
+    - Trader: Trading hub and market access
+    - Analyst: Limited portfolio access
+    - Viewer: Read-only access
+  - **Team Capacity Dashboard** showing:
+    - Total team size and active member count
+    - Aggregate loan capacity across all members
+    - Current utilization percentage with progress visualization
+    - Available capacity for new assignments
+  - **Team Directory** featuring:
+    - Visual member cards with avatars and status indicators
+    - Role badges and department labels
+    - Real-time workload progress bars
+    - Quick view of response time and accuracy metrics
+    - Search and filtering by role, department, or status
+  - **Member Management** including:
+    - Add new members with form validation
+    - Edit member profiles with full configuration options
+    - Remove/deactivate members
+    - Adjust workload capacity and alert preferences
+    - Toggle auto-assignment for intelligent routing
+  - Load sample team with 6 diverse pre-configured members
+  - Persistent team data using useKV storage
+  - QuickHelp contextual tips for team management
+
+### 21. Alert Routing System (✓ IMPLEMENTED - Intelligent Alert Assignment)
+- **Functionality**: Advanced routing rules engine that automatically assigns alerts to appropriate team members based on alert type, severity, loan characteristics, team expertise, and workload
+- **Purpose**: Automate alert distribution to ensure the right person handles each alert at the right time, reducing response delays and improving accountability
+- **Trigger**: Navigate to "Routing" tab or alerts automatically route when created
+- **Progression**: Configure route → Set conditions → Define assignment logic → Enable escalation → Activate route → Monitor assignments
+- **Success criteria**: 
+  - **Routing Rules Configuration** with:
+    - Rule name and description
+    - Priority ordering (lower number = higher priority)
+    - Enable/disable toggle per route
+    - Created and updated timestamps
+  - **Condition Matching** including:
+    - Alert type selection (covenant breach, high risk, compliance gaps, etc.)
+    - Severity levels (critical/high/medium/low)
+    - Loan criteria filters (industry, risk level, min/max amount)
+  - **4 Assignment Strategies**:
+    - Round Robin: Distributes alerts evenly across assignees
+    - Workload Based: Assigns to member with lowest current workload ratio
+    - Skill Based: Matches loan industry to member specializations
+    - Manual: Requires manual assignment (no auto-routing)
+  - **Escalation Configuration** featuring:
+    - Enable/disable escalation per route
+    - Time threshold in minutes before escalation
+    - Escalation assignee selection (typically managers)
+    - Notify all option for critical alerts
+  - **Routing Dashboard** showing:
+    - Active vs. total routes count
+    - Routes with escalation enabled
+    - Team coverage (assignable members)
+  - **Routing Rules List** displaying:
+    - Priority-ordered route cards
+    - Alert type and severity badges
+    - Assignment strategy and assignee count
+    - Escalation indicators with timeframes
+    - Quick enable/disable toggle
+  - **Smart Routing Service** with:
+    - Sequential rule evaluation by priority
+    - Automatic assignee selection based on strategy
+    - Workload calculation and balancing
+    - Skill matching for specialized alerts
+    - Escalation monitoring and triggering
+  - Load sample routes with 5 pre-configured intelligent rules
+  - Persistent routing configuration using useKV storage
+  - QuickHelp contextual tips for routing setup
+
+### 22. Loan Assignment System (✓ IMPLEMENTED - Work Distribution & Tracking)
+- **Functionality**: Direct loan assignment to team members with role designation, assignment tracking, and workload visualization
+- **Purpose**: Provide explicit ownership and accountability for loan monitoring by assigning specific team members to loans with defined roles and responsibilities
+- **Trigger**: Navigate to "Assignments" tab or assign from loan detail view
+- **Progression**: Select loan → Choose assignees → Define role → Add notes → Create assignment → Track progress
+- **Success criteria**: 
+  - **Assignment Creation** including:
+    - Loan selection from dropdown with amount display
+    - Multiple team member selection (multi-select)
+    - Role designation (Primary/Secondary/Reviewer)
+    - Optional assignment notes and instructions
+    - Due date setting (optional)
+  - **3 Assignment Roles**:
+    - Primary: Main responsibility for loan monitoring
+    - Secondary: Support and backup role
+    - Reviewer: Review and approval authority
+  - **Assignment Dashboard** showing:
+    - Total active assignments count
+    - Unassigned loans requiring attention
+    - Available team members for assignment
+    - Portfolio coverage percentage (assigned/total)
+  - **Active Assignments View** featuring:
+    - Assignment cards with loan details and amount
+    - Role and status badges
+    - Assigned team members with avatars
+    - Assignment notes and instructions
+    - Creation date and due date (if set)
+    - Remove assignment action for active items
+    - Search by loan name
+    - Filter by assignment status
+  - **Team Workload View** displaying:
+    - Team member cards with assignment counts
+    - Role and department labels
+    - List of assigned loans per member (top 3 + count)
+    - Assignment role indicators
+    - Visual workload distribution across team
+  - **Assignment Tracking** including:
+    - Assignment status (active/completed/transferred)
+    - Assignment history and audit trail
+    - Workload updates when assignments change
+    - Integration with team capacity metrics
+  - Persistent assignment data using useKV storage
+  - Toast notifications for assignment actions
+  - QuickHelp contextual tips for assignment workflow
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

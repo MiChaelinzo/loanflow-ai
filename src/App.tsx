@@ -30,8 +30,11 @@ import { PortfolioAIInsights } from './components/PortfolioAIInsights'
 import { AlertCenter, AlertCenterTrigger } from './components/AlertCenter'
 import { AlertSettingsDialog, AlertSettingsTrigger } from './components/AlertSettings'
 import { AlertAnalytics, AlertAnalyticsTrigger } from './components/AlertAnalytics'
+import { TeamManagement } from './components/TeamManagement'
+import { AlertRouting } from './components/AlertRouting'
+import { LoanAssignments } from './components/LoanAssignments'
 import { Alert } from './lib/alertTypes'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -314,7 +317,7 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-11">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -346,6 +349,18 @@ function App() {
             <TabsTrigger value="esg" className="gap-2" data-tutorial="esg-tab">
               <Leaf size={18} />
               ESG
+            </TabsTrigger>
+            <TabsTrigger value="team" className="gap-2" data-tutorial="team-tab">
+              <Users size={18} />
+              Team
+            </TabsTrigger>
+            <TabsTrigger value="routing" className="gap-2" data-tutorial="routing-tab">
+              <GitBranch size={18} />
+              Routing
+            </TabsTrigger>
+            <TabsTrigger value="assignments" className="gap-2" data-tutorial="assignments-tab">
+              <FolderOpen size={18} />
+              Assignments
             </TabsTrigger>
           </TabsList>
 
@@ -642,6 +657,21 @@ function App() {
                   ))}
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="team">
+            <QuickHelp tip={quickHelpTips.team} />
+            <TeamManagement />
+          </TabsContent>
+
+          <TabsContent value="routing">
+            <QuickHelp tip={quickHelpTips.routing} />
+            <AlertRouting />
+          </TabsContent>
+
+          <TabsContent value="assignments">
+            <QuickHelp tip={quickHelpTips.assignments} />
+            <LoanAssignments loans={loans || []} />
           </TabsContent>
         </Tabs>
         )}

@@ -118,4 +118,19 @@ export const quickHelpTips = {
     title: 'Alert Analytics Dashboard',
     message: 'Track alert response times, resolution patterns, and performance trends. Monitor how quickly your team responds to critical events and identify areas for improvement.',
   },
+  team: {
+    id: 'team-help',
+    title: 'Team Management',
+    message: 'Manage team members, assign roles, and monitor workload distribution. Track individual performance metrics including response times, accuracy scores, and loans managed.',
+  },
+  routing: {
+    id: 'routing-help',
+    title: 'Alert Routing',
+    message: 'Configure intelligent routing rules to automatically assign alerts to the right team members based on alert type, severity, loan criteria, and team member expertise. Set up escalation paths for unacknowledged alerts.',
+  },
+  assignments: {
+    id: 'assignments-help',
+    title: 'Loan Assignments',
+    message: 'Assign loans to team members with specific roles (primary, secondary, reviewer). Track assignment coverage and team workload to ensure balanced distribution across your organization.',
+  },
 }
