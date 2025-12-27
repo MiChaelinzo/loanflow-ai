@@ -7,7 +7,8 @@ import { Progress } from '@/components/ui/progress'
 import { Loan, CovenantStatus } from '@/lib/types'
 import { RiskGauge } from './RiskGauge'
 import { AIInsightCard } from './AIInsightCard'
-import { CheckCircle, Warning, XCircle, Leaf, TrendUp, ShieldWarning } from '@phosphor-icons/react'
+import { AILoanSummarizer } from './AILoanSummarizer'
+import { CheckCircle, Warning, XCircle, Leaf, TrendUp, ShieldWarning, Brain } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 interface LoanDetailDialogProps {
@@ -85,8 +86,12 @@ export function LoanDetailDialog({ loan, open, onOpenChange }: LoanDetailDialogP
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="mt-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="ai-summary" className="gap-1.5">
+              <Brain size={16} />
+              AI Summary
+            </TabsTrigger>
             <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
             <TabsTrigger value="covenants">Covenants</TabsTrigger>
             <TabsTrigger value="esg">ESG Score</TabsTrigger>
@@ -150,6 +155,10 @@ export function LoanDetailDialog({ loan, open, onOpenChange }: LoanDetailDialogP
               }`}
               type={loan.riskScore <= 5 ? 'success' : 'warning'}
             />
+          </TabsContent>
+
+          <TabsContent value="ai-summary" className="mt-6">
+            <AILoanSummarizer loan={loan} />
           </TabsContent>
 
           <TabsContent value="risk" className="space-y-6 mt-6">

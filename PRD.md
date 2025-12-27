@@ -142,6 +142,34 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Professional chat UI with gradient branding
   - Accessible from header and floating help button
 
+### 17. AI-Powered Loan Summarization (✓ IMPLEMENTED - Document Intelligence)
+- **Functionality**: Advanced AI analysis generating executive summaries, risk warnings, opportunities, and strategic recommendations for individual loans and entire portfolios
+- **Purpose**: Transform complex loan data into actionable insights for executives and portfolio managers, enabling faster decision-making
+- **Trigger**: Click "Generate Summary" in loan detail view or "Generate Insights" in portfolio overview
+- **Progression**: Data aggregation → GPT-4 analysis → Multi-dimensional evaluation → Summary generation → Structured insights display → Copy to clipboard option
+- **Success criteria**: 
+  - **Individual Loan Summaries** with:
+    - Executive summary (2-3 sentence high-level overview)
+    - Key highlights (3+ positive points)
+    - Risk warnings (2-3 concerns requiring attention)
+    - Strategic opportunities (2-3 growth/optimization possibilities)
+    - Action recommendations (3+ specific next steps)
+    - Confidence score (75-95% indicating analysis reliability)
+  - **Portfolio-Wide Insights** including:
+    - Overall portfolio health assessment
+    - Key trends identification across all loans
+    - Top risks requiring immediate attention
+    - Strategic opportunities for growth/optimization
+    - Priority actions with specific guidance
+    - Market positioning analysis
+  - Real AI analysis using GPT-4o with comprehensive loan context
+  - Graceful fallback to data-driven summaries if AI unavailable
+  - Copy to clipboard functionality for sharing with stakeholders
+  - Regeneration capability for updated analysis
+  - Professional formatting suitable for executive consumption
+  - Integrated into loan detail dialog as dedicated "AI Summary" tab
+  - Portfolio insights card prominently displayed in portfolio view
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

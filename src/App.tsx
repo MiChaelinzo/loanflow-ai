@@ -25,6 +25,7 @@ import { HelpCenterTrigger } from './components/HelpCenter'
 import { QuickHelp, quickHelpTips } from './components/QuickHelp'
 import { FloatingHelpButton } from './components/FloatingHelpButton'
 import { AIChatbot, AIChatbotTrigger } from './components/AIChatbot'
+import { PortfolioAIInsights } from './components/PortfolioAIInsights'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -329,6 +330,10 @@ function App() {
 
           <TabsContent value="portfolio" className="space-y-8">
             <QuickHelp tip={quickHelpTips.portfolio} />
+            
+            {(loans || []).length > 0 && (
+              <PortfolioAIInsights loans={loans || []} />
+            )}
             
             <div className="grid grid-cols-4 gap-6" data-tutorial="portfolio-metrics">
               <Card>
