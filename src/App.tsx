@@ -21,6 +21,9 @@ import { StressTestDashboard } from './components/StressTestDashboard'
 import { MarketIntelligence } from './components/MarketIntelligence'
 import { ExportDialog } from './components/ExportDialog'
 import { TutorialWalkthrough, TutorialTrigger } from './components/TutorialWalkthrough'
+import { HelpCenterTrigger } from './components/HelpCenter'
+import { QuickHelp, quickHelpTips } from './components/QuickHelp'
+import { FloatingHelpButton } from './components/FloatingHelpButton'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -257,6 +260,7 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <HelpCenterTrigger />
               <TutorialTrigger />
               {(loans || []).length === 0 && (
                 <Button variant="secondary" size="default" onClick={handleLoadSampleData} className="gap-2">
@@ -321,6 +325,8 @@ function App() {
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-8">
+            <QuickHelp tip={quickHelpTips.portfolio} />
+            
             <div className="grid grid-cols-4 gap-6" data-tutorial="portfolio-metrics">
               <Card>
                 <CardHeader className="pb-3">
@@ -497,7 +503,8 @@ function App() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="trading">
+          <TabsContent value="trading" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.trading} />
             <TradingHub 
               loans={loans || []} 
               onCreateListing={handleCreateListing}
@@ -505,11 +512,13 @@ function App() {
             />
           </TabsContent>
 
-          <TabsContent value="analytics">
+          <TabsContent value="analytics" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.analytics} />
             <AnalyticsDashboard loans={loans || []} />
           </TabsContent>
 
-          <TabsContent value="stress-test">
+          <TabsContent value="stress-test" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.stressTest} />
             <StressTestDashboard loans={loans || []} />
           </TabsContent>
 
@@ -517,12 +526,15 @@ function App() {
             <MarketIntelligence loans={loans || []} />
           </TabsContent>
 
-          <TabsContent value="compliance">
+          <TabsContent value="compliance" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.compliance} />
             <ComplianceChecker loans={loans || []} />
           </TabsContent>
 
           <TabsContent value="esg">
             <div className="space-y-6">
+              <QuickHelp tip={quickHelpTips.esg} className="mb-6" />
+              
               <div>
                 <h2 className="text-3xl font-bold tracking-tight flex items-center gap-3">
                   <Leaf size={32} className="text-success" weight="bold" />
@@ -626,6 +638,8 @@ function App() {
       />
 
       <TutorialWalkthrough />
+      
+      <FloatingHelpButton />
     </div>
   )
 }

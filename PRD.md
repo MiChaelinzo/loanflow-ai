@@ -110,6 +110,21 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
 - **Progression**: Welcome screen → Upload tutorial → Portfolio metrics → Analytics → Trading → Compliance → Stress Testing → Market Intelligence → ESG → Completion
 - **Success criteria**: 10 guided steps with smooth animations, element highlighting, skip/back/next controls, progress bar, persists completion state
 
+### 15. Comprehensive Help Center (✓ IMPLEMENTED - User Support)
+- **Functionality**: Searchable FAQ database with 24+ articles, 8 video tutorials, contextual help tips, and floating help button
+- **Purpose**: Provide comprehensive self-service support reducing user confusion and demonstrating platform depth
+- **Trigger**: Click "Help Center" button in header, floating help button, or help links in welcome screen
+- **Progression**: Help center opens → User searches/browses topics → FAQ accordion expands → Related videos/FAQs suggested → Video player launches
+- **Success criteria**: 
+  - 24+ FAQs across 8 categories (getting started, portfolio, trading, analytics, compliance, ESG, documents, troubleshooting)
+  - 8 video tutorials with descriptions and transcripts
+  - Category filtering and keyword search
+  - Related content suggestions (FAQs ↔ Videos)
+  - Recent search history
+  - Contextual quick tips on each major tab
+  - Floating help button accessible from anywhere
+  - Video duration indicators and thumbnail previews
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

@@ -1,6 +1,7 @@
 import { Card, CardContent } from './ui/card'
 import { Button } from './ui/button'
-import { Brain, UploadSimple, Sparkle, ChartLine, Handshake, ShieldCheck, Lightning, Leaf } from '@phosphor-icons/react'
+import { Brain, UploadSimple, Sparkle, ChartLine, Handshake, ShieldCheck, Lightning, Leaf, BookOpen, VideoCamera } from '@phosphor-icons/react'
+import { HelpCenterTrigger } from './HelpCenter'
 
 interface WelcomeDashboardProps {
   onLoadDemo: () => void
@@ -74,6 +75,11 @@ export function WelcomeDashboard({ onLoadDemo, onUpload }: WelcomeDashboardProps
             <UploadSimple size={24} />
             Upload Your First Document
           </Button>
+        </div>
+
+        <div className="pt-4">
+          <p className="text-sm text-muted-foreground mb-3">New to LoanFlow AI?</p>
+          <HelpCenterTrigger />
         </div>
       </div>
 
