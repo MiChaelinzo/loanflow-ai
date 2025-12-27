@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
 import { Badge } from './components/ui/badge'
 import { Separator } from './components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
 import { LoanCard } from './components/LoanCard'
 import { DocumentUploadDialog } from './components/DocumentUploadDialog'
 import { BatchUploadDialog } from './components/BatchUploadDialog'
@@ -28,6 +29,7 @@ import { AIChatbot, AIChatbotTrigger } from './components/AIChatbot'
 import { PortfolioAIInsights } from './components/PortfolioAIInsights'
 import { AlertCenter, AlertCenterTrigger } from './components/AlertCenter'
 import { AlertSettingsDialog, AlertSettingsTrigger } from './components/AlertSettings'
+import { AlertAnalytics, AlertAnalyticsTrigger } from './components/AlertAnalytics'
 import { Alert } from './lib/alertTypes'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -53,6 +55,7 @@ function App() {
   const [chatbotOpen, setChatbotOpen] = useState(false)
   const [alertCenterOpen, setAlertCenterOpen] = useState(false)
   const [alertSettingsOpen, setAlertSettingsOpen] = useState(false)
+  const [alertAnalyticsOpen, setAlertAnalyticsOpen] = useState(false)
   const [alerts] = useKV<Alert[]>('alerts', [])
 
   const handleUploadComplete = async (extractedData: any) => {
@@ -271,6 +274,7 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <AlertAnalyticsTrigger onClick={() => setAlertAnalyticsOpen(true)} />
               <AlertCenterTrigger
                 onClick={() => setAlertCenterOpen(true)}
                 alertCount={activeAlertCount}
@@ -310,7 +314,7 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -322,6 +326,10 @@ function App() {
             <TabsTrigger value="analytics" className="gap-2" data-tutorial="analytics-tab">
               <ChartLine size={18} />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="gap-2">
+              <Lightning size={18} />
+              Alerts
             </TabsTrigger>
             <TabsTrigger value="stress-test" className="gap-2" data-tutorial="stress-test-tab">
               <Lightning size={18} />
@@ -538,6 +546,11 @@ function App() {
             <AnalyticsDashboard loans={loans || []} />
           </TabsContent>
 
+          <TabsContent value="alerts" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.alertAnalytics} />
+            <AlertAnalytics alerts={alerts || []} />
+          </TabsContent>
+
           <TabsContent value="stress-test" className="space-y-4">
             <QuickHelp tip={quickHelpTips.stressTest} />
             <StressTestDashboard loans={loans || []} />
@@ -661,6 +674,18 @@ function App() {
       <TutorialWalkthrough />
       
       <FloatingHelpButton />
+
+      <Dialog open={alertAnalyticsOpen} onOpenChange={setAlertAnalyticsOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Alert Analytics Dashboard</DialogTitle>
+            <DialogDescription>
+              Comprehensive insights into alert patterns, response times, and resolution trends
+            </DialogDescription>
+          </DialogHeader>
+          <AlertAnalytics alerts={alerts || []} />
+        </DialogContent>
+      </Dialog>
 
       <AIChatbot open={chatbotOpen} onClose={() => setChatbotOpen(false)} />
 

@@ -223,6 +223,51 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Persistent alert history using useKV storage
   - Demo mode notice explaining production email integration
 
+### 19. Alert Analytics Dashboard (✓ IMPLEMENTED - Performance Monitoring & Efficiency)
+- **Functionality**: Comprehensive analytics dashboard tracking alert response times, resolution patterns, severity trends, and team performance metrics with interactive visualizations
+- **Purpose**: Enable data-driven risk management by monitoring how quickly critical events are addressed, identifying bottlenecks in response workflows, and demonstrating efficiency improvements to stakeholders
+- **Trigger**: Click "Alert Analytics" button in header or navigate to Alerts tab in main navigation
+- **Progression**: Alert data aggregation → Metric calculation → Trend analysis → Chart generation → Interactive visualization → Performance insights
+- **Success criteria**: 
+  - **Key Performance Metrics**:
+    - Average response time (time to acknowledgment) with duration formatting
+    - Average resolution time (time from creation to resolution)
+    - Resolution rate percentage (resolved/total alerts)
+    - Critical alert count with 7-day trend indicator
+  - **Interactive Trends Tab** featuring:
+    - 30-day alert volume stacked area chart by severity
+    - Daily resolution vs. new alerts line comparison
+    - Color-coded severity visualization (critical/high/medium/low)
+  - **Performance Tab** including:
+    - 4-week response time bar chart showing efficiency trends
+    - Real-time activity metrics (24 hours, 7 days, active, acknowledged)
+    - Status-based performance indicators with badges
+  - **Breakdown Tab** with:
+    - Severity distribution pie chart with percentage labels
+    - Top 8 alert types horizontal bar chart
+    - Alert status summary cards (active/acknowledged/resolved/total)
+  - **Activity Tab** providing:
+    - 30-day activity overview bar chart (new vs. resolved)
+    - Peak activity days ranking
+    - Best resolution days with success indicators
+    - Critical alert days highlighting
+  - **Professional Visualizations**:
+    - Recharts library for interactive charts
+    - Consistent color palette matching severity levels
+    - Responsive containers adapting to screen size
+    - Custom tooltips with dark theme matching app design
+    - Clear legends and axis labels
+  - **Business Value**:
+    - Demonstrates operational efficiency improvements to judges
+    - Quantifies response time improvements over time
+    - Identifies high-frequency alert types for process optimization
+    - Proves scalability through performance tracking
+    - Shows accountability and risk management maturity
+  - Accessible via header button trigger and dedicated main tab
+  - QuickHelp contextual tips for understanding analytics
+  - Can be viewed in full-screen dialog or main tab view
+  - Real-time calculation from persistent alert history
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

@@ -113,4 +113,9 @@ export const quickHelpTips = {
     title: 'Automated Alerts',
     message: 'Configure email alerts for critical events like covenant breaches, high-risk loans, and maturity approaching. Set up quiet hours and daily/weekly digests to stay informed without interruption.',
   },
+  alertAnalytics: {
+    id: 'alert-analytics-help',
+    title: 'Alert Analytics Dashboard',
+    message: 'Track alert response times, resolution patterns, and performance trends. Monitor how quickly your team responds to critical events and identify areas for improvement.',
+  },
 }
