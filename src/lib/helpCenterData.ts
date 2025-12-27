@@ -235,6 +235,40 @@ export const faqs: FAQ[] = [
     keywords: ['tutorial', 'guide', 'walkthrough', 'help', 'learn'],
     relatedVideos: ['video-1'],
   },
+  {
+    id: 'faq-25',
+    category: 'portfolio',
+    question: 'How do I set up automated email alerts?',
+    answer: 'Click the "Alerts" button in the header, then click the bell icon to open Alert Settings. Configure your email address, choose which alert types to monitor (covenant breaches, high-risk loans, maturity approaching, etc.), and enable email notifications for each. You can also set quiet hours and daily/weekly digest schedules.',
+    keywords: ['alert', 'email', 'notification', 'breach', 'warning', 'configure'],
+    relatedVideos: ['video-9'],
+    relatedFAQs: ['faq-26', 'faq-27'],
+  },
+  {
+    id: 'faq-26',
+    category: 'portfolio',
+    question: 'What types of alerts can I receive?',
+    answer: 'LoanFlow AI monitors 8 alert types: Covenant Breach (critical), Covenant At Risk (high), High Risk Loan, Critical Risk Loan, High Default Probability (>10% in 30 days), Maturity Approaching (<30 days), LMA Compliance Gaps, and ESG Score Downgrades. Each alert has a severity level and can be configured independently.',
+    keywords: ['alert', 'types', 'covenant', 'risk', 'maturity', 'compliance', 'esg'],
+    relatedFAQs: ['faq-25', 'faq-27'],
+  },
+  {
+    id: 'faq-27',
+    category: 'portfolio',
+    question: 'How do I manage alerts in the Alert Center?',
+    answer: 'Open the Alert Center by clicking the "Alerts" button in the header. View active, acknowledged, or all alerts. For each alert, you can view the email preview, acknowledge it, mark as resolved, or dismiss it. Alerts are organized by severity (critical, high, medium, low) and show detailed information about the issue and recommended actions.',
+    keywords: ['alert', 'manage', 'acknowledge', 'resolve', 'center', 'notification'],
+    relatedVideos: ['video-9'],
+    relatedFAQs: ['faq-25', 'faq-26'],
+  },
+  {
+    id: 'faq-28',
+    category: 'portfolio',
+    question: 'Can I schedule a daily or weekly alert digest?',
+    answer: 'Yes! In Alert Settings, enable the "Daily/Weekly Digest" option. Choose your preferred frequency (daily or weekly) and delivery time. You will receive a consolidated email summary of all alerts from that period, organized by severity with action recommendations.',
+    keywords: ['digest', 'daily', 'weekly', 'summary', 'scheduled', 'email'],
+    relatedFAQs: ['faq-25'],
+  },
 ]
 
 export const videoTutorials: VideoTutorial[] = [
@@ -325,5 +359,16 @@ export const videoTutorials: VideoTutorial[] = [
     videoUrl: '#',
     transcript: 'LoanFlow AI offers flexible export options for your portfolio data...',
     relatedFAQs: ['faq-17'],
+  },
+  {
+    id: 'video-9',
+    title: 'Automated Alerts and Notifications',
+    description: 'Set up email alerts for covenant breaches, high-risk loans, and critical events. Configure alert preferences and manage notifications.',
+    category: 'portfolio',
+    duration: '4:22',
+    thumbnail: 'https://placehold.co/640x360/ea580c/ffffff?text=Alerts+%26+Notifications',
+    videoUrl: '#',
+    transcript: 'Automated alerts keep you informed of critical portfolio events in real-time...',
+    relatedFAQs: ['faq-25', 'faq-26', 'faq-27', 'faq-28'],
   },
 ]

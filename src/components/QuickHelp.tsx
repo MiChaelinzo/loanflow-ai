@@ -76,7 +76,7 @@ export const quickHelpTips = {
   portfolio: {
     id: 'portfolio-help',
     title: 'Portfolio Overview',
-    message: 'Your portfolio dashboard shows aggregated metrics across all loans. Use filters to narrow down your view by status, risk level, currency, or industry.',
+    message: 'Your portfolio dashboard shows aggregated metrics across all loans. Use filters to narrow down your view by status, risk level, currency, or industry. Click the "Alerts" button to set up automated notifications for covenant breaches and high-risk events.',
   },
   trading: {
     id: 'trading-help',
@@ -107,5 +107,10 @@ export const quickHelpTips = {
     id: 'upload-help',
     title: 'Document Upload',
     message: 'Upload loan documents in PDF, DOCX, or TXT format. Our AI extracts key terms, covenants, risk factors, and compliance data automatically.',
+  },
+  alerts: {
+    id: 'alerts-help',
+    title: 'Automated Alerts',
+    message: 'Configure email alerts for critical events like covenant breaches, high-risk loans, and maturity approaching. Set up quiet hours and daily/weekly digests to stay informed without interruption.',
   },
 }

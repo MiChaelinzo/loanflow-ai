@@ -170,6 +170,59 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Integrated into loan detail dialog as dedicated "AI Summary" tab
   - Portfolio insights card prominently displayed in portfolio view
 
+### 18. Automated Email Alerts & Notification System (✓ IMPLEMENTED - Risk Management & Monitoring)
+- **Functionality**: Comprehensive alert system that automatically monitors loans for covenant breaches, high-risk conditions, maturity approaching, compliance gaps, and ESG downgrades, with configurable email notifications and in-app alert center
+- **Purpose**: Proactive risk management through instant notifications of critical events, enabling rapid response to portfolio issues and reducing the chance of missed covenant breaches or defaults
+- **Trigger**: Continuous monitoring when Alert Center is opened or loans are updated; manual configuration via Alert Settings
+- **Progression**: Portfolio monitoring → Alert detection → Preference checking → Email generation → In-app notification → User acknowledgment → Resolution tracking
+- **Success criteria**: 
+  - **8 Alert Types** with intelligent detection:
+    - Covenant Breach (critical severity)
+    - Covenant At Risk (high severity)
+    - High Risk Loan (high severity)
+    - Critical Risk Loan (critical severity)
+    - High Default Probability >10% in 30 days (critical severity)
+    - Maturity Approaching <30 days (medium/high severity)
+    - LMA Compliance Gap with high severity (medium severity)
+    - ESG Score Downgrade to D/F (low severity)
+  - **Comprehensive Alert Center** including:
+    - Real-time alert monitoring and generation
+    - Tabbed interface (Active, Acknowledged, All)
+    - Alert cards with severity badges and icons
+    - Action buttons: Acknowledge, Resolve, Dismiss, Delete
+    - Email preview for each alert
+    - Bulk clear functionality
+    - Alert count badges
+  - **Advanced Settings Panel** featuring:
+    - Master enable/disable switch
+    - Email address configuration with test function
+    - Per-alert-type enable/disable toggles
+    - Email notification toggle per alert type
+    - Quiet hours configuration (start/end time)
+    - Daily/weekly digest scheduling
+    - Alert severity indicators
+  - **Professional Email Templates** with:
+    - Responsive HTML design with institutional branding
+    - Severity-based color coding and badges
+    - Detailed alert information and loan context
+    - Recommended action items specific to alert type
+    - Direct links to dashboard (when in production)
+    - Professional footer with preference management info
+  - **Intelligent Alert Logic**:
+    - Deduplication to prevent repeat alerts for same issue
+    - Automatic alert generation based on loan data changes
+    - Respects user preferences and quiet hours
+    - Tracks alert lifecycle (active → acknowledged → resolved)
+  - **Email Digest System**:
+    - Consolidated summary of all alerts in period
+    - Severity-based grouping and counting
+    - Configurable daily/weekly frequency
+    - Scheduled delivery time selection
+  - Visual alert count badge on header button
+  - Seamless integration with existing portfolio monitoring
+  - Persistent alert history using useKV storage
+  - Demo mode notice explaining production email integration
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

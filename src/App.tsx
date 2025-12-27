@@ -26,6 +26,9 @@ import { QuickHelp, quickHelpTips } from './components/QuickHelp'
 import { FloatingHelpButton } from './components/FloatingHelpButton'
 import { AIChatbot, AIChatbotTrigger } from './components/AIChatbot'
 import { PortfolioAIInsights } from './components/PortfolioAIInsights'
+import { AlertCenter, AlertCenterTrigger } from './components/AlertCenter'
+import { AlertSettingsDialog, AlertSettingsTrigger } from './components/AlertSettings'
+import { Alert } from './lib/alertTypes'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -48,6 +51,9 @@ function App() {
   const [industryFilter, setIndustryFilter] = useState<string>('all')
   const [activeTab, setActiveTab] = useState('portfolio')
   const [chatbotOpen, setChatbotOpen] = useState(false)
+  const [alertCenterOpen, setAlertCenterOpen] = useState(false)
+  const [alertSettingsOpen, setAlertSettingsOpen] = useState(false)
+  const [alerts] = useKV<Alert[]>('alerts', [])
 
   const handleUploadComplete = async (extractedData: any) => {
     const riskScore = (
@@ -248,6 +254,8 @@ function App() {
 
   const highRiskLoans = (loans || []).filter(loan => loan.riskScore > 7).length
 
+  const activeAlertCount = (alerts || []).filter((a) => a.status === 'active').length
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
@@ -263,6 +271,11 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <AlertCenterTrigger
+                onClick={() => setAlertCenterOpen(true)}
+                alertCount={activeAlertCount}
+              />
+              <AlertSettingsTrigger onClick={() => setAlertSettingsOpen(true)} />
               <AIChatbotTrigger onClick={() => setChatbotOpen(true)} />
               <HelpCenterTrigger />
               <TutorialTrigger />
@@ -650,6 +663,10 @@ function App() {
       <FloatingHelpButton />
 
       <AIChatbot open={chatbotOpen} onClose={() => setChatbotOpen(false)} />
+
+      <AlertCenter open={alertCenterOpen} onOpenChange={setAlertCenterOpen} loans={loans || []} />
+
+      <AlertSettingsDialog open={alertSettingsOpen} onOpenChange={setAlertSettingsOpen} />
     </div>
   )
 }
