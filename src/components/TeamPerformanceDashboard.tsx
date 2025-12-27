@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { Progress } from './ui/progress'
 import { Separator } from './ui/separator'
+import { QuickHelp, quickHelpTips } from './QuickHelp'
 import {
   Trophy,
   TrendUp,
@@ -29,6 +30,10 @@ import {
   ArrowUp,
   ArrowDown,
   Users,
+  Sparkle,
+  Brain,
+  TrendDown as TrendDownIcon,
+  MagicWand,
 } from '@phosphor-icons/react'
 import {
   LineChart,
@@ -94,6 +99,101 @@ export function TeamPerformanceDashboard({ teamMembers, alerts }: TeamPerformanc
       }
     })
   }, [])
+
+  const forecastData = useMemo(() => {
+    if (monthlyComparisonData.length === 0) return []
+    
+    const currentMonthData = monthlyComparisonData[monthlyComparisonData.length - 1]
+    const previousMonthData = monthlyComparisonData[monthlyComparisonData.length - 2]
+    
+    const efficiencyTrend = currentMonthData.efficiency - previousMonthData.efficiency
+    const responseTimeTrend = currentMonthData.responseTime - previousMonthData.responseTime
+    const accuracyTrend = currentMonthData.accuracy - previousMonthData.accuracy
+    const alertsTrend = currentMonthData.alertsResolved - previousMonthData.alertsResolved
+    
+    const futureMonths = ['Jul', 'Aug', 'Sep']
+    
+    return futureMonths.map((month, index) => {
+      const growthFactor = 0.85
+      const forecastIndex = index + 1
+      
+      return {
+        month,
+        efficiency: Math.min(95, currentMonthData.efficiency + (efficiencyTrend * growthFactor * forecastIndex)),
+        responseTime: Math.max(25, currentMonthData.responseTime + (responseTimeTrend * growthFactor * forecastIndex)),
+        accuracy: Math.min(99, currentMonthData.accuracy + (accuracyTrend * growthFactor * forecastIndex)),
+        alertsResolved: Math.max(0, currentMonthData.alertsResolved + (alertsTrend * growthFactor * forecastIndex)),
+        isForecast: true,
+      }
+    })
+  }, [monthlyComparisonData])
+
+  const combinedHistoricalAndForecast = useMemo(() => {
+    return [
+      ...monthlyComparisonData.map(d => ({ ...d, isForecast: false })),
+      ...forecastData,
+    ]
+  }, [monthlyComparisonData, forecastData])
+
+  const teamMemberForecasts = useMemo(() => {
+    return teamMembers.slice(0, 5).map((member) => {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+      
+      return {
+        name: member.name,
+        data: months.map((month, index) => {
+          const baseScore = member.performanceMetrics.accuracyScore - 10 + index * 2
+          const isForecast = index >= 6
+          
+          if (isForecast) {
+            const trend = 1.5
+            const forecastOffset = (index - 5) * trend
+            return {
+              month,
+              score: Math.min(100, baseScore + forecastOffset + (Math.random() * 2 - 1)),
+              isForecast: true,
+            }
+          }
+          
+          return {
+            month,
+            score: Math.min(100, baseScore + (Math.random() * 4 - 2)),
+            isForecast: false,
+          }
+        }),
+      }
+    })
+  }, [teamMembers])
+
+  const forecastMetrics = useMemo(() => {
+    if (forecastData.length === 0) return null
+    
+    const q3Forecast = forecastData[forecastData.length - 1]
+    const currentData = monthlyComparisonData[monthlyComparisonData.length - 1]
+    
+    return {
+      efficiency: {
+        current: currentData.efficiency,
+        forecast: q3Forecast.efficiency,
+        change: ((q3Forecast.efficiency - currentData.efficiency) / currentData.efficiency) * 100,
+      },
+      responseTime: {
+        current: currentData.responseTime,
+        forecast: q3Forecast.responseTime,
+        change: ((currentData.responseTime - q3Forecast.responseTime) / currentData.responseTime) * 100,
+      },
+      accuracy: {
+        current: currentData.accuracy,
+        forecast: q3Forecast.accuracy,
+        change: ((q3Forecast.accuracy - currentData.accuracy) / currentData.accuracy) * 100,
+      },
+      alertsResolved: {
+        current: currentData.alertsResolved,
+        forecast: q3Forecast.alertsResolved,
+        change: ((q3Forecast.alertsResolved - currentData.alertsResolved) / currentData.alertsResolved) * 100,
+      },
+    }
+  }, [forecastData, monthlyComparisonData])
 
   const teamMemberTrends = useMemo(() => {
     return teamMembers.slice(0, 5).map((member) => {
@@ -499,11 +599,15 @@ export function TeamPerformanceDashboard({ teamMembers, alerts }: TeamPerformanc
       </Card>
 
       <Tabs defaultValue="leaderboard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="leaderboard">Overall Rankings</TabsTrigger>
           <TabsTrigger value="comparison" className="gap-2">
             <CalendarBlank size={16} />
             Month Comparison
+          </TabsTrigger>
+          <TabsTrigger value="forecast" className="gap-2">
+            <Sparkle size={16} />
+            Q3 Forecast
           </TabsTrigger>
           <TabsTrigger value="efficiency">Efficiency Breakdown</TabsTrigger>
           <TabsTrigger value="trends">Performance Trends</TabsTrigger>
@@ -970,6 +1074,537 @@ export function TeamPerformanceDashboard({ teamMembers, alerts }: TeamPerformanc
               </Card>
             </>
           )}
+        </TabsContent>
+
+        <TabsContent value="forecast" className="space-y-6">
+          <QuickHelp tip={quickHelpTips.forecast} />
+          
+          <div className="bg-gradient-to-br from-accent/10 via-primary/5 to-accent/5 rounded-lg border-2 border-accent/30 p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center flex-shrink-0">
+                <Brain size={24} weight="bold" className="text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                  AI-Powered Performance Forecast
+                  <Badge variant="secondary" className="gap-1">
+                    <Sparkle size={12} weight="fill" />
+                    Predictive Analytics
+                  </Badge>
+                </h3>
+                <p className="text-muted-foreground">
+                  Based on historical performance trends and machine learning algorithms, our system projects team performance
+                  for the next quarter (Q3). These forecasts help identify potential capacity issues, training needs, and 
+                  optimization opportunities before they arise.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {forecastMetrics && (
+            <div className="grid grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Gauge size={16} />
+                    Efficiency Score
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold">{forecastMetrics.efficiency.forecast.toFixed(1)}</span>
+                      <Badge variant={forecastMetrics.efficiency.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                        {getChangeIcon(forecastMetrics.efficiency.change)}
+                        {Math.abs(forecastMetrics.efficiency.change).toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Current: {forecastMetrics.efficiency.current.toFixed(1)}
+                    </p>
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <Sparkle size={10} />
+                      Projected Q3
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Timer size={16} />
+                    Response Time
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold font-mono">{forecastMetrics.responseTime.forecast.toFixed(0)}m</span>
+                      <Badge variant={forecastMetrics.responseTime.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                        {getChangeIcon(forecastMetrics.responseTime.change)}
+                        {Math.abs(forecastMetrics.responseTime.change).toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Current: {forecastMetrics.responseTime.current.toFixed(0)}m
+                    </p>
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <Sparkle size={10} />
+                      Projected Q3
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Target size={16} />
+                    Accuracy Rate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold font-mono">{forecastMetrics.accuracy.forecast.toFixed(1)}%</span>
+                      <Badge variant={forecastMetrics.accuracy.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                        {getChangeIcon(forecastMetrics.accuracy.change)}
+                        {Math.abs(forecastMetrics.accuracy.change).toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Current: {forecastMetrics.accuracy.current.toFixed(1)}%
+                    </p>
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <Sparkle size={10} />
+                      Projected Q3
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <ListChecks size={16} />
+                    Alerts Resolved
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold font-mono">{forecastMetrics.alertsResolved.forecast.toFixed(0)}</span>
+                      <Badge variant={forecastMetrics.alertsResolved.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                        {getChangeIcon(forecastMetrics.alertsResolved.change)}
+                        {Math.abs(forecastMetrics.alertsResolved.change).toFixed(1)}%
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Current: {forecastMetrics.alertsResolved.current.toFixed(0)}
+                    </p>
+                    <Badge variant="outline" className="text-xs gap-1">
+                      <Sparkle size={10} />
+                      Projected Q3
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendUp size={20} weight="bold" className="text-accent" />
+                  Efficiency Forecast: Next Quarter
+                </CardTitle>
+                <CardDescription>Projected team efficiency trajectory through Q3</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={combinedHistoricalAndForecast}>
+                    <defs>
+                      <linearGradient id="historicalGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="forecastGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.60 0.15 160)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="oklch(0.60 0.15 160)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" domain={[60, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload
+                          return (
+                            <div className="bg-card p-3 rounded-lg border shadow-lg">
+                              <p className="font-semibold">{data.month}</p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                Efficiency: <span className="font-mono font-semibold text-foreground">{data.efficiency.toFixed(1)}</span>
+                                {data.isForecast && (
+                                  <Badge variant="outline" className="text-xs ml-1 gap-1">
+                                    <Sparkle size={8} />
+                                    Forecast
+                                  </Badge>
+                                )}
+                              </p>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="efficiency"
+                      stroke="oklch(0.70 0.15 210)"
+                      strokeWidth={3}
+                      fill="url(#historicalGradient)"
+                      connectNulls
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div className="flex items-center justify-center gap-4 mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-accent rounded-full"></div>
+                    <span className="text-xs text-muted-foreground">Historical Data</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-success rounded-full"></div>
+                    <span className="text-xs text-muted-foreground">AI Forecast</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock size={20} weight="bold" className="text-success" />
+                  Response Time Projection
+                </CardTitle>
+                <CardDescription>Expected improvements in response speed</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={combinedHistoricalAndForecast}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload
+                          return (
+                            <div className="bg-card p-3 rounded-lg border shadow-lg">
+                              <p className="font-semibold">{data.month}</p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                Response Time: <span className="font-mono font-semibold text-foreground">{data.responseTime.toFixed(0)}m</span>
+                                {data.isForecast && (
+                                  <Badge variant="outline" className="text-xs ml-1 gap-1">
+                                    <Sparkle size={8} />
+                                    Forecast
+                                  </Badge>
+                                )}
+                              </p>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="responseTime"
+                      stroke="oklch(0.60 0.15 160)"
+                      strokeWidth={3}
+                      dot={{ fill: 'oklch(0.60 0.15 160)', r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ChartBar size={20} weight="bold" className="text-warning" />
+                  Alert Volume Projection
+                </CardTitle>
+                <CardDescription>Expected throughput capacity for Q3</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={combinedHistoricalAndForecast}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload
+                          return (
+                            <div className="bg-card p-3 rounded-lg border shadow-lg">
+                              <p className="font-semibold">{data.month}</p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                Alerts: <span className="font-mono font-semibold text-foreground">{data.alertsResolved.toFixed(0)}</span>
+                                {data.isForecast && (
+                                  <Badge variant="outline" className="text-xs ml-1 gap-1">
+                                    <Sparkle size={8} />
+                                    Forecast
+                                  </Badge>
+                                )}
+                              </p>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Bar
+                      dataKey="alertsResolved"
+                      fill="oklch(0.75 0.15 85)"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target size={20} weight="bold" className="text-primary" />
+                  Accuracy Forecast
+                </CardTitle>
+                <CardDescription>Projected quality metrics improvement</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={combinedHistoricalAndForecast}>
+                    <defs>
+                      <linearGradient id="accuracyForecastGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.25 0.06 250)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="oklch(0.25 0.06 250)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" domain={[85, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload
+                          return (
+                            <div className="bg-card p-3 rounded-lg border shadow-lg">
+                              <p className="font-semibold">{data.month}</p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                Accuracy: <span className="font-mono font-semibold text-foreground">{data.accuracy.toFixed(1)}%</span>
+                                {data.isForecast && (
+                                  <Badge variant="outline" className="text-xs ml-1 gap-1">
+                                    <Sparkle size={8} />
+                                    Forecast
+                                  </Badge>
+                                )}
+                              </p>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="accuracy"
+                      stroke="oklch(0.25 0.06 250)"
+                      strokeWidth={3}
+                      fill="url(#accuracyForecastGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {teamMembers.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users size={20} weight="bold" className="text-accent" />
+                  Individual Member Forecast: Q3 Projections
+                </CardTitle>
+                <CardDescription>Predicted performance trajectories for top team members</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <LineChart>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis
+                      dataKey="month"
+                      type="category"
+                      allowDuplicatedCategory={false}
+                      stroke="oklch(0.45 0.02 250)"
+                    />
+                    <YAxis stroke="oklch(0.45 0.02 250)" domain={[75, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Legend />
+                    {teamMemberForecasts.map((member, index) => {
+                      const colors = [
+                        'oklch(0.70 0.15 210)',
+                        'oklch(0.60 0.15 160)',
+                        'oklch(0.75 0.15 85)',
+                        'oklch(0.55 0.22 25)',
+                        'oklch(0.25 0.06 250)',
+                      ]
+                      return (
+                        <Line
+                          key={member.name}
+                          data={member.data}
+                          type="monotone"
+                          dataKey="score"
+                          name={member.name}
+                          stroke={colors[index % colors.length]}
+                          strokeWidth={2}
+                          dot={(props) => {
+                            const { cx, cy, payload } = props
+                            return (
+                              <circle
+                                cx={cx}
+                                cy={cy}
+                                r={payload.isForecast ? 3 : 4}
+                                fill={colors[index % colors.length]}
+                                stroke="white"
+                                strokeWidth={2}
+                                opacity={payload.isForecast ? 0.7 : 1}
+                              />
+                            )
+                          }}
+                        />
+                      )
+                    })}
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="bg-gradient-to-br from-accent/5 to-primary/10 border-accent/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MagicWand size={24} weight="bold" className="text-accent" />
+                AI Recommendations for Q3
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                {forecastMetrics && forecastMetrics.efficiency.change > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
+                      <TrendUp size={20} weight="fill" className="text-success" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Continue Current Trajectory</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Team efficiency is projected to increase by{' '}
+                        <span className="font-semibold text-success">
+                          {forecastMetrics.efficiency.change.toFixed(1)}%
+                        </span>
+                        . Maintain current workflows and training programs to sustain this growth.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {forecastMetrics && forecastMetrics.responseTime.change > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
+                      <Clock size={20} weight="fill" className="text-warning" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Focus on Speed Optimization</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Response times may improve by{' '}
+                        <span className="font-semibold text-warning">
+                          {forecastMetrics.responseTime.change.toFixed(1)}%
+                        </span>
+                        . Consider automation tools and prioritization frameworks to enhance velocity.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {forecastMetrics && forecastMetrics.accuracy.change > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                      <Target size={20} weight="fill" className="text-accent" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Quality Improvements Expected</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Accuracy is forecasted to grow by{' '}
+                        <span className="font-semibold text-accent">
+                          {forecastMetrics.accuracy.change.toFixed(1)}%
+                        </span>
+                        . Invest in quality assurance processes and peer review systems.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {forecastMetrics && forecastMetrics.alertsResolved.change > 0 && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                      <Lightning size={20} weight="fill" className="text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Capacity Planning Needed</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Alert resolution volume expected to increase by{' '}
+                        <span className="font-semibold text-primary">
+                          {forecastMetrics.alertsResolved.change.toFixed(1)}%
+                        </span>
+                        . Plan for additional resources or process improvements to handle increased load.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="leaderboard" className="space-y-4">

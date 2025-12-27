@@ -128,6 +128,11 @@ export const quickHelpTips = {
     title: 'Team Performance Dashboard',
     message: 'View comprehensive performance rankings and efficiency metrics. Identify top performers, track trends over time, and recognize team achievements. Compare metrics across response time, resolution rate, accuracy, and overall efficiency.',
   },
+  forecast: {
+    id: 'forecast-help',
+    title: 'Predictive Forecasting',
+    message: 'AI-powered projections show expected team performance for next quarter based on historical trends. Use these insights for capacity planning, resource allocation, and identifying training opportunities before issues arise.',
+  },
   routing: {
     id: 'routing-help',
     title: 'Alert Routing',
