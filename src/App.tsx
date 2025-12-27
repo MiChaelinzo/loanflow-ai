@@ -11,11 +11,16 @@ import { Separator } from './components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
 import { LoanCard } from './components/LoanCard'
 import { DocumentUploadDialog } from './components/DocumentUploadDialog'
+import { BatchUploadDialog } from './components/BatchUploadDialog'
 import { LoanDetailDialog } from './components/LoanDetailDialog'
+import { WelcomeDashboard } from './components/WelcomeDashboard'
 import { TradingHub } from './components/TradingHub'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import { ComplianceChecker } from './components/ComplianceChecker'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle } from '@phosphor-icons/react'
+import { StressTestDashboard } from './components/StressTestDashboard'
+import { MarketIntelligence } from './components/MarketIntelligence'
+import { ExportDialog } from './components/ExportDialog'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -27,7 +32,9 @@ function App() {
   const [loans, setLoans] = useKV<Loan[]>('loans', [])
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
+  const [batchUploadDialogOpen, setBatchUploadDialogOpen] = useState(false)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [riskFilter, setRiskFilter] = useState<string>('all')
@@ -199,39 +206,7 @@ function App() {
   }
 
   const handleExportPortfolio = () => {
-    const data = {
-      exportDate: new Date().toISOString(),
-      totalLoans: (loans || []).length,
-      totalExposure: totalExposure,
-      averageRiskScore: averageRisk,
-      loans: (loans || []).map(loan => ({
-        id: loan.id,
-        borrowerName: loan.borrowerName,
-        amount: loan.amount,
-        currency: loan.currency,
-        interestRate: loan.interestRate,
-        maturityDate: loan.maturityDate,
-        riskScore: loan.riskScore,
-        riskLevel: loan.riskLevel,
-        status: loan.status,
-        industry: loan.industry,
-        esgRating: loan.esgScore.overall,
-      })),
-    }
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `loanflow-portfolio-${new Date().toISOString().split('T')[0]}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-
-    toast.success('Portfolio exported', {
-      description: 'Download started successfully',
-    })
+    setExportDialogOpen(true)
   }
 
   const uniqueCurrencies = [...new Set((loans || []).map(loan => loan.currency))].sort()
@@ -291,6 +266,10 @@ function App() {
                 <Download size={20} />
                 Export
               </Button>
+              <Button variant="outline" size="default" onClick={() => setBatchUploadDialogOpen(true)} className="gap-2">
+                <Stack size={20} />
+                Batch Upload
+              </Button>
               <Button size="lg" onClick={() => setUploadDialogOpen(true)} className="gap-2">
                 <UploadSimple size={20} />
                 Upload Document
@@ -301,8 +280,14 @@ function App() {
       </header>
 
       <main className="container mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+        {(loans || []).length === 0 ? (
+          <WelcomeDashboard 
+            onLoadDemo={handleLoadSampleData}
+            onUpload={() => setUploadDialogOpen(true)}
+          />
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -314,6 +299,14 @@ function App() {
             <TabsTrigger value="analytics" className="gap-2">
               <ChartLine size={18} />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="stress-test" className="gap-2">
+              <Lightning size={18} />
+              Stress Test
+            </TabsTrigger>
+            <TabsTrigger value="market" className="gap-2">
+              <Globe size={18} />
+              Market
             </TabsTrigger>
             <TabsTrigger value="compliance" className="gap-2">
               <ShieldCheck size={18} />
@@ -514,6 +507,14 @@ function App() {
             <AnalyticsDashboard loans={loans || []} />
           </TabsContent>
 
+          <TabsContent value="stress-test">
+            <StressTestDashboard loans={loans || []} />
+          </TabsContent>
+
+          <TabsContent value="market">
+            <MarketIntelligence loans={loans || []} />
+          </TabsContent>
+
           <TabsContent value="compliance">
             <ComplianceChecker loans={loans || []} />
           </TabsContent>
@@ -595,6 +596,7 @@ function App() {
             </div>
           </TabsContent>
         </Tabs>
+        )}
       </main>
 
       <DocumentUploadDialog
@@ -603,10 +605,22 @@ function App() {
         onUploadComplete={handleUploadComplete}
       />
 
+      <BatchUploadDialog
+        open={batchUploadDialogOpen}
+        onOpenChange={setBatchUploadDialogOpen}
+        onUploadComplete={handleUploadComplete}
+      />
+
       <LoanDetailDialog
         loan={selectedLoan}
         open={detailDialogOpen}
         onOpenChange={setDetailDialogOpen}
+      />
+
+      <ExportDialog
+        open={exportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        loans={loans || []}
       />
     </div>
   )
