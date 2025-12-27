@@ -24,7 +24,31 @@ import {
   Gauge,
   ListChecks,
   Timer,
+  CalendarBlank,
+  TrendDown,
+  ArrowUp,
+  ArrowDown,
+  Users,
 } from '@phosphor-icons/react'
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+} from 'recharts'
 
 interface TeamPerformanceDashboardProps {
   teamMembers: TeamMember[]
@@ -51,6 +75,135 @@ interface PerformanceMetrics {
 export function TeamPerformanceDashboard({ teamMembers, alerts }: TeamPerformanceDashboardProps) {
   const [timeRange, setTimeRange] = useState<string>('30d')
   const [sortBy, setSortBy] = useState<string>('overall')
+
+  const monthlyComparisonData = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    
+    return months.map((month, index) => {
+      const baseEfficiency = 70 + index * 3
+      const baseResponseTime = 50 - index * 2
+      const baseAccuracy = 88 + index * 1.5
+      const baseResolution = 150 + index * 15
+      
+      return {
+        month,
+        efficiency: baseEfficiency + (Math.random() * 6 - 3),
+        responseTime: baseResponseTime + (Math.random() * 4 - 2),
+        accuracy: baseAccuracy + (Math.random() * 2 - 1),
+        alertsResolved: baseResolution + (Math.random() * 20 - 10),
+      }
+    })
+  }, [])
+
+  const teamMemberTrends = useMemo(() => {
+    return teamMembers.slice(0, 5).map((member) => {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+      
+      return {
+        name: member.name,
+        data: months.map((month, index) => {
+          const baseScore = member.performanceMetrics.accuracyScore - 10 + index * 2
+          return {
+            month,
+            score: Math.min(100, baseScore + (Math.random() * 4 - 2)),
+          }
+        }),
+      }
+    })
+  }, [teamMembers])
+
+  const departmentComparison = useMemo(() => {
+    const departments = [...new Set(teamMembers.map((m) => m.department))]
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    
+    return months.map((month, monthIndex) => {
+      const data: any = { month }
+      departments.forEach((dept) => {
+        const membersInDept = teamMembers.filter((m) => m.department === dept)
+        const avgEfficiency = membersInDept.reduce((sum, m) => {
+          return sum + m.performanceMetrics.accuracyScore
+        }, 0) / membersInDept.length
+        
+        data[dept] = avgEfficiency - 10 + monthIndex * 2 + (Math.random() * 4 - 2)
+      })
+      return data
+    })
+  }, [teamMembers])
+
+  const metricImprovements = useMemo(() => {
+    const currentMonth = monthlyComparisonData[monthlyComparisonData.length - 1]
+    const previousMonth = monthlyComparisonData[monthlyComparisonData.length - 2]
+    
+    return {
+      efficiency: {
+        current: currentMonth.efficiency,
+        previous: previousMonth.efficiency,
+        change: ((currentMonth.efficiency - previousMonth.efficiency) / previousMonth.efficiency) * 100,
+      },
+      responseTime: {
+        current: currentMonth.responseTime,
+        previous: previousMonth.responseTime,
+        change: ((previousMonth.responseTime - currentMonth.responseTime) / previousMonth.responseTime) * 100,
+      },
+      accuracy: {
+        current: currentMonth.accuracy,
+        previous: previousMonth.accuracy,
+        change: ((currentMonth.accuracy - previousMonth.accuracy) / previousMonth.accuracy) * 100,
+      },
+      alertsResolved: {
+        current: currentMonth.alertsResolved,
+        previous: previousMonth.alertsResolved,
+        change: ((currentMonth.alertsResolved - previousMonth.alertsResolved) / previousMonth.alertsResolved) * 100,
+      },
+    }
+  }, [monthlyComparisonData])
+
+  const radarData = useMemo(() => {
+    if (teamMembers.length === 0) return []
+    
+    const currentMonth = monthlyComparisonData[monthlyComparisonData.length - 1]
+    const previousMonth = monthlyComparisonData[monthlyComparisonData.length - 2]
+    
+    return [
+      {
+        metric: 'Efficiency',
+        current: currentMonth.efficiency,
+        previous: previousMonth.efficiency,
+      },
+      {
+        metric: 'Accuracy',
+        current: currentMonth.accuracy,
+        previous: previousMonth.accuracy,
+      },
+      {
+        metric: 'Speed',
+        current: 100 - currentMonth.responseTime,
+        previous: 100 - previousMonth.responseTime,
+      },
+      {
+        metric: 'Volume',
+        current: (currentMonth.alertsResolved / 200) * 100,
+        previous: (previousMonth.alertsResolved / 200) * 100,
+      },
+      {
+        metric: 'Quality',
+        current: currentMonth.accuracy,
+        previous: previousMonth.accuracy,
+      },
+    ]
+  }, [monthlyComparisonData, teamMembers])
+
+  const getChangeColor = (change: number) => {
+    if (change > 0) return 'text-success'
+    if (change < 0) return 'text-destructive'
+    return 'text-muted-foreground'
+  }
+
+  const getChangeIcon = (change: number) => {
+    if (change > 0) return <ArrowUp size={16} weight="bold" />
+    if (change < 0) return <ArrowDown size={16} weight="bold" />
+    return <span>—</span>
+  }
 
   const performanceMetrics = useMemo(() => {
     const metrics: PerformanceMetrics[] = teamMembers.map((member) => {
@@ -346,12 +499,478 @@ export function TeamPerformanceDashboard({ teamMembers, alerts }: TeamPerformanc
       </Card>
 
       <Tabs defaultValue="leaderboard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="leaderboard">Overall Rankings</TabsTrigger>
+          <TabsTrigger value="comparison" className="gap-2">
+            <CalendarBlank size={16} />
+            Month Comparison
+          </TabsTrigger>
           <TabsTrigger value="efficiency">Efficiency Breakdown</TabsTrigger>
           <TabsTrigger value="trends">Performance Trends</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="comparison" className="space-y-6">
+          <div className="grid grid-cols-4 gap-4">
+            <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Gauge size={16} />
+                  Efficiency Score
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold">{metricImprovements.efficiency.current.toFixed(1)}</span>
+                    <Badge variant={metricImprovements.efficiency.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                      {getChangeIcon(metricImprovements.efficiency.change)}
+                      {Math.abs(metricImprovements.efficiency.change).toFixed(1)}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Previous: {metricImprovements.efficiency.previous.toFixed(1)}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-success/10 to-success/5 border-success/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Timer size={16} />
+                  Response Time
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold font-mono">{metricImprovements.responseTime.current.toFixed(0)}m</span>
+                    <Badge variant={metricImprovements.responseTime.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                      {getChangeIcon(metricImprovements.responseTime.change)}
+                      {Math.abs(metricImprovements.responseTime.change).toFixed(1)}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Previous: {metricImprovements.responseTime.previous.toFixed(0)}m
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-warning/10 to-warning/5 border-warning/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Target size={16} />
+                  Accuracy Rate
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold font-mono">{metricImprovements.accuracy.current.toFixed(1)}%</span>
+                    <Badge variant={metricImprovements.accuracy.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                      {getChangeIcon(metricImprovements.accuracy.change)}
+                      {Math.abs(metricImprovements.accuracy.change).toFixed(1)}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Previous: {metricImprovements.accuracy.previous.toFixed(1)}%
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <ListChecks size={16} />
+                  Alerts Resolved
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold font-mono">{metricImprovements.alertsResolved.current.toFixed(0)}</span>
+                    <Badge variant={metricImprovements.alertsResolved.change > 0 ? 'default' : 'secondary'} className="gap-1">
+                      {getChangeIcon(metricImprovements.alertsResolved.change)}
+                      {Math.abs(metricImprovements.alertsResolved.change).toFixed(1)}%
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Previous: {metricImprovements.alertsResolved.previous.toFixed(0)}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendUp size={20} weight="bold" className="text-accent" />
+                  Team Efficiency Trend
+                </CardTitle>
+                <CardDescription>6-month performance trajectory showing continuous improvement</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={monthlyComparisonData}>
+                    <defs>
+                      <linearGradient id="efficiencyGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="efficiency"
+                      stroke="oklch(0.70 0.15 210)"
+                      strokeWidth={3}
+                      fill="url(#efficiencyGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock size={20} weight="bold" className="text-success" />
+                  Response Time Evolution
+                </CardTitle>
+                <CardDescription>Lower is better - tracking speed improvements</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={monthlyComparisonData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="responseTime"
+                      stroke="oklch(0.60 0.15 160)"
+                      strokeWidth={3}
+                      dot={{ fill: 'oklch(0.60 0.15 160)', r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ChartBar size={20} weight="bold" className="text-warning" />
+                  Alerts Resolved Per Month
+                </CardTitle>
+                <CardDescription>Volume capacity and throughput growth</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyComparisonData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Bar dataKey="alertsResolved" fill="oklch(0.75 0.15 85)" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target size={20} weight="bold" className="text-primary" />
+                  Accuracy Improvement
+                </CardTitle>
+                <CardDescription>Quality and precision metrics over time</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={monthlyComparisonData}>
+                    <defs>
+                      <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="oklch(0.25 0.06 250)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="oklch(0.25 0.06 250)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                    <YAxis stroke="oklch(0.45 0.02 250)" domain={[80, 100]} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'oklch(1 0 0)',
+                        border: '1px solid oklch(0.88 0.005 250)',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="accuracy"
+                      stroke="oklch(0.25 0.06 250)"
+                      strokeWidth={3}
+                      fill="url(#accuracyGradient)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {teamMembers.length > 0 && (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users size={20} weight="bold" className="text-accent" />
+                    Individual Member Performance Comparison
+                  </CardTitle>
+                  <CardDescription>Track top performers across months</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <LineChart>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                      <XAxis
+                        dataKey="month"
+                        type="category"
+                        allowDuplicatedCategory={false}
+                        stroke="oklch(0.45 0.02 250)"
+                      />
+                      <YAxis stroke="oklch(0.45 0.02 250)" domain={[70, 100]} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'oklch(1 0 0)',
+                          border: '1px solid oklch(0.88 0.005 250)',
+                          borderRadius: '8px',
+                        }}
+                      />
+                      <Legend />
+                      {teamMemberTrends.map((member, index) => {
+                        const colors = [
+                          'oklch(0.70 0.15 210)',
+                          'oklch(0.60 0.15 160)',
+                          'oklch(0.75 0.15 85)',
+                          'oklch(0.55 0.22 25)',
+                          'oklch(0.25 0.06 250)',
+                        ]
+                        return (
+                          <Line
+                            key={member.name}
+                            data={member.data}
+                            type="monotone"
+                            dataKey="score"
+                            name={member.name}
+                            stroke={colors[index % colors.length]}
+                            strokeWidth={2}
+                            dot={{ r: 4 }}
+                          />
+                        )
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Lightning size={20} weight="bold" className="text-warning" />
+                      Department Performance Comparison
+                    </CardTitle>
+                    <CardDescription>Cross-department efficiency benchmarking</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={departmentComparison}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                        <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                        <YAxis stroke="oklch(0.45 0.02 250)" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'oklch(1 0 0)',
+                            border: '1px solid oklch(0.88 0.005 250)',
+                            borderRadius: '8px',
+                          }}
+                        />
+                        <Legend />
+                        {Object.keys(departmentComparison[0] || {})
+                          .filter((key) => key !== 'month')
+                          .map((dept, index) => {
+                            const colors = [
+                              'oklch(0.70 0.15 210)',
+                              'oklch(0.60 0.15 160)',
+                              'oklch(0.75 0.15 85)',
+                              'oklch(0.55 0.22 25)',
+                            ]
+                            return (
+                              <Bar
+                                key={dept}
+                                dataKey={dept}
+                                fill={colors[index % colors.length]}
+                                radius={[4, 4, 0, 0]}
+                              />
+                            )
+                          })}
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Gauge size={20} weight="bold" className="text-accent" />
+                      Performance Radar: Month-over-Month
+                    </CardTitle>
+                    <CardDescription>Holistic view of metric improvements</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <RadarChart data={radarData}>
+                        <PolarGrid stroke="oklch(0.88 0.005 250)" />
+                        <PolarAngleAxis dataKey="metric" stroke="oklch(0.45 0.02 250)" />
+                        <PolarRadiusAxis angle={90} domain={[0, 100]} stroke="oklch(0.45 0.02 250)" />
+                        <Radar
+                          name="Current Month"
+                          dataKey="current"
+                          stroke="oklch(0.70 0.15 210)"
+                          fill="oklch(0.70 0.15 210)"
+                          fillOpacity={0.3}
+                          strokeWidth={2}
+                        />
+                        <Radar
+                          name="Previous Month"
+                          dataKey="previous"
+                          stroke="oklch(0.45 0.02 250)"
+                          fill="oklch(0.45 0.02 250)"
+                          fillOpacity={0.1}
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                        />
+                        <Legend />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'oklch(1 0 0)',
+                            border: '1px solid oklch(0.88 0.005 250)',
+                            borderRadius: '8px',
+                          }}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="bg-gradient-to-br from-success/5 to-success/10 border-success/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendUp size={24} weight="bold" className="text-success" />
+                    Key Insights & Improvements
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle size={20} weight="fill" className="text-success" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Response Time Decreased</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Team response time improved by{' '}
+                          <span className="font-semibold text-success">
+                            {Math.abs(metricImprovements.responseTime.change).toFixed(1)}%
+                          </span>{' '}
+                          this month, reaching an average of {metricImprovements.responseTime.current.toFixed(0)} minutes
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+                        <Target size={20} weight="fill" className="text-accent" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Accuracy Gains</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Team accuracy rate increased{' '}
+                          <span className="font-semibold text-accent">
+                            {Math.abs(metricImprovements.accuracy.change).toFixed(1)}%
+                          </span>
+                          , demonstrating improved quality control and precision
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0">
+                        <Lightning size={20} weight="fill" className="text-warning" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Volume Increase</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Team resolved{' '}
+                          <span className="font-semibold text-warning">
+                            {Math.abs(metricImprovements.alertsResolved.change).toFixed(1)}%
+                          </span>{' '}
+                          more alerts, showing increased capacity and productivity
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Trophy size={20} weight="fill" className="text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-1">Overall Efficiency Up</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Composite efficiency score rose by{' '}
+                          <span className="font-semibold text-primary">
+                            {Math.abs(metricImprovements.efficiency.change).toFixed(1)}%
+                          </span>
+                          , reflecting comprehensive team performance improvements
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
 
         <TabsContent value="leaderboard" className="space-y-4">
           <Card>
