@@ -143,4 +143,9 @@ export const quickHelpTips = {
     title: 'Loan Assignments',
     message: 'Assign loans to team members with specific roles (primary, secondary, reviewer). Track assignment coverage and team workload to ensure balanced distribution across your organization.',
   },
+  q3forecast: {
+    id: 'q3forecast-help',
+    title: 'Q3 Forecast Export',
+    message: 'Generate comprehensive Q3 performance projections for board presentations and stakeholder reports. Export to PDF for formatted presentations or Excel for detailed analysis. Includes portfolio growth, risk metrics, team performance, and market intelligence forecasts.',
+  },
 }

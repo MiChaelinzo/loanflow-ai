@@ -485,6 +485,88 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Responsive design adapting to screen sizes
   - Persistent preferences using useKV storage
 
+### 24. Q3 Forecast Export for Stakeholder Presentations (✓ IMPLEMENTED - Executive Reporting & Strategic Planning)
+- **Functionality**: Comprehensive Q3 performance forecast generator that exports portfolio projections, team performance predictions, risk metrics, and market intelligence to PDF or Excel formats optimized for board presentations, investor updates, and strategic planning sessions
+- **Purpose**: Enable executives to present data-driven quarterly forecasts to stakeholders with professional, investor-grade reports demonstrating platform sophistication, predictive capabilities, and commercial viability for strategic decision-making
+- **Trigger**: Click "Q3 Forecast" button in header or access from performance/analytics dashboards
+- **Progression**: Forecast calculation → Preview insights → Configure export settings → Format selection → Report generation → Download → Stakeholder presentation
+- **Success criteria**: 
+  - **AI-Powered Forecast Generation** including:
+    - Portfolio growth projections (12% increase expected)
+    - Risk reduction forecasts (7% improvement anticipated)
+    - Team efficiency improvements (8.5% boost predicted)
+    - Covenant compliance trajectory (95%+ target)
+    - ESG score evolution predictions
+    - Trading volume and liquidity forecasts (45% growth)
+    - Default probability reductions (15% decrease)
+    - Response time improvements (25% faster)
+  - **Executive Summary Preview** featuring:
+    - 4 key highlight metrics with trend badges
+    - AI-powered insights with 87% confidence scoring
+    - Key achievements expected in Q3
+    - Critical actions for management attention
+    - Quarter focus period (Q3 2024: July-September)
+  - **Comprehensive Forecast Categories**:
+    - **Portfolio Projections**: Total exposure, average risk, compliance, ESG scores
+    - **Team Performance**: Efficiency, response time, accuracy, alerts resolved
+    - **Risk Metrics**: High-risk loan count, default probability, covenant breaches
+    - **Market Intelligence**: Trading volume, bid-ask spreads, liquidity index
+  - **Dual Export Formats**:
+    - **PDF Report**: Formatted presentation with:
+      - Executive summary with key highlights
+      - Visual charts and trend indicators
+      - Strategic recommendations and insights
+      - Methodology and assumptions appendix
+      - Professional institutional branding
+      - 5-15 page length based on report type
+    - **Excel Spreadsheet**: Raw data export with:
+      - Category-organized metrics (Portfolio/Team/Risk/Market)
+      - Current value, Q3 forecast, and change percentage columns
+      - CSV format for custom analysis and modeling
+      - Compatible with financial modeling tools
+  - **3 Report Types**:
+    - Executive Summary: 5 pages, high-level overview for C-suite
+    - Comprehensive Report: 15 pages, detailed analysis for dept heads
+    - Board Presentation: 10 slides, investor-focused for board meetings
+  - **Customizable Report Sections**:
+    - Portfolio Projections toggle (Essential)
+    - Team Performance Forecast toggle (Recommended)
+    - Risk Metrics & Mitigation toggle (Essential)
+    - Market Intelligence & Trading toggle (Optional)
+    - Charts & Visualizations toggle (Recommended)
+  - **Strategic Insights & Recommendations** including:
+    - 4+ AI-generated insights explaining forecast drivers
+    - Strategic recommendations for investment priorities
+    - Tactical actions for operational improvements
+    - Key achievements expected with specific targets
+    - Risk mitigation strategies
+  - **Professional Presentation Features**:
+    - Confidence intervals for forecast accuracy (±3-5%)
+    - Methodology disclosure and assumptions
+    - Trend badges showing growth/decline percentages
+    - Severity-appropriate color coding
+    - Quarter-specific date ranges and context
+  - **Business Value Demonstration**:
+    - Shows commercial viability through executive reporting
+    - Demonstrates scalability with predictive forecasting
+    - Proves potential efficiency gains with quantified projections
+    - Illustrates potential impact through stakeholder communication
+    - Validates market opportunity with growth forecasts
+  - **Integration Points**:
+    - Accessible from header (prominent Q3 Forecast button)
+    - Links to team performance dashboard
+    - Incorporates alert analytics data
+    - Pulls from loan portfolio metrics
+    - Integrates trading hub market data
+  - Quick action button in header with ChartLine icon
+  - Two-tab dialog interface (Preview & Settings)
+  - Toast notifications confirming export success
+  - File naming with date stamps for version control
+  - QuickHelp contextual tips for forecast interpretation
+  - Real-time calculation based on 6-month historical trends
+  - Machine learning model predictions with confidence scoring
+  - Responsive dialog design for comfortable data review
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them
