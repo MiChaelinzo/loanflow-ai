@@ -125,6 +125,23 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Floating help button accessible from anywhere
   - Video duration indicators and thumbnail previews
 
+### 16. AI-Powered Chatbot (✓ IMPLEMENTED - Real-Time Help)
+- **Functionality**: Interactive AI assistant using GPT-4o-mini for real-time help and question answering about platform features
+- **Purpose**: Provide instant, contextual assistance and reduce friction in learning complex platform capabilities
+- **Trigger**: Click "AI Chat" button in header or floating help menu
+- **Progression**: Chatbot opens → User asks question or selects quick action → AI processes with platform context → Response with step-by-step guidance → Follow-up questions → Chat history persists
+- **Success criteria**: 
+  - Real-time AI responses using GPT-4o-mini with comprehensive platform context
+  - Quick action prompts for common questions (upload, risk scoring, LMA compliance, trading)
+  - Persistent chat history using useKV
+  - Copy message functionality for assistant responses
+  - Clear conversation with reset option
+  - Message timestamps and role indicators
+  - Typing indicators during AI processing
+  - Error handling with fallback messages
+  - Professional chat UI with gradient branding
+  - Accessible from header and floating help button
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

@@ -24,6 +24,7 @@ import { TutorialWalkthrough, TutorialTrigger } from './components/TutorialWalkt
 import { HelpCenterTrigger } from './components/HelpCenter'
 import { QuickHelp, quickHelpTips } from './components/QuickHelp'
 import { FloatingHelpButton } from './components/FloatingHelpButton'
+import { AIChatbot, AIChatbotTrigger } from './components/AIChatbot'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -45,6 +46,7 @@ function App() {
   const [currencyFilter, setCurrencyFilter] = useState<string>('all')
   const [industryFilter, setIndustryFilter] = useState<string>('all')
   const [activeTab, setActiveTab] = useState('portfolio')
+  const [chatbotOpen, setChatbotOpen] = useState(false)
 
   const handleUploadComplete = async (extractedData: any) => {
     const riskScore = (
@@ -260,6 +262,7 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <AIChatbotTrigger onClick={() => setChatbotOpen(true)} />
               <HelpCenterTrigger />
               <TutorialTrigger />
               {(loans || []).length === 0 && (
@@ -640,6 +643,8 @@ function App() {
       <TutorialWalkthrough />
       
       <FloatingHelpButton />
+
+      <AIChatbot open={chatbotOpen} onClose={() => setChatbotOpen(false)} />
     </div>
   )
 }

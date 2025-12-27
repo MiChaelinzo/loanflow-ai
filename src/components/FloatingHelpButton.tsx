@@ -2,14 +2,25 @@ import { useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import { Question, BookOpen, VideoCamera, Sparkle, Lightbulb } from '@phosphor-icons/react'
+import { Question, BookOpen, VideoCamera, Sparkle, Lightbulb, Robot } from '@phosphor-icons/react'
 import { HelpCenter } from './HelpCenter'
+import { AIChatbot } from './AIChatbot'
 
 export function FloatingHelpButton() {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false)
+  const [chatbotOpen, setChatbotOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
 
   const quickLinks = [
+    {
+      title: 'AI Assistant',
+      description: 'Chat with AI for instant help',
+      icon: Robot,
+      action: () => {
+        setPopoverOpen(false)
+        setChatbotOpen(true)
+      },
+    },
     {
       title: 'Help Center',
       description: 'Browse all FAQs and tutorials',
@@ -81,6 +92,7 @@ export function FloatingHelpButton() {
       </Popover>
 
       <HelpCenter open={helpCenterOpen} onOpenChange={setHelpCenterOpen} />
+      <AIChatbot open={chatbotOpen} onClose={() => setChatbotOpen(false)} />
     </>
   )
 }
