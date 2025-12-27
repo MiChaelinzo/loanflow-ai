@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Loan, PredictiveAnalytics, LMACompliance, TradeListing, TradeBid } from './lib/types'
+import { TeamMember } from './lib/teamTypes'
 import { sampleLoans } from './lib/sampleLoans'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
@@ -33,8 +34,9 @@ import { AlertAnalytics, AlertAnalyticsTrigger } from './components/AlertAnalyti
 import { TeamManagement } from './components/TeamManagement'
 import { AlertRouting } from './components/AlertRouting'
 import { LoanAssignments } from './components/LoanAssignments'
+import { TeamPerformanceDashboard } from './components/TeamPerformanceDashboard'
 import { Alert } from './lib/alertTypes'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -44,6 +46,7 @@ declare const spark: {
 
 function App() {
   const [loans, setLoans] = useKV<Loan[]>('loans', [])
+  const [teamMembers] = useKV<TeamMember[]>('team-members', [])
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [batchUploadDialogOpen, setBatchUploadDialogOpen] = useState(false)
@@ -317,7 +320,7 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-11">
+          <TabsList className="grid w-full grid-cols-12">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -353,6 +356,10 @@ function App() {
             <TabsTrigger value="team" className="gap-2" data-tutorial="team-tab">
               <Users size={18} />
               Team
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="gap-2" data-tutorial="performance-tab">
+              <Trophy size={18} />
+              Performance
             </TabsTrigger>
             <TabsTrigger value="routing" className="gap-2" data-tutorial="routing-tab">
               <GitBranch size={18} />
@@ -662,6 +669,14 @@ function App() {
           <TabsContent value="team">
             <QuickHelp tip={quickHelpTips.team} />
             <TeamManagement />
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <QuickHelp tip={quickHelpTips.performance} />
+            <TeamPerformanceDashboard 
+              teamMembers={teamMembers || []}
+              alerts={alerts || []}
+            />
           </TabsContent>
 
           <TabsContent value="routing">

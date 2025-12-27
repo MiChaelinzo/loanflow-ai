@@ -17,7 +17,9 @@ import {
   Lightning,
   Globe,
   Check,
-  Sparkle
+  Sparkle,
+  Users,
+  Trophy
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
@@ -111,6 +113,24 @@ const tutorialSteps: TutorialStep[] = [
     targetElement: '[data-tutorial="esg-tab"]',
     position: 'bottom',
     highlightColor: 'success'
+  },
+  {
+    id: 'team',
+    title: 'Team Management',
+    description: 'Manage team members, assign roles, and monitor workload distribution. Track individual performance metrics and ensure balanced assignments.',
+    icon: Users,
+    targetElement: '[data-tutorial="team-tab"]',
+    position: 'bottom',
+    highlightColor: 'accent'
+  },
+  {
+    id: 'performance',
+    title: 'Performance Dashboard',
+    description: 'View team efficiency rankings, identify top performers, and track performance trends. Monitor response times, accuracy scores, and achievements.',
+    icon: Trophy,
+    targetElement: '[data-tutorial="performance-tab"]',
+    position: 'bottom',
+    highlightColor: 'warning'
   },
   {
     id: 'complete',

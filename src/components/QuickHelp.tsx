@@ -123,6 +123,11 @@ export const quickHelpTips = {
     title: 'Team Management',
     message: 'Manage team members, assign roles, and monitor workload distribution. Track individual performance metrics including response times, accuracy scores, and loans managed.',
   },
+  performance: {
+    id: 'performance-help',
+    title: 'Team Performance Dashboard',
+    message: 'View comprehensive performance rankings and efficiency metrics. Identify top performers, track trends over time, and recognize team achievements. Compare metrics across response time, resolution rate, accuracy, and overall efficiency.',
+  },
   routing: {
     id: 'routing-help',
     title: 'Alert Routing',
