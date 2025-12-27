@@ -20,6 +20,7 @@ import { ComplianceChecker } from './components/ComplianceChecker'
 import { StressTestDashboard } from './components/StressTestDashboard'
 import { MarketIntelligence } from './components/MarketIntelligence'
 import { ExportDialog } from './components/ExportDialog'
+import { TutorialWalkthrough, TutorialTrigger } from './components/TutorialWalkthrough'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -256,6 +257,7 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <TutorialTrigger />
               {(loans || []).length === 0 && (
                 <Button variant="secondary" size="default" onClick={handleLoadSampleData} className="gap-2">
                   <Sparkle size={20} />
@@ -270,7 +272,7 @@ function App() {
                 <Stack size={20} />
                 Batch Upload
               </Button>
-              <Button size="lg" onClick={() => setUploadDialogOpen(true)} className="gap-2">
+              <Button size="lg" onClick={() => setUploadDialogOpen(true)} className="gap-2" data-tutorial="upload-button">
                 <UploadSimple size={20} />
                 Upload Document
               </Button>
@@ -292,34 +294,34 @@ function App() {
               <FileText size={18} />
               Portfolio
             </TabsTrigger>
-            <TabsTrigger value="trading" className="gap-2">
+            <TabsTrigger value="trading" className="gap-2" data-tutorial="trading-tab">
               <Handshake size={18} />
               Trading
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2">
+            <TabsTrigger value="analytics" className="gap-2" data-tutorial="analytics-tab">
               <ChartLine size={18} />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="stress-test" className="gap-2">
+            <TabsTrigger value="stress-test" className="gap-2" data-tutorial="stress-test-tab">
               <Lightning size={18} />
               Stress Test
             </TabsTrigger>
-            <TabsTrigger value="market" className="gap-2">
+            <TabsTrigger value="market" className="gap-2" data-tutorial="market-tab">
               <Globe size={18} />
               Market
             </TabsTrigger>
-            <TabsTrigger value="compliance" className="gap-2">
+            <TabsTrigger value="compliance" className="gap-2" data-tutorial="compliance-tab">
               <ShieldCheck size={18} />
               Compliance
             </TabsTrigger>
-            <TabsTrigger value="esg" className="gap-2">
+            <TabsTrigger value="esg" className="gap-2" data-tutorial="esg-tab">
               <Leaf size={18} />
               ESG
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="portfolio" className="space-y-8">
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid grid-cols-4 gap-6" data-tutorial="portfolio-metrics">
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium text-muted-foreground">Total Exposure</CardTitle>
@@ -622,6 +624,8 @@ function App() {
         onOpenChange={setExportDialogOpen}
         loans={loans || []}
       />
+
+      <TutorialWalkthrough />
     </div>
   )
 }

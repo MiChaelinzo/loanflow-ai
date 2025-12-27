@@ -103,6 +103,13 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
 - **Progression**: Value proposition display → Feature overview → Quick action buttons → First loan creation
 - **Success criteria**: Clear calls-to-action, platform benefits highlighted, smooth onboarding flow
 
+### 14. Animated Tutorial Walkthrough (✓ IMPLEMENTED - First-Time User Experience)
+- **Functionality**: Interactive step-by-step tutorial with spotlight highlights, progress tracking, and contextual tooltips
+- **Purpose**: Onboard first-time users and showcase all platform features with guided experience
+- **Trigger**: Automatically appears on first visit; can be restarted from help button
+- **Progression**: Welcome screen → Upload tutorial → Portfolio metrics → Analytics → Trading → Compliance → Stress Testing → Market Intelligence → ESG → Completion
+- **Success criteria**: 10 guided steps with smooth animations, element highlighting, skip/back/next controls, progress bar, persists completion state
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them
