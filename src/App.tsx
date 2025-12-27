@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Loan, PredictiveAnalytics, LMACompliance, TradeListing, TradeBid } from './lib/types'
+import { sampleLoans } from './lib/sampleLoans'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select'
@@ -14,7 +15,7 @@ import { LoanDetailDialog } from './components/LoanDetailDialog'
 import { TradingHub } from './components/TradingHub'
 import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import { ComplianceChecker } from './components/ComplianceChecker'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -188,6 +189,13 @@ function App() {
     )
   }
 
+  const handleLoadSampleData = () => {
+    setLoans(sampleLoans)
+    toast.success('Sample loans loaded successfully', {
+      description: `${sampleLoans.length} demo loan documents added to portfolio`,
+    })
+  }
+
   const handleExportPortfolio = () => {
     const data = {
       exportDate: new Date().toISOString(),
@@ -266,6 +274,12 @@ function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {(loans || []).length === 0 && (
+                <Button variant="secondary" size="default" onClick={handleLoadSampleData} className="gap-2">
+                  <Sparkle size={20} />
+                  Load Demo Data
+                </Button>
+              )}
               <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
                 <Download size={20} />
                 Export
@@ -424,11 +438,17 @@ function App() {
                       <Brain size={32} className="text-muted-foreground" />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">No loans yet</h3>
-                    <p className="text-muted-foreground mb-6">Upload your first loan document to get started with AI-powered analysis</p>
-                    <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
-                      <UploadSimple size={20} />
-                      Upload Document
-                    </Button>
+                    <p className="text-muted-foreground mb-6">Upload your first loan document or load sample data to explore the platform</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <Button onClick={handleLoadSampleData} variant="secondary" className="gap-2">
+                        <Sparkle size={20} />
+                        Load Demo Data
+                      </Button>
+                      <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
+                        <UploadSimple size={20} />
+                        Upload Document
+                      </Button>
+                    </div>
                   </div>
                 )}
 
