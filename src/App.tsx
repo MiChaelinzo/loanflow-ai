@@ -31,6 +31,8 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [riskFilter, setRiskFilter] = useState<string>('all')
+  const [currencyFilter, setCurrencyFilter] = useState<string>('all')
+  const [industryFilter, setIndustryFilter] = useState<string>('all')
   const [activeTab, setActiveTab] = useState('portfolio')
 
   const handleUploadComplete = async (extractedData: any) => {
@@ -232,12 +234,17 @@ function App() {
     })
   }
 
+  const uniqueCurrencies = [...new Set((loans || []).map(loan => loan.currency))].sort()
+  const uniqueIndustries = [...new Set((loans || []).map(loan => loan.industry))].sort()
+
   const filteredLoans = (loans || []).filter((loan) => {
     const matchesSearch = loan.borrowerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          loan.industry.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || loan.status === statusFilter
     const matchesRisk = riskFilter === 'all' || loan.riskLevel === riskFilter
-    return matchesSearch && matchesStatus && matchesRisk
+    const matchesCurrency = currencyFilter === 'all' || loan.currency === currencyFilter
+    const matchesIndustry = industryFilter === 'all' || loan.industry === industryFilter
+    return matchesSearch && matchesStatus && matchesRisk && matchesCurrency && matchesIndustry
   })
 
   const totalExposure = (loans || []).reduce((sum, loan) => {
@@ -394,8 +401,8 @@ function App() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="relative flex-1">
+                <div className="flex flex-wrap gap-4">
+                  <div className="relative flex-1 min-w-64">
                     <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       placeholder="Search by borrower or industry..."
@@ -405,7 +412,7 @@ function App() {
                     />
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-44">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -417,7 +424,7 @@ function App() {
                     </SelectContent>
                   </Select>
                   <Select value={riskFilter} onValueChange={setRiskFilter}>
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-44">
                       <SelectValue placeholder="Risk Level" />
                     </SelectTrigger>
                     <SelectContent>
@@ -426,6 +433,32 @@ function App() {
                       <SelectItem value="medium">Medium Risk</SelectItem>
                       <SelectItem value="high">High Risk</SelectItem>
                       <SelectItem value="critical">Critical Risk</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={currencyFilter} onValueChange={setCurrencyFilter}>
+                    <SelectTrigger className="w-36">
+                      <SelectValue placeholder="Currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Currencies</SelectItem>
+                      {uniqueCurrencies.map((currency) => (
+                        <SelectItem key={currency} value={currency}>
+                          {currency}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={industryFilter} onValueChange={setIndustryFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Industries</SelectItem>
+                      {uniqueIndustries.map((industry) => (
+                        <SelectItem key={industry} value={industry}>
+                          {industry}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
