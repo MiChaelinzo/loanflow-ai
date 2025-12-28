@@ -1,18 +1,23 @@
 import { useState, useMemo } from 'react'
 import { Button } from './ui/button'
-import { Badge } from './ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog'
 import { Separator } from './ui/separator'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog'
+import { Badge } from './ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { TrendUp, TrendDown, Target, Download, Calendar, ChartLine, GitBranch } from '@phosphor-icons/react'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Area, AreaChart, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts'
+import { 
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
+  ResponsiveContainer, ComposedChart, Area, AreaChart, RadarChart, PolarGrid, 
+  PolarAngleAxis, Radar 
+} from 'recharts'
 import { motion } from 'framer-motion'
+import { toast } from 'sonner'
 import { Loan } from '../lib/types'
 import { TeamMember } from '../lib/teamTypes'
 import { Alert } from '../lib/alertTypes'
-import { toast } from 'sonner'
 
+// Interfaces
 interface ComparativeAnalysisProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -21,7 +26,7 @@ interface ComparativeAnalysisProps {
   loans: Loan[]
 }
 
-interface QuarterlyData {
+interface MetricsBase {
   portfolioMetrics: {
     totalExposure: number
     averageRisk: number
@@ -47,43 +52,48 @@ interface QuarterlyData {
   }
 }
 
+interface QuarterlyData {
+  q2: MetricsBase
+  q3: MetricsBase
+}
+
 export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, loans }: ComparativeAnalysisProps) {
   const [activeTab, setActiveTab] = useState('overview')
 
-  const quarterlyData = useMemo(() => {
+  // Calculate Data
+  const quarterlyData: QuarterlyData = useMemo(() => {
+    // Current / Base calculations based on props
     const currentExposure = loans.reduce((sum, l) => sum + l.amount, 0)
+    
     const currentRisk = loans.length > 0 
       ? loans.reduce((sum, l) => sum + l.riskScore, 0) / loans.length 
       : 0
+      
     const currentCompliance = loans.length > 0
       ? (loans.reduce((sum, l) => {
-          const compliant = l.covenants.filter(c => c.status === 'compliant').length
-          const total = l.covenants.length
+          // Assuming l.covenants exists
+          const compliant = l.covenants ? l.covenants.filter((c: any) => c.status === 'compliant').length : 0
+          const total = l.covenants ? l.covenants.length : 0
           return sum + (total > 0 ? compliant / total : 1)
         }, 0) / loans.length) * 100
       : 100
+
     const currentESG = loans.length > 0
-      ? loans.reduce((sum, l) => (l.esgScore.overall === 'A' ? 5 : l.esgScore.overall === 'B' ? 4 : 3), 0) / loans.length
-      : 4
+      ? loans.reduce((sum, l) => (l.esgScore?.overall === 'A' ? 5 : l.esgScore?.overall === 'B' ? 4 : 3), 0) / loans.length
+      : 3.5
+
     const highRiskCount = loans.filter(l => l.riskScore > 7).length
+    
     const avgDefaultProb = loans.length > 0
       ? loans.reduce((sum, l) => sum + (l.predictiveAnalytics?.defaultProbability90d || 0), 0) / loans.length
       : 0
+      
     const covenantBreaches = loans.reduce((sum, l) => {
-      return sum + l.covenants.filter(c => c.status === 'breached').length
+      return sum + (l.covenants ? l.covenants.filter((c: any) => c.status === 'breached').length : 0)
     }, 0)
 
-    const avgResponseTime = alerts.length > 0
-      ? alerts
-          .filter(a => a.resolvedAt)
-          .reduce((sum, a) => {
-            const resolved = new Date(a.resolvedAt!).getTime()
-            const created = new Date(a.createdAt).getTime()
-            return sum + (resolved - created) / (1000 * 60 * 60)
-          }, 0) / alerts.filter(a => a.resolvedAt).length
-      : 42
-
-    const q2Data: QuarterlyData = {
+    // Q2 Data (Simulated Historical - slightly worse performance than current)
+    const q2: MetricsBase = {
       portfolioMetrics: {
         totalExposure: currentExposure * 0.92,
         averageRisk: currentRisk * 1.08,
@@ -98,7 +108,7 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
       },
       riskMetrics: {
         highRiskLoans: Math.ceil(highRiskCount * 1.4),
-        defaultProbability: avgDefaultProb * 100 * 1.15,
+        defaultProbability: avgDefaultProb * 1.15,
         avgRecoveryRate: 78,
         covenantBreaches: Math.ceil(covenantBreaches * 1.6),
       },
@@ -106,10 +116,11 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
         averageBidAsk: 3.1,
         marketParticipation: 42,
         liquidityIndex: 68,
-      },
+      }
     }
 
-    const q3Data: QuarterlyData = {
+    // Q3 Data (Forecast/Current - improved performance)
+    const q3: MetricsBase = {
       portfolioMetrics: {
         totalExposure: currentExposure,
         averageRisk: currentRisk,
@@ -117,14 +128,14 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
         esgScore: Math.min(currentESG * 1.12, 5),
       },
       teamMetrics: {
-        efficiency: 89,
+        efficiency: 92,
         accuracy: 94,
         avgTasksPerMember: 34,
         alertResolution: 91,
       },
       riskMetrics: {
         highRiskLoans: highRiskCount,
-        defaultProbability: avgDefaultProb * 100 * 0.85,
+        defaultProbability: avgDefaultProb,
         avgRecoveryRate: 82,
         covenantBreaches: covenantBreaches,
       },
@@ -132,41 +143,35 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
         averageBidAsk: 1.8,
         marketParticipation: 65,
         liquidityIndex: 84,
-      },
+      }
     }
 
-    return { q2: q2Data, q3: q3Data }
+    return { q2, q3 }
   }, [loans, alerts, teamMembers])
 
-  const categories = useMemo(() => {
-    const quarterlyData = {
-      q2: {
-        portfolioMetrics: {
-          totalExposure: loans.reduce((sum, l) => sum + l.amount, 0) * 0.92,
-          averageRisk: 5.8,
-          covenantCompliance: 85,
-          esgScore: 3.6,
-        },
-        teamMetrics: { efficiency: 76, accuracy: 89, avgTasksPerMember: 28, alertResolution: 82 },
-        riskMetrics: { highRiskLoans: 8, defaultProbability: 18.5, avgRecoveryRate: 78, covenantBreaches: 12 },
-        marketMetrics: { averageBidAsk: 3.1, marketParticipation: 42, liquidityIndex: 68 },
-      },
-      q3: {
-        portfolioMetrics: {
-          totalExposure: loans.reduce((sum, l) => sum + l.amount, 0),
-          averageRisk: 5.2,
-          covenantCompliance: 92,
-          esgScore: 4.1,
-        },
-        teamMetrics: { efficiency: 89, accuracy: 94, avgTasksPerMember: 34, alertResolution: 91 },
-        riskMetrics: { highRiskLoans: 5, defaultProbability: 14.2, avgRecoveryRate: 82, covenantBreaches: 7 },
-        marketMetrics: { averageBidAsk: 1.8, marketParticipation: 65, liquidityIndex: 84 },
-      },
+  // Helper function for formatting
+  const formatValue = (value: number, format: string) => {
+    switch (format) {
+      case 'currency':
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          notation: 'compact',
+          maximumFractionDigits: 1,
+        }).format(value)
+      case 'percent':
+        return `${value.toFixed(1)}%`
+      case 'number':
+      default:
+        return value.toFixed(1) // standardized to 1 decimal for clean UI
     }
+  }
 
+  // Categories for the list view
+  const categories = useMemo(() => {
     return [
       {
-        name: 'Portfolio',
+        name: 'Portfolio Health',
         metrics: [
           {
             name: 'Total Exposure',
@@ -176,7 +181,7 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
             higher: 'neutral',
           },
           {
-            name: 'Average Risk',
+            name: 'Average Risk Score',
             q2: quarterlyData.q2.portfolioMetrics.averageRisk,
             q3: quarterlyData.q3.portfolioMetrics.averageRisk,
             format: 'number',
@@ -199,10 +204,10 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
         ],
       },
       {
-        name: 'Team Performance',
+        name: 'Operational Efficiency',
         metrics: [
           {
-            name: 'Efficiency',
+            name: 'Efficiency Score',
             q2: quarterlyData.q2.teamMetrics.efficiency,
             q3: quarterlyData.q3.teamMetrics.efficiency,
             format: 'number',
@@ -223,7 +228,7 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
             higher: 'good',
           },
           {
-            name: 'Alerts Resolved',
+            name: 'Alert Resolution',
             q2: quarterlyData.q2.teamMetrics.alertResolution,
             q3: quarterlyData.q3.teamMetrics.alertResolution,
             format: 'percent',
@@ -243,8 +248,8 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
           },
           {
             name: 'Default Probability',
-            q2: quarterlyData.q2.riskMetrics.defaultProbability,
-            q3: quarterlyData.q3.riskMetrics.defaultProbability,
+            q2: quarterlyData.q2.riskMetrics.defaultProbability * 100, // Normalized for display
+            q3: quarterlyData.q3.riskMetrics.defaultProbability * 100,
             format: 'percent',
             higher: 'bad',
           },
@@ -291,13 +296,14 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
         ],
       },
     ]
-  }, [loans, alerts, teamMembers])
+  }, [quarterlyData])
 
+  // Data for Charts
   const trendData = useMemo(() => {
     return [
       {
         month: 'Apr',
-        risk: quarterlyData.q2.portfolioMetrics.averageRisk * 1.03,
+        risk: quarterlyData.q2.portfolioMetrics.averageRisk * 1.01,
         compliance: quarterlyData.q2.portfolioMetrics.covenantCompliance * 0.98,
         exposure: quarterlyData.q2.portfolioMetrics.totalExposure * 0.94,
       },
@@ -341,8 +347,8 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
 
     return [
       {
-        metric: 'Risk Management',
-        q2: 85,
+        metric: 'Risk Mgmt',
+        q2: 68,
         q3: 92,
       },
       {
@@ -352,8 +358,8 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
       },
       {
         metric: 'Compliance',
-        q2: normalize(quarterlyData.q2.portfolioMetrics.covenantCompliance, 0, 100),
-        q3: normalize(quarterlyData.q3.portfolioMetrics.covenantCompliance, 0, 100),
+        q2: quarterlyData.q2.portfolioMetrics.covenantCompliance,
+        q3: quarterlyData.q3.portfolioMetrics.covenantCompliance,
       },
       {
         metric: 'ESG',
@@ -367,24 +373,6 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
       },
     ]
   }, [quarterlyData])
-
-  const formatValue = (value: number, format: string) => {
-    switch (format) {
-      case 'currency':
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-          notation: 'compact',
-          maximumFractionDigits: 1,
-        }).format(value)
-      case 'percent':
-        return `${value.toFixed(1)}%`
-      case 'number':
-        return value.toFixed(2)
-      default:
-        return value.toString()
-    }
-  }
 
   const calculateChange = (q2: number, q3: number, format: string) => {
     if (q2 === 0) return 0
@@ -402,6 +390,18 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
     )
   }
 
+  const generateCSVContent = () => {
+    let csv = 'Category,Metric,Q2 2024,Q3 2024,Change %,Direction\n'
+    categories.forEach((category) => {
+      category.metrics.forEach((metric) => {
+        const change = calculateChange(metric.q2, metric.q3, metric.format)
+        const isPositive = metric.higher === 'good' ? change >= 0 : change < 0
+        csv += `${category.name},${metric.name},${formatValue(metric.q2, metric.format)},${formatValue(metric.q3, metric.format)},${change.toFixed(1)}%,${isPositive ? 'Positive' : 'Negative'}\n`
+      })
+    })
+    return csv
+  }
+
   const handleExportComparison = () => {
     const csvContent = generateCSVContent()
     const blob = new Blob([csvContent], { type: 'text/csv' })
@@ -416,18 +416,6 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
     toast.success('Comparison data exported', {
       description: 'Q2 vs Q3 analysis downloaded as CSV',
     })
-  }
-
-  const generateCSVContent = () => {
-    let csv = 'Category,Metric,Q2 2024,Q3 2024,Change %,Direction\n'
-    categories.forEach((category) => {
-      category.metrics.forEach((metric) => {
-        const change = calculateChange(metric.q2, metric.q3, metric.format)
-        const isPositive = metric.higher === 'good' ? change >= 0 : change < 0
-        csv += `${category.name},${metric.name},${formatValue(metric.q2, metric.format)},${formatValue(metric.q3, metric.format)},${change.toFixed(1)}%,${isPositive ? 'Positive' : 'Negative'}\n`
-      })
-    })
-    return csv
   }
 
   return (
@@ -457,6 +445,7 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
+              {/* Q2 Snapshot */}
               <Card className="border-muted bg-muted/30">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -497,12 +486,13 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
                 </CardContent>
               </Card>
 
+              {/* Q3 Snapshot */}
               <Card className="border-accent/50 bg-accent/5">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
                       <Target size={20} className="text-accent" />
-                      Q3 2024 (Forecast)
+                      Q3 2024
                     </CardTitle>
                     <Badge variant="default">Jul - Sep</Badge>
                   </div>
@@ -538,45 +528,7 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
               </Card>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target size={20} className="text-accent" />
-                  Performance Radar Comparison
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <RadarChart data={radarData}>
-                    <PolarGrid stroke="oklch(0.88 0.005 250)" />
-                    <PolarAngleAxis dataKey="metric" />
-                    <Radar
-                      name="Q2 2024"
-                      dataKey="q2"
-                      stroke="oklch(0.45 0.02 250)"
-                      fill="oklch(0.45 0.02 250)"
-                      fillOpacity={0.3}
-                    />
-                    <Radar
-                      name="Q3 2024"
-                      dataKey="q3"
-                      stroke="oklch(0.70 0.15 210)"
-                      fill="oklch(0.70 0.15 210)"
-                      fillOpacity={0.5}
-                    />
-                    <Legend />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'oklch(1 0 0)',
-                        border: '1px solid oklch(0.88 0.005 250)',
-                        borderRadius: '8px',
-                      }}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
+            {/* Detailed Categories List */}
             {categories.map((category, idx) => (
               <motion.div
                 key={category.name}
@@ -593,25 +545,25 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
                       {category.metrics.map((metric) => {
                         const change = calculateChange(metric.q2, metric.q3, metric.format)
                         return (
-                          <div key={metric.name} className="flex items-center justify-between">
+                          <div key={metric.name} className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <p className="font-medium">{metric.name}</p>
+                                <p className="font-medium text-sm">{metric.name}</p>
                                 {getChangeIndicator(change, metric.higher)}
                               </div>
                             </div>
                             <div className="flex items-center gap-6">
-                              <div className="text-right min-w-24">
-                                <p className="font-mono font-semibold text-muted-foreground">
+                              <div className="text-right min-w-[5rem]">
+                                <p className="font-mono font-semibold text-muted-foreground text-sm">
                                   {formatValue(metric.q2, metric.format)}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Q2</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">Q2</p>
                               </div>
-                              <div className="text-right min-w-24">
-                                <p className="font-mono font-semibold text-accent">
+                              <div className="text-right min-w-[5rem]">
+                                <p className="font-mono font-semibold text-accent text-sm">
                                   {formatValue(metric.q3, metric.format)}
                                 </p>
-                                <p className="text-xs text-muted-foreground">Q3</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">Q3</p>
                               </div>
                             </div>
                           </div>
@@ -622,29 +574,115 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
                 </Card>
               </motion.div>
             ))}
+          </TabsContent>
 
-            <Card className="border-accent/30 bg-accent/5">
+          <TabsContent value="trends" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Radar Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target size={20} className="text-accent" />
+                    Performance Radar
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke="oklch(0.88 0.005 250)" />
+                      <PolarAngleAxis dataKey="metric" />
+                      <Radar
+                        name="Q2 2024"
+                        dataKey="q2"
+                        stroke="oklch(0.45 0.02 250)"
+                        fill="oklch(0.45 0.02 250)"
+                        fillOpacity={0.3}
+                      />
+                      <Radar
+                        name="Q3 2024"
+                        dataKey="q3"
+                        stroke="oklch(0.70 0.15 210)"
+                        fill="oklch(0.70 0.15 210)"
+                        fillOpacity={0.5}
+                      />
+                      <Legend />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Trend Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ChartLine size={20} className="text-accent" />
+                    Portfolio Trends: Q2 → Q3
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <ComposedChart data={trendData}>
+                      <defs>
+                        <linearGradient id="colorExposure" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="month" />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Area
+                        yAxisId="left"
+                        type="monotone"
+                        dataKey="exposure"
+                        fill="url(#colorExposure)"
+                        stroke="oklch(0.70 0.15 210)"
+                        strokeWidth={2}
+                        name="Exposure"
+                      />
+                      <Line
+                        yAxisId="right"
+                        type="monotone"
+                        dataKey="risk"
+                        stroke="oklch(0.55 0.22 25)"
+                        strokeWidth={2}
+                        dot={{ r: 4 }}
+                        name="Risk Score"
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Improvements Section */}
+            <Card>
               <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
+                <div className="flex gap-4">
                   <Target size={24} className="text-accent mt-1 flex-shrink-0" />
-                  <div className="space-y-2">
-                    <h4 className="font-semibold">Key Improvements in Q3 Forecast</h4>
+                  <div>
+                    <h4 className="font-semibold mb-2">Key Improvements in Q3 Forecast</h4>
                     <ul className="space-y-1 text-sm text-muted-foreground">
                       <li className="flex items-start gap-2">
-                        <span className="text-success mt-0.5">•</span>
-                        <span>Team efficiency increased by 17% through improved alert routing and automation</span>
+                        <span className="text-green-500 mt-0.5">•</span>
+                        <span>Team efficiency projected to increase by 17% through improved alert routing.</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-success mt-0.5">•</span>
-                        <span>Risk exposure reduced with better predictive analytics and proactive management</span>
+                        <span className="text-green-500 mt-0.5">•</span>
+                        <span>Risk exposure reduced with better predictive analytics and proactive management.</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-success mt-0.5">•</span>
-                        <span>Market participation up 54% with enhanced trading features and liquidity</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-success mt-0.5">•</span>
-                        <span>ESG scores improved significantly with focused green lending initiatives</span>
+                        <span className="text-green-500 mt-0.5">•</span>
+                        <span>Market participation up 54% with enhanced trading features.</span>
                       </li>
                     </ul>
                   </div>
@@ -652,178 +690,16 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
               </CardContent>
             </Card>
           </TabsContent>
-
-          <TabsContent value="trends" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChartLine size={20} className="text-accent" />
-                  Portfolio Trends: Q2 → Q3
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <ComposedChart data={trendData}>
-                    <defs>
-                      <linearGradient id="colorExposure" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
-                    <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
-                    <YAxis yAxisId="left" stroke="oklch(0.45 0.02 250)" />
-                    <YAxis yAxisId="right" orientation="right" stroke="oklch(0.70 0.15 210)" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'oklch(1 0 0)',
-                        border: '1px solid oklch(0.88 0.005 250)',
-                        borderRadius: '8px',
-                      }}
-                    />
-                    <Legend />
-                    <Area
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="exposure"
-                      fill="url(#colorExposure)"
-                      stroke="oklch(0.70 0.15 210)"
-                      strokeWidth={2}
-                      name="Exposure"
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="risk"
-                      stroke="oklch(0.55 0.22 25)"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                      name="Risk Score"
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="compliance"
-                      stroke="oklch(0.60 0.15 160)"
-                      strokeWidth={2}
-                      dot={{ r: 4 }}
-                      name="Compliance %"
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <div className="grid grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Q2 Performance Snapshot</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <span className="text-sm text-muted-foreground">Period:</span>
-                    <span className="ml-2 font-semibold">April - June 2024</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Risk Trend</span>
-                      <Badge variant="destructive" className="gap-1">
-                        <TrendUp size={10} />
-                        +3.2%
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Alert Volume</span>
-                      <span className="font-mono text-sm font-semibold">156</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Avg Response Time</span>
-                      <span className="font-mono text-sm font-semibold">48h</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Q3 Forecast Snapshot</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <span className="text-sm text-muted-foreground">Period:</span>
-                    <span className="ml-2 font-semibold">July - September 2024</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Risk Trend</span>
-                      <Badge variant="default" className="gap-1">
-                        <TrendDown size={10} />
-                        -10.3%
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Projected Alerts</span>
-                      <span className="font-mono text-sm font-semibold">118</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Target Response Time</span>
-                      <span className="font-mono text-sm font-semibold">28h</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <TrendUp size={18} className="text-success" />
-                  Quarter-over-Quarter Growth Targets
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Team Efficiency</span>
-                    <Badge variant="outline">+17%</Badge>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-success" style={{ width: '89%' }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Market Participation</span>
-                    <Badge variant="outline">+54%</Badge>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-accent" style={{ width: '65%' }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Risk Reduction</span>
-                    <Badge variant="outline">+15%</Badge>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: '78%' }} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
 
-        <Separator />
-
-        <div className="flex items-center justify-between">
+        <DialogFooter className="flex items-center sm:justify-between w-full">
           <p className="text-sm text-muted-foreground">
             Comparative analysis generated on {new Date().toLocaleDateString()}
           </p>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
@@ -832,7 +708,7 @@ export function ComparativeAnalysis({ open, onOpenChange, teamMembers, alerts, l
 export function ComparativeAnalysisTrigger({ onClick }: { onClick: () => void }) {
   return (
     <Button variant="outline" onClick={onClick} className="gap-2">
-      <GitBranch size={20} />
+      <GitBranch size={16} />
       Q2 vs Q3
     </Button>
   )
