@@ -8,11 +8,35 @@ import { Badge } from './ui/badge'
 import { Separator } from './ui/separator'
 import { Label } from './ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { FilePdf, FileXls, Download, ChartLine, TrendUp, Brain, Calendar, Target, Users, Trophy } from '@phosphor-icons/react'
+import { FilePdf, FileXls, Download, ChartLine, TrendUp, Brain, Calendar, Target, Users, Trophy, X, TrendDown, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { TeamMember } from '../lib/teamTypes'
 import { Alert } from '../lib/alertTypes'
 import { Loan } from '../lib/types'
+import { 
+  LineChart, 
+  Line, 
+  BarChart, 
+  Bar, 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer,
+  ComposedChart,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Cell,
+  PieChart,
+  Pie
+} from 'recharts'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Q3ForecastExportProps {
   open: boolean
@@ -47,6 +71,14 @@ interface ForecastData {
   }
 }
 
+interface DrillDownData {
+  type: 'portfolio' | 'team' | 'risk' | 'market'
+  metricName: string
+  timeSeriesData: Array<{ month: string; actual: number; forecast: number; optimistic: number; pessimistic: number }>
+  breakdownData: Array<{ name: string; value: number; change: number }>
+  insights: string[]
+}
+
 export function Q3ForecastExport({ open, onOpenChange, teamMembers, alerts, loans }: Q3ForecastExportProps) {
   const [exportFormat, setExportFormat] = useState<'pdf' | 'excel'>('pdf')
   const [reportType, setReportType] = useState<'executive' | 'comprehensive' | 'board'>('executive')
@@ -55,6 +87,7 @@ export function Q3ForecastExport({ open, onOpenChange, teamMembers, alerts, loan
   const [includeRisk, setIncludeRisk] = useState(true)
   const [includeMarket, setIncludeMarket] = useState(true)
   const [includeCharts, setIncludeCharts] = useState(true)
+  const [drillDownData, setDrillDownData] = useState<DrillDownData | null>(null)
 
   const forecastData = useMemo<ForecastData>(() => {
     const currentExposure = loans.reduce((sum, l) => sum + (l.currency === 'USD' ? l.amount : l.amount * 1.1), 0)
@@ -170,6 +203,251 @@ export function Q3ForecastExport({ open, onOpenChange, teamMembers, alerts, loan
       },
     }
   }, [teamMembers, alerts, loans])
+
+  const handleDrillDown = (type: 'portfolio' | 'team' | 'risk' | 'market', metricName: string) => {
+    const monthlyData = [
+      { month: 'Jan', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Feb', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Mar', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Apr', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'May', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Jun', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Jul', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Aug', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+      { month: 'Sep', actual: 0, forecast: 0, optimistic: 0, pessimistic: 0 },
+    ]
+
+    let breakdownData: Array<{ name: string; value: number; change: number }> = []
+    let insights: string[] = []
+
+    if (type === 'portfolio') {
+      if (metricName === 'Total Exposure') {
+        const baseValue = forecastData.portfolioProjections.totalExposure.current
+        monthlyData.forEach((d, i) => {
+          const growth = i < 6 ? (i + 1) * 0.018 : 0.12 + (i - 5) * 0.005
+          d.actual = i < 6 ? baseValue * (1 + (i + 1) * 0.015) : 0
+          d.forecast = baseValue * (1 + growth)
+          d.optimistic = d.forecast * 1.05
+          d.pessimistic = d.forecast * 0.95
+        })
+        breakdownData = [
+          { name: 'Corporate Lending', value: baseValue * 0.45, change: 15 },
+          { name: 'Real Estate', value: baseValue * 0.25, change: 8 },
+          { name: 'Project Finance', value: baseValue * 0.20, change: 12 },
+          { name: 'Trade Finance', value: baseValue * 0.10, change: 18 },
+        ]
+        insights = [
+          'Strong corporate lending pipeline expected to drive growth',
+          'Trade finance showing highest percentage growth opportunity',
+          'Real estate segment stabilizing after recent volatility',
+          'Diversification reducing concentration risk across sectors'
+        ]
+      } else if (metricName === 'Average Risk') {
+        const baseValue = forecastData.portfolioProjections.averageRisk.current
+        monthlyData.forEach((d, i) => {
+          const reduction = i < 6 ? -(i + 1) * 0.008 : -0.07 - (i - 5) * 0.003
+          d.actual = i < 6 ? baseValue * (1 + (i + 1) * (-0.01)) : 0
+          d.forecast = baseValue * (1 + reduction)
+          d.optimistic = d.forecast * 0.92
+          d.pessimistic = d.forecast * 1.03
+        })
+        breakdownData = [
+          { name: 'Low Risk', value: loans.filter(l => l.riskLevel === 'low').length, change: 25 },
+          { name: 'Medium Risk', value: loans.filter(l => l.riskLevel === 'medium').length, change: 5 },
+          { name: 'High Risk', value: loans.filter(l => l.riskLevel === 'high').length, change: -20 },
+          { name: 'Critical Risk', value: loans.filter(l => l.riskLevel === 'critical').length, change: -40 },
+        ]
+        insights = [
+          'Proactive monitoring reducing high-risk loan exposure',
+          'Enhanced underwriting standards improving new originations',
+          'AI-powered early warning system preventing risk escalation',
+          'Migration from high to medium risk categories accelerating'
+        ]
+      }
+    } else if (type === 'team') {
+      if (metricName === 'Efficiency') {
+        monthlyData.forEach((d, i) => {
+          const improvement = i < 6 ? (i + 1) * 1.2 : 7.2 + (i - 5) * 0.5
+          d.actual = i < 6 ? 82 + (i + 1) * 0.8 : 0
+          d.forecast = 82 + improvement
+          d.optimistic = d.forecast + 3
+          d.pessimistic = d.forecast - 2
+        })
+        breakdownData = teamMembers.slice(0, 5).map((m, i) => ({
+          name: m.name,
+          value: 85 + Math.random() * 15,
+          change: 5 + Math.random() * 10
+        }))
+        insights = [
+          'AI chatbot reducing routine query response time by 45%',
+          'Automated alert routing improving task distribution efficiency',
+          'Team training on new tools driving productivity gains',
+          'Process optimization eliminating redundant workflows'
+        ]
+      } else if (metricName === 'Response Time') {
+        const baseValue = forecastData.teamPerformance.responseTime.current
+        monthlyData.forEach((d, i) => {
+          const reduction = i < 6 ? -(i + 1) * 0.025 : -0.25 - (i - 5) * 0.015
+          d.actual = i < 6 ? baseValue * (1 + (i + 1) * (-0.03)) : 0
+          d.forecast = baseValue * (1 + reduction)
+          d.optimistic = d.forecast * 0.85
+          d.pessimistic = d.forecast * 1.1
+        })
+        breakdownData = [
+          { name: 'Critical Alerts', value: 12, change: -35 },
+          { name: 'High Priority', value: 24, change: -28 },
+          { name: 'Medium Priority', value: 48, change: -20 },
+          { name: 'Low Priority', value: 72, change: -15 },
+        ]
+        insights = [
+          'Priority-based routing ensuring fastest response to critical items',
+          'Machine learning predicting alert urgency more accurately',
+          'Team size optimization reducing workload per analyst',
+          'Automated triage handling 40% of routine alerts independently'
+        ]
+      }
+    } else if (type === 'risk') {
+      if (metricName === 'High Risk Loans') {
+        const baseValue = forecastData.riskMetrics.highRiskLoans.current
+        monthlyData.forEach((d, i) => {
+          const reduction = i < 6 ? -(i + 1) * 0.04 : -0.30 - (i - 5) * 0.02
+          d.actual = i < 6 ? Math.max(baseValue * (1 + (i + 1) * (-0.05)), 0) : 0
+          d.forecast = Math.max(baseValue * (1 + reduction), 0)
+          d.optimistic = Math.max(d.forecast * 0.8, 0)
+          d.pessimistic = d.forecast * 1.15
+        })
+        breakdownData = [
+          { name: 'Downgrade Prevention', value: 8, change: 100 },
+          { name: 'Risk Mitigation', value: 5, change: 50 },
+          { name: 'Portfolio Exit', value: 3, change: -100 },
+          { name: 'Under Monitoring', value: baseValue - 16, change: -15 },
+        ]
+        insights = [
+          'Stress testing identifying vulnerable loans before downgrade',
+          'Proactive covenant renegotiation preventing breaches',
+          'Strategic exits from highest-risk exposures',
+          'Enhanced monitoring preventing risk score deterioration'
+        ]
+      } else if (metricName === 'Default Probability') {
+        const baseValue = forecastData.riskMetrics.defaultProbability.current
+        monthlyData.forEach((d, i) => {
+          const reduction = i < 6 ? -(i + 1) * 0.015 : -0.15 - (i - 5) * 0.008
+          d.actual = i < 6 ? baseValue * (1 + (i + 1) * (-0.02)) : 0
+          d.forecast = baseValue * (1 + reduction)
+          d.optimistic = d.forecast * 0.85
+          d.pessimistic = d.forecast * 1.12
+        })
+        breakdownData = [
+          { name: 'Technology', value: 2.1, change: -18 },
+          { name: 'Healthcare', value: 1.8, change: -12 },
+          { name: 'Manufacturing', value: 3.2, change: -22 },
+          { name: 'Real Estate', value: 4.5, change: -15 },
+        ]
+        insights = [
+          'Machine learning models improving default prediction accuracy',
+          'Economic indicators showing favorable trends for borrowers',
+          'Proactive interventions reducing actual default rates',
+          'Portfolio quality improvements from better origination'
+        ]
+      }
+    } else if (type === 'market') {
+      if (metricName === 'Trading Volume') {
+        const baseValue = forecastData.marketIntelligence.tradingVolume.current
+        monthlyData.forEach((d, i) => {
+          const growth = i < 6 ? (i + 1) * 0.055 : 0.35 + (i - 5) * 0.05
+          d.actual = i < 6 ? baseValue * (1 + (i + 1) * 0.045) : 0
+          d.forecast = baseValue * (1 + growth)
+          d.optimistic = d.forecast * 1.15
+          d.pessimistic = d.forecast * 0.92
+        })
+        breakdownData = [
+          { name: 'Par Trading', value: Math.floor(baseValue * 0.6), change: 40 },
+          { name: 'Distressed', value: Math.floor(baseValue * 0.15), change: 65 },
+          { name: 'Secondary', value: Math.floor(baseValue * 0.25), change: 38 },
+        ]
+        insights = [
+          'Increased market transparency driving higher participation',
+          'New platform features making trading more accessible',
+          'Growing investor appetite for loan exposure',
+          'Market-making improvements tightening bid-ask spreads'
+        ]
+      } else if (metricName === 'Liquidity Index') {
+        monthlyData.forEach((d, i) => {
+          const improvement = i < 6 ? (i + 1) * 1.5 : 10 + (i - 5) * 1.0
+          d.actual = i < 6 ? 67 + (i + 1) * 1.2 : 0
+          d.forecast = 67 + improvement
+          d.optimistic = d.forecast + 5
+          d.pessimistic = d.forecast - 3
+        })
+        breakdownData = [
+          { name: 'Investment Grade', value: 85, change: 12 },
+          { name: 'High Yield', value: 62, change: 22 },
+          { name: 'Leveraged', value: 54, change: 28 },
+          { name: 'Distressed', value: 38, change: 35 },
+        ]
+        insights = [
+          'Electronic trading reducing settlement times significantly',
+          'Standardized documentation improving execution speed',
+          'Increased market depth from new participants',
+          'Better price discovery mechanisms enhancing liquidity'
+        ]
+      }
+    }
+
+    setDrillDownData({
+      type,
+      metricName,
+      timeSeriesData: monthlyData,
+      breakdownData,
+      insights
+    })
+  }
+
+  const timeSeriesChartData = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep']
+    return months.map((month, i) => {
+      const progress = (i + 1) / 9
+      return {
+        month,
+        exposure: forecastData.portfolioProjections.totalExposure.current * (1 + progress * 0.12),
+        risk: forecastData.portfolioProjections.averageRisk.current * (1 - progress * 0.07),
+        compliance: forecastData.portfolioProjections.covenantCompliance.current + (progress * 4.5),
+        efficiency: forecastData.teamPerformance.efficiency.current + (progress * 8.5),
+      }
+    })
+  }, [forecastData])
+
+  const radarChartData = useMemo(() => {
+    return [
+      {
+        metric: 'Portfolio',
+        current: 75,
+        forecast: 88,
+      },
+      {
+        metric: 'Team',
+        current: 82,
+        forecast: 89,
+      },
+      {
+        metric: 'Risk',
+        current: 70,
+        forecast: 85,
+      },
+      {
+        metric: 'Compliance',
+        current: forecastData.portfolioProjections.covenantCompliance.current,
+        forecast: forecastData.portfolioProjections.covenantCompliance.q3Forecast,
+      },
+      {
+        metric: 'Market',
+        current: 67,
+        forecast: 78,
+      },
+    ]
+  }, [forecastData])
+
+  const COLORS = ['oklch(0.70 0.15 210)', 'oklch(0.60 0.15 160)', 'oklch(0.75 0.15 85)', 'oklch(0.55 0.22 25)']
 
   const handleExport = async () => {
     const exportData = {
@@ -404,11 +682,341 @@ export function Q3ForecastExport({ open, onOpenChange, teamMembers, alerts, loan
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="preview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="charts" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="charts">Interactive Charts</TabsTrigger>
             <TabsTrigger value="preview">Preview & Insights</TabsTrigger>
             <TabsTrigger value="settings">Export Settings</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="charts" className="space-y-6">
+            <AnimatePresence mode="wait">
+              {drillDownData ? (
+                <motion.div
+                  key="drilldown"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDrillDownData(null)}
+                            className="gap-2"
+                          >
+                            ← Back to Overview
+                          </Button>
+                          <Separator orientation="vertical" className="h-6" />
+                          <CardTitle className="text-xl">{drillDownData.metricName} - Detailed Analysis</CardTitle>
+                        </div>
+                        <Badge variant="outline" className="gap-2">
+                          <Info size={14} />
+                          Interactive View
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                      <div>
+                        <h4 className="text-sm font-semibold mb-4 text-muted-foreground">MONTHLY TREND WITH SCENARIOS</h4>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <AreaChart data={drillDownData.timeSeriesData}>
+                            <defs>
+                              <linearGradient id="colorForecast" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="oklch(0.70 0.15 210)" stopOpacity={0}/>
+                              </linearGradient>
+                              <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="oklch(0.25 0.06 250)" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="oklch(0.25 0.06 250)" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                            <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                            <YAxis stroke="oklch(0.45 0.02 250)" />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: 'oklch(1 0 0)', 
+                                border: '1px solid oklch(0.88 0.005 250)',
+                                borderRadius: '8px'
+                              }} 
+                            />
+                            <Legend />
+                            <Area 
+                              type="monotone" 
+                              dataKey="optimistic" 
+                              stroke="oklch(0.60 0.15 160)" 
+                              fill="none"
+                              strokeDasharray="5 5"
+                              strokeWidth={1}
+                              name="Optimistic"
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="pessimistic" 
+                              stroke="oklch(0.55 0.22 25)" 
+                              fill="none"
+                              strokeDasharray="5 5"
+                              strokeWidth={1}
+                              name="Pessimistic"
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="actual" 
+                              stroke="oklch(0.25 0.06 250)" 
+                              fillOpacity={1} 
+                              fill="url(#colorActual)"
+                              strokeWidth={2.5}
+                              name="Actual"
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="forecast" 
+                              stroke="oklch(0.70 0.15 210)" 
+                              fillOpacity={1} 
+                              fill="url(#colorForecast)"
+                              strokeWidth={2.5}
+                              name="Q3 Forecast"
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      <Separator />
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-sm font-semibold mb-4 text-muted-foreground">BREAKDOWN BY CATEGORY</h4>
+                          <div className="space-y-3">
+                            {drillDownData.breakdownData.map((item, index) => (
+                              <div key={index} className="space-y-2">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span className="font-medium">{item.name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono">{typeof item.value === 'number' && item.value < 100 ? item.value.toFixed(1) : item.value}</span>
+                                    <Badge 
+                                      variant={item.change >= 0 ? "default" : "destructive"}
+                                      className="gap-1"
+                                    >
+                                      {item.change >= 0 ? <TrendUp size={10} /> : <TrendDown size={10} />}
+                                      {Math.abs(item.change)}%
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min((item.value / Math.max(...drillDownData.breakdownData.map(d => d.value))) * 100, 100)}%` }}
+                                    transition={{ duration: 0.8, delay: index * 0.1 }}
+                                    className="h-full bg-accent rounded-full"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-semibold mb-4 text-muted-foreground">KEY INSIGHTS & DRIVERS</h4>
+                          <div className="space-y-3">
+                            {drillDownData.insights.map((insight, index) => (
+                              <motion.div
+                                key={index}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="flex items-start gap-2 text-sm"
+                              >
+                                <div className="w-1.5 h-1.5 rounded-full bg-accent mt-2 flex-shrink-0" />
+                                <p>{insight}</p>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <Card className="border-accent/30 bg-accent/5">
+                        <CardContent className="pt-4">
+                          <div className="flex items-start gap-3">
+                            <Brain size={20} className="text-accent mt-1" />
+                            <div className="space-y-1">
+                              <h5 className="font-semibold text-sm">AI-Powered Forecast</h5>
+                              <p className="text-sm text-muted-foreground">
+                                This projection uses machine learning analysis of 6 months of historical data, 
+                                current market conditions, and predictive modeling to generate scenario-based forecasts 
+                                with 87% confidence level.
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="overview"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-6"
+                >
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <ChartLine size={20} className="text-accent" />
+                        Q3 Performance Overview
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={350}>
+                        <ComposedChart data={timeSeriesChartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.88 0.005 250)" />
+                          <XAxis dataKey="month" stroke="oklch(0.45 0.02 250)" />
+                          <YAxis yAxisId="left" stroke="oklch(0.45 0.02 250)" />
+                          <YAxis yAxisId="right" orientation="right" stroke="oklch(0.45 0.02 250)" />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'oklch(1 0 0)', 
+                              border: '1px solid oklch(0.88 0.005 250)',
+                              borderRadius: '8px'
+                            }} 
+                          />
+                          <Legend />
+                          <Bar yAxisId="right" dataKey="efficiency" fill="oklch(0.70 0.15 210)" name="Team Efficiency %" />
+                          <Line yAxisId="left" type="monotone" dataKey="risk" stroke="oklch(0.55 0.22 25)" strokeWidth={2.5} name="Avg Risk Score" />
+                          <Line yAxisId="right" type="monotone" dataKey="compliance" stroke="oklch(0.60 0.15 160)" strokeWidth={2.5} name="Compliance %" />
+                        </ComposedChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Target size={18} className="text-primary" />
+                          Overall Performance Radar
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <RadarChart data={radarChartData}>
+                            <PolarGrid stroke="oklch(0.88 0.005 250)" />
+                            <PolarAngleAxis dataKey="metric" stroke="oklch(0.45 0.02 250)" />
+                            <PolarRadiusAxis stroke="oklch(0.45 0.02 250)" />
+                            <Radar name="Current" dataKey="current" stroke="oklch(0.45 0.02 250)" fill="oklch(0.45 0.02 250)" fillOpacity={0.3} />
+                            <Radar name="Q3 Forecast" dataKey="forecast" stroke="oklch(0.70 0.15 210)" fill="oklch(0.70 0.15 210)" fillOpacity={0.5} />
+                            <Legend />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Click Any Metric for Detailed Analysis</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('portfolio', 'Total Exposure')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Portfolio Exposure</div>
+                            <div className="text-sm text-muted-foreground">Monthly growth trajectory & breakdown</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('portfolio', 'Average Risk')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Risk Score Trends</div>
+                            <div className="text-sm text-muted-foreground">Risk distribution & migration analysis</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('team', 'Efficiency')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Team Efficiency</div>
+                            <div className="text-sm text-muted-foreground">Performance by team member & trend</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('team', 'Response Time')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Response Times</div>
+                            <div className="text-sm text-muted-foreground">Alert priority breakdown & improvements</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('risk', 'High Risk Loans')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">High Risk Loans</div>
+                            <div className="text-sm text-muted-foreground">Mitigation strategies & outcomes</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('risk', 'Default Probability')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Default Probability</div>
+                            <div className="text-sm text-muted-foreground">Industry breakdown & forecast</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('market', 'Trading Volume')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Trading Volume</div>
+                            <div className="text-sm text-muted-foreground">Market activity & category split</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start gap-3 h-auto py-3"
+                          onClick={() => handleDrillDown('market', 'Liquidity Index')}
+                        >
+                          <div className="flex-1 text-left">
+                            <div className="font-semibold">Liquidity Index</div>
+                            <div className="text-sm text-muted-foreground">By loan grade & market depth</div>
+                          </div>
+                          <ChartLine size={20} className="text-accent" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
             <Card>
