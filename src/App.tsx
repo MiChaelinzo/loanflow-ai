@@ -36,6 +36,7 @@ import { AlertRouting } from './components/AlertRouting'
 import { LoanAssignments } from './components/LoanAssignments'
 import { TeamPerformanceDashboard } from './components/TeamPerformanceDashboard'
 import { Q3ForecastExport, Q3ForecastExportTrigger } from './components/Q3ForecastExport'
+import { ComparativeAnalysis, ComparativeAnalysisTrigger } from './components/ComparativeAnalysis'
 import { Alert } from './lib/alertTypes'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -64,6 +65,7 @@ function App() {
   const [alertSettingsOpen, setAlertSettingsOpen] = useState(false)
   const [alertAnalyticsOpen, setAlertAnalyticsOpen] = useState(false)
   const [q3ForecastOpen, setQ3ForecastOpen] = useState(false)
+  const [comparativeAnalysisOpen, setComparativeAnalysisOpen] = useState(false)
   const [alerts] = useKV<Alert[]>('alerts', [])
 
   const handleUploadComplete = async (extractedData: any) => {
@@ -298,6 +300,7 @@ function App() {
                 </Button>
               )}
               <Q3ForecastExportTrigger onClick={() => setQ3ForecastOpen(true)} />
+              <ComparativeAnalysisTrigger onClick={() => setComparativeAnalysisOpen(true)} />
               <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
                 <Download size={20} />
                 Export
@@ -744,6 +747,14 @@ function App() {
       <Q3ForecastExport
         open={q3ForecastOpen}
         onOpenChange={setQ3ForecastOpen}
+        teamMembers={teamMembers || []}
+        alerts={alerts || []}
+        loans={loans || []}
+      />
+
+      <ComparativeAnalysis
+        open={comparativeAnalysisOpen}
+        onOpenChange={setComparativeAnalysisOpen}
         teamMembers={teamMembers || []}
         alerts={alerts || []}
         loans={loans || []}
