@@ -40,8 +40,9 @@ import { LoanAssignments } from './components/LoanAssignments'
 import { TeamPerformanceDashboard } from './components/TeamPerformanceDashboard'
 import { Q3ForecastExport, Q3ForecastExportTrigger } from './components/Q3ForecastExport'
 import { ComparativeAnalysis, ComparativeAnalysisTrigger } from './components/ComparativeAnalysis'
+import { SpreadWideningMonitor, SpreadWideningMonitorTrigger } from './components/SpreadWideningMonitor'
 import { Alert } from './lib/alertTypes'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -69,6 +70,7 @@ function App() {
   const [alertAnalyticsOpen, setAlertAnalyticsOpen] = useState(false)
   const [q3ForecastOpen, setQ3ForecastOpen] = useState(false)
   const [comparativeAnalysisOpen, setComparativeAnalysisOpen] = useState(false)
+  const [spreadMonitorOpen, setSpreadMonitorOpen] = useState(false)
   const [alerts, setAlerts] = useKV<Alert[]>('alerts', [])
 
   useEffect(() => {
@@ -365,6 +367,7 @@ function App() {
               )}
               <Q3ForecastExportTrigger onClick={() => setQ3ForecastOpen(true)} />
               <ComparativeAnalysisTrigger onClick={() => setComparativeAnalysisOpen(true)} />
+              <SpreadWideningMonitorTrigger onClick={() => setSpreadMonitorOpen(true)} />
               <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
                 <Download size={20} />
                 Export
@@ -390,7 +393,7 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-13">
+          <TabsList className="grid w-full grid-cols-14">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -410,6 +413,10 @@ function App() {
             <TabsTrigger value="alerts" className="gap-2">
               <Lightning size={18} />
               Alerts
+            </TabsTrigger>
+            <TabsTrigger value="spread-monitor" className="gap-2" data-tutorial="spread-monitor-tab">
+              <TrendUp size={18} />
+              Spreads
             </TabsTrigger>
             <TabsTrigger value="stress-test" className="gap-2" data-tutorial="stress-test-tab">
               <Lightning size={18} />
@@ -655,6 +662,17 @@ function App() {
             <AlertAnalytics alerts={alerts || []} />
           </TabsContent>
 
+          <TabsContent value="spread-monitor" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.spreadMonitor} />
+            <SpreadWideningMonitor 
+              loans={loans || []} 
+              alerts={alerts || []}
+              onNewAlerts={(newAlerts) => {
+                setAlerts((currentAlerts) => [...(currentAlerts || []), ...newAlerts])
+              }}
+            />
+          </TabsContent>
+
           <TabsContent value="stress-test" className="space-y-4">
             <QuickHelp tip={quickHelpTips.stressTest} />
             <StressTestDashboard loans={loans || []} />
@@ -836,6 +854,24 @@ function App() {
         alerts={alerts || []}
         loans={loans || []}
       />
+
+      <Dialog open={spreadMonitorOpen} onOpenChange={setSpreadMonitorOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Spread Widening Monitor</DialogTitle>
+            <DialogDescription>
+              Early warning system for credit deterioration through real-time spread analysis
+            </DialogDescription>
+          </DialogHeader>
+          <SpreadWideningMonitor 
+            loans={loans || []} 
+            alerts={alerts || []}
+            onNewAlerts={(newAlerts) => {
+              setAlerts((currentAlerts) => [...(currentAlerts || []), ...newAlerts])
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -153,4 +153,9 @@ export const quickHelpTips = {
     title: 'Q3 Forecast Export',
     message: 'Generate comprehensive Q3 performance projections for board presentations and stakeholder reports. Export to PDF for formatted presentations or Excel for detailed analysis. Includes portfolio growth, risk metrics, team performance, and market intelligence forecasts.',
   },
+  spreadMonitor: {
+    id: 'spread-monitor-help',
+    title: 'Spread Widening Monitor',
+    message: 'Detect early signs of credit deterioration by monitoring credit spread changes. Spreads widening beyond thresholds can indicate declining borrower creditworthiness, increased market risk perception, or sector-wide stress. Configure severity thresholds and receive automated alerts when spreads breach warning levels.',
+  },
 }
