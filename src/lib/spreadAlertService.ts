@@ -226,9 +226,7 @@ export class SpreadAlertService {
         loanName: widening.loanName,
         title: this.generateAlertTitle(widening),
         message: this.generateAlertMessage(widening),
-        recommendation: this.generateRecommendation(widening),
-        createdAt: new Date().toISOString(),
-        metadata: {
+        details: {
           currentSpread: widening.currentSpread,
           baselineSpread: widening.baselineSpread,
           spreadChange: widening.spreadChange,
@@ -236,7 +234,10 @@ export class SpreadAlertService {
           timeWindow: widening.timeWindow,
           creditRiskIndicator: widening.creditRiskIndicator,
           marketConditions: widening.marketConditions,
+          recommendation: this.generateRecommendation(widening)
         },
+        createdAt: new Date().toISOString(),
+        emailSent: false
       }
 
       alerts.push(alert)

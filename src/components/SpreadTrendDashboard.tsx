@@ -1,175 +1,217 @@
-import { Loan, PriceAlertThreshold, Alert, AlertSeverity } from './types'
+import { useState } from 'react'
+import { Loan } from '../lib/types'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+import { ChartLine, TrendUp, TrendDown, CaretUp, CaretDown } from '@phosphor-icons/react'
 
-export interface PriceAlertCheck {
-  loanId: string
-  triggeredAlerts: Alert[]
+interface SpreadTrendDashboardProps {
+  loans: Loan[]
 }
 
-export class PriceAlertService {
-  /**
-   * Checks a list of loans against defined thresholds to generate alerts.
-   */
-  checkPriceAlerts(
-    loans: Loan[], 
-    thresholds: PriceAlertThreshold[], 
-    existingAlerts: Alert[]
-  ): PriceAlertCheck[] {
-    const results: PriceAlertCheck[] = []
+export function SpreadTrendDashboard({ loans }: SpreadTrendDashboardProps) {
+  const [selectedLoan, setSelectedLoan] = useState<string>('all')
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
 
-    for (const loan of loans) {
-      const triggeredAlerts: Alert[] = []
-      const currentPrice = loan.marketPricing?.lastPrice || 0
-      const priceChangePercent = loan.marketPricing?.priceChangePercent24h || 0
-      const currentSpread = loan.marketPricing?.bidAskSpread || 0
+  const loansWithPricing = loans.filter(loan => loan.marketPricing && loan.priceHistory)
 
-      for (const threshold of thresholds) {
-        if (!threshold.enabled) continue
+  const generateSpreadData = (loan: Loan) => {
+    const history = loan.priceHistory || []
+    return history.map(point => ({
+      date: new Date(point.timestamp).toLocaleDateString(),
+      spread: loan.marketPricing?.spread || 0,
+      price: point.price
+    }))
+  }
 
-        let shouldTrigger = false
-        let alertType: Alert['type'] | null = null
-        let alertMessage = ''
-        let severity: AlertSeverity = 'medium'
+  const calculateSpreadTrend = (loan: Loan) => {
+    const history = loan.priceHistory || []
+    if (history.length < 2) return 0
+    
+    const recent = history.slice(-7)
+    const older = history.slice(-14, -7)
+    
+    const recentAvg = recent.reduce((sum, p) => sum + (loan.marketPricing?.spread || 0), 0) / recent.length
+    const olderAvg = older.length > 0 ? older.reduce((sum, p) => sum + (loan.marketPricing?.spread || 0), 0) / older.length : recentAvg
+    
+    return ((recentAvg - olderAvg) / olderAvg) * 100
+  }
 
-        switch (threshold.type) {
-          case 'price_above':
-            if (currentPrice > threshold.value) {
-              shouldTrigger = true
-              alertType = 'price_above_threshold'
-              alertMessage = `Price exceeded threshold of ${this.formatCurrency(threshold.value, loan.currency)}`
-              severity = 'medium'
-            }
-            break
+  const selectedLoanData = selectedLoan === 'all' 
+    ? loansWithPricing 
+    : loansWithPricing.filter(loan => loan.id === selectedLoan)
 
-          case 'price_below':
-            if (currentPrice < threshold.value) {
-              shouldTrigger = true
-              alertType = 'price_below_threshold'
-              alertMessage = `Price fell below threshold of ${this.formatCurrency(threshold.value, loan.currency)}`
-              severity = 'high'
-            }
-            break
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <ChartLine size={28} weight="bold" />
+            Spread Trend Analysis
+          </h2>
+          <p className="text-muted-foreground">Historical credit spread visualization and trend analysis</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">7 Days</SelectItem>
+              <SelectItem value="30d">30 Days</SelectItem>
+              <SelectItem value="90d">90 Days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={selectedLoan} onValueChange={setSelectedLoan}>
+            <SelectTrigger className="w-64">
+              <SelectValue placeholder="Select loan" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Loans</SelectItem>
+              {loansWithPricing.map(loan => (
+                <SelectItem key={loan.id} value={loan.id}>
+                  {loan.borrowerName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-          case 'spread_above':
-            if (currentSpread > threshold.value) {
-              shouldTrigger = true
-              alertType = 'spread_above_threshold'
-              alertMessage = `Bid-Ask spread widened to ${currentSpread.toFixed(2)}%`
-              severity = 'warning'
-            }
-            break
+      <div className="grid grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Spread</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono">
+              {(selectedLoanData.reduce((sum, l) => sum + (l.marketPricing?.spread || 0), 0) / selectedLoanData.length).toFixed(2)}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Across portfolio</p>
+          </CardContent>
+        </Card>
 
-          case 'price_change_percent':
-            if (Math.abs(priceChangePercent) > threshold.value) {
-              shouldTrigger = true
-              alertType = 'volatility_alert'
-              alertMessage = `24h Price movement of ${priceChangePercent.toFixed(2)}% detected`
-              severity = 'medium'
-            }
-            break
-        }
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Widening Loans</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono text-warning">
+              {selectedLoanData.filter(l => calculateSpreadTrend(l) > 10).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Trend deteriorating</p>
+          </CardContent>
+        </Card>
 
-        if (shouldTrigger && alertType) {
-          // Check if we recently alerted on this to avoid spam
-          const isDuplicate = existingAlerts.some(
-            (a) =>
-              a.loanId === loan.id &&
-              a.type === alertType &&
-              this.isRecentAlert(a.timestamp)
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Tightening Loans</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono text-success">
+              {selectedLoanData.filter(l => calculateSpreadTrend(l) < -10).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Trend improving</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Stable Loans</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono">
+              {selectedLoanData.filter(l => Math.abs(calculateSpreadTrend(l)) <= 10).length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Minimal change</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {selectedLoanData.map(loan => {
+          const trend = calculateSpreadTrend(loan)
+          const isWidening = trend > 0
+          
+          return (
+            <Card key={loan.id}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">{loan.borrowerName}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{loan.industry}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-sm text-muted-foreground">Current Spread</div>
+                      <div className="text-xl font-bold font-mono">
+                        {(loan.marketPricing?.spread || 0).toFixed(2)}%
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm text-muted-foreground">7d Trend</div>
+                      <div className={`text-xl font-bold font-mono flex items-center gap-1 ${
+                        isWidening ? 'text-warning' : 'text-success'
+                      }`}>
+                        {isWidening ? <CaretUp size={20} weight="bold" /> : <CaretDown size={20} weight="bold" />}
+                        {Math.abs(trend).toFixed(1)}%
+                      </div>
+                    </div>
+                    <Badge variant={
+                      loan.riskLevel === 'low' ? 'default' :
+                      loan.riskLevel === 'medium' ? 'secondary' :
+                      loan.riskLevel === 'high' ? 'destructive' : 'destructive'
+                    }>
+                      {loan.riskLevel}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-32 flex items-end justify-between gap-1">
+                  {(loan.priceHistory || []).slice(-30).map((point, i) => {
+                    const maxSpread = Math.max(...(loan.priceHistory || []).map(p => loan.marketPricing?.spread || 1))
+                    const height = ((loan.marketPricing?.spread || 0) / maxSpread) * 100
+                    
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 bg-accent rounded-t transition-all hover:bg-accent/80"
+                        style={{ height: `${height}%` }}
+                        title={`${new Date(point.timestamp).toLocaleDateString()}: ${(loan.marketPricing?.spread || 0).toFixed(2)}%`}
+                      />
+                    )
+                  })}
+                </div>
+                <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                  <span>{timeRange} ago</span>
+                  <span>Today</span>
+                </div>
+              </CardContent>
+            </Card>
           )
+        })}
+      </div>
 
-          if (!isDuplicate) {
-            const alert: Alert = {
-              id: `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-              type: alertType,
-              severity: severity,
-              status: 'active',
-              loanId: loan.id,
-              loanName: loan.borrowerName,
-              message: alertMessage,
-              timestamp: new Date().toISOString(),
-              metadata: {
-                thresholdValue: threshold.value,
-                currentValue: currentPrice,
-                currentSpread: currentSpread,
-                note: threshold.note,
-              }
-            }
-            triggeredAlerts.push(alert)
-          }
-        }
-      }
-
-      if (triggeredAlerts.length > 0) {
-        results.push({
-          loanId: loan.id,
-          triggeredAlerts
-        })
-      }
-    }
-
-    return results
-  }
-
-  /**
-   * Helper to determine if an alert is recent (e.g., within last 24 hours)
-   */
-  private isRecentAlert(timestamp: string): boolean {
-    const now = Date.now()
-    const alertTime = new Date(timestamp).getTime()
-    const hoursSince = (now - alertTime) / (1000 * 60 * 60)
-    return hoursSince < 24
-  }
-
-  /**
-   * Helper to format currency
-   */
-  private formatCurrency(value: number, currency: string): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      maximumFractionDigits: 2,
-    }).format(value)
-  }
-
-  /**
-   * Generates default thresholds for a loan
-   */
-  generateDefaultThresholds(loan: Loan): PriceAlertThreshold[] {
-    return [
-      {
-        id: `ALERT-${loan.id}-PRICE-HIGH`,
-        type: 'price_above',
-        value: 105.00,
-        enabled: true,
-        createdAt: new Date().toISOString(),
-        note: 'High price target'
-      },
-      {
-        id: `ALERT-${loan.id}-PRICE-LOW`,
-        type: 'price_below',
-        value: 95.00,
-        enabled: true,
-        createdAt: new Date().toISOString(),
-        note: 'Stop loss warning'
-      },
-      {
-        id: `ALERT-${loan.id}-SPREAD-HIGH`,
-        type: 'spread_above',
-        value: 2.0, // 2% spread
-        enabled: true,
-        createdAt: new Date().toISOString(),
-        note: 'Liquidity warning'
-      },
-      {
-        id: `ALERT-${loan.id}-VOLATILITY`,
-        type: 'price_change_percent',
-        value: 5.0, // 5% move
-        enabled: true,
-        createdAt: new Date().toISOString(),
-        note: 'High volatility detected'
-      }
-    ]
-  }
+      {selectedLoanData.length === 0 && (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <ChartLine size={48} className="mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No spread data available</h3>
+            <p className="text-muted-foreground">Loans need pricing data to display spread trends</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  )
 }
 
-export const priceAlertService = new PriceAlertService()
+export function SpreadTrendDashboardTrigger({ onClick }: { onClick: () => void }) {
+  return (
+    <Button variant="outline" size="default" onClick={onClick} className="gap-2">
+      <ChartLine size={20} />
+      Spread Trends
+    </Button>
+  )
+}

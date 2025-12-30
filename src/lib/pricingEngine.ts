@@ -270,6 +270,14 @@ export class LoanPricingEngine {
     
     this.updateIntervals.set(loan.id, intervalId)
   }
+
+  getComparableLoans(loan: Loan, allLoans: Loan[]): ComparableLoans[] {
+    return this.findComparableLoans(loan, allLoans)
+  }
+
+  getMarketFactors(): MarketFactors {
+    return { ...this.marketFactors }
+  }
 }
 
 export const pricingEngine = LoanPricingEngine.getInstance()
