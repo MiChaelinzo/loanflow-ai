@@ -44,31 +44,13 @@ export interface QuarterlyMetrics {
     averageESGScore: number
     greenExposure: number
   }
+  
   marketMetrics: {
-   
-
-    valueAtRisk: n
+    averageSpreadChange: number
+    volatilityIndex: number
+    valueAtRisk: number
   }
-
-  t
-
-    title: strin
-  }[]
-  quarters: Quarter[]
-  s
-
-
-    category: string
-    descrip
-    trend: 'up' | 'd
 }
-export interface C
-  categories: ('p
-}
-
-
-
-
 
 
 
