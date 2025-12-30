@@ -1,27 +1,29 @@
-import { Loan, PriceAlertThreshold } from './types'
+import { Loan, PriceAlertThreshold, Alert, AlertSeverity } from './types'
 
-
+export interface PriceAlertCheck {
+  loanId: string
+  triggeredAlerts: Alert[]
 }
-class PriceA
-    const results: PriceAl
-}
 
-class PriceAlertService {
-  checkPriceAlerts(loans: Loan[], existingAlerts: Alert[]): PriceAlertCheck[] {
+export class PriceAlertService {
+  /**
+   * Checks a list of loans against defined thresholds to generate alerts.
+   */
+  checkPriceAlerts(
+    loans: Loan[], 
+    thresholds: PriceAlertThreshold[], 
+    existingAlerts: Alert[]
+  ): PriceAlertCheck[] {
     const results: PriceAlertCheck[] = []
 
-      const currentPrice = loan
-      const priceChangePercent = loan.marketPricing.priceChangePercent24h
-      for (const
+    for (const loan of loans) {
+      const triggeredAlerts: Alert[] = []
+      const currentPrice = loan.marketPricing?.lastPrice || 0
+      const priceChangePercent = loan.marketPricing?.priceChangePercent24h || 0
+      const currentSpread = loan.marketPricing?.bidAskSpread || 0
 
-
-        let severity: AlertSeverity = 'me
-        switch (threshold.type) {
-            if (currentPrice > threshold.value) {
-              alertType = 'price_above_threshold'
-
-            break
-          case 'price_below':
+      for (const threshold of thresholds) {
+        if (!threshold.enabled) continue
 
         let shouldTrigger = false
         let alertType: Alert['type'] | null = null
@@ -48,148 +50,126 @@ class PriceAlertService {
             break
 
           case 'spread_above':
+            if (currentSpread > threshold.value) {
               shouldTrigger = true
-              alertMessage = price
-                : `Price dropped ${Math.abs
+              alertType = 'spread_above_threshold'
+              alertMessage = `Bid-Ask spread widened to ${currentSpread.toFixed(2)}%`
+              severity = 'warning'
             }
+            break
+
+          case 'price_change_percent':
+            if (Math.abs(priceChangePercent) > threshold.value) {
+              shouldTrigger = true
+              alertType = 'volatility_alert'
+              alertMessage = `24h Price movement of ${priceChangePercent.toFixed(2)}% detected`
+              severity = 'medium'
+            }
+            break
         }
-        if (s
-            (a) =
 
-              this.isRecentAle
+        if (shouldTrigger && alertType) {
+          // Check if we recently alerted on this to avoid spam
+          const isDuplicate = existingAlerts.some(
+            (a) =>
+              a.loanId === loan.id &&
+              a.type === alertType &&
+              this.isRecentAlert(a.timestamp)
+          )
 
+          if (!isDuplicate) {
             const alert: Alert = {
+              id: `alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
               type: alertType,
+              severity: severity,
               status: 'active',
-              loanName: loan.b
-             
-                t
-
-                currentSpread,
+              loanId: loan.id,
+              loanName: loan.borrowerName,
+              message: alertMessage,
+              timestamp: new Date().toISOString(),
+              metadata: {
+                thresholdValue: threshold.value,
+                currentValue: currentPrice,
+                currentSpread: currentSpread,
                 note: threshold.note,
-              createdAt: new Date(
+              }
             }
             triggeredAlerts.push(alert)
+          }
         }
-
-        results.push({
-          tri
       }
 
+      if (triggeredAlerts.length > 0) {
+        results.push({
+          loanId: loan.id,
+          triggeredAlerts
+        })
+      }
+    }
 
-  private isRecentAlert(createdAt: string
-    const now = Date.now()
-    return hoursSi
-
-    return new Intl.NumberFormat('en-
-      currency,
-      maximumFractionDigits: 2,
+    return results
   }
 
+  /**
+   * Helper to determine if an alert is recent (e.g., within last 24 hours)
+   */
+  private isRecentAlert(timestamp: string): boolean {
+    const now = Date.now()
+    const alertTime = new Date(timestamp).getTime()
+    const hoursSince = (now - alertTime) / (1000 * 60 * 60)
+    return hoursSince < 24
+  }
 
-    const currentSpread = loan.mar
+  /**
+   * Helper to format currency
+   */
+  private formatCurrency(value: number, currency: string): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      maximumFractionDigits: 2,
+    }).format(value)
+  }
+
+  /**
+   * Generates default thresholds for a loan
+   */
+  generateDefaultThresholds(loan: Loan): PriceAlertThreshold[] {
     return [
-        id: `ALERT-${loan.id}-
-        type: 'price_ab
+      {
+        id: `ALERT-${loan.id}-PRICE-HIGH`,
+        type: 'price_above',
+        value: 105.00,
         enabled: true,
-        createdAt: new Date().
+        createdAt: new Date().toISOString(),
+        note: 'High price target'
       },
+      {
         id: `ALERT-${loan.id}-PRICE-LOW`,
         type: 'price_below',
+        value: 95.00,
         enabled: true,
-        createdAt: new Date().toISOString(
+        createdAt: new Date().toISOString(),
+        note: 'Stop loss warning'
       },
+      {
         id: `ALERT-${loan.id}-SPREAD-HIGH`,
         type: 'spread_above',
+        value: 2.0, // 2% spread
         enabled: true,
-        createdAt: new Date().toISO
+        createdAt: new Date().toISOString(),
+        note: 'Liquidity warning'
       },
-        id: `ALE
+      {
+        id: `ALERT-${loan.id}-VOLATILITY`,
         type: 'price_change_percent',
+        value: 5.0, // 5% move
         enabled: true,
-        creat
-
+        createdAt: new Date().toISOString(),
+        note: 'High volatility detected'
+      }
+    ]
   }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const priceAlertService = new PriceAlertService()
