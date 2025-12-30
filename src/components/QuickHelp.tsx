@@ -158,4 +158,9 @@ export const quickHelpTips = {
     title: 'Spread Widening Monitor',
     message: 'Detect early signs of credit deterioration by monitoring credit spread changes. Spreads widening beyond thresholds can indicate declining borrower creditworthiness, increased market risk perception, or sector-wide stress. Configure severity thresholds and receive automated alerts when spreads breach warning levels.',
   },
+  spreadTrends: {
+    id: 'spread-trends-help',
+    title: 'Spread Trend Visualization',
+    message: 'Analyze historical credit spread movements with advanced charting tools. View aggregate trends, industry comparisons, volatility patterns, and risk-based distributions. Track widening vs tightening days and export data for external analysis. Use scatter plots to identify outliers and compare spreads across multiple dimensions.',
+  },
 }

@@ -41,6 +41,7 @@ import { TeamPerformanceDashboard } from './components/TeamPerformanceDashboard'
 import { Q3ForecastExport, Q3ForecastExportTrigger } from './components/Q3ForecastExport'
 import { ComparativeAnalysis, ComparativeAnalysisTrigger } from './components/ComparativeAnalysis'
 import { SpreadWideningMonitor, SpreadWideningMonitorTrigger } from './components/SpreadWideningMonitor'
+import { SpreadTrendDashboard, SpreadTrendDashboardTrigger } from './components/SpreadTrendDashboard'
 import { Alert } from './lib/alertTypes'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -71,6 +72,7 @@ function App() {
   const [q3ForecastOpen, setQ3ForecastOpen] = useState(false)
   const [comparativeAnalysisOpen, setComparativeAnalysisOpen] = useState(false)
   const [spreadMonitorOpen, setSpreadMonitorOpen] = useState(false)
+  const [spreadTrendsOpen, setSpreadTrendsOpen] = useState(false)
   const [alerts, setAlerts] = useKV<Alert[]>('alerts', [])
 
   useEffect(() => {
@@ -368,6 +370,7 @@ function App() {
               <Q3ForecastExportTrigger onClick={() => setQ3ForecastOpen(true)} />
               <ComparativeAnalysisTrigger onClick={() => setComparativeAnalysisOpen(true)} />
               <SpreadWideningMonitorTrigger onClick={() => setSpreadMonitorOpen(true)} />
+              <SpreadTrendDashboardTrigger onClick={() => setSpreadTrendsOpen(true)} />
               <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
                 <Download size={20} />
                 Export
@@ -393,7 +396,7 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-14">
+          <TabsList className="grid w-full grid-cols-15">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -417,6 +420,10 @@ function App() {
             <TabsTrigger value="spread-monitor" className="gap-2" data-tutorial="spread-monitor-tab">
               <TrendUp size={18} />
               Spreads
+            </TabsTrigger>
+            <TabsTrigger value="spread-trends" className="gap-2" data-tutorial="spread-trends-tab">
+              <ChartLine size={18} />
+              Trends
             </TabsTrigger>
             <TabsTrigger value="stress-test" className="gap-2" data-tutorial="stress-test-tab">
               <Lightning size={18} />
@@ -673,6 +680,11 @@ function App() {
             />
           </TabsContent>
 
+          <TabsContent value="spread-trends" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.spreadTrends} />
+            <SpreadTrendDashboard loans={loans || []} />
+          </TabsContent>
+
           <TabsContent value="stress-test" className="space-y-4">
             <QuickHelp tip={quickHelpTips.stressTest} />
             <StressTestDashboard loans={loans || []} />
@@ -870,6 +882,18 @@ function App() {
               setAlerts((currentAlerts) => [...(currentAlerts || []), ...newAlerts])
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={spreadTrendsOpen} onOpenChange={setSpreadTrendsOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Spread Trend Visualization</DialogTitle>
+            <DialogDescription>
+              Historical credit spread analysis with advanced charting and insights
+            </DialogDescription>
+          </DialogHeader>
+          <SpreadTrendDashboard loans={loans || []} />
         </DialogContent>
       </Dialog>
     </div>
