@@ -574,6 +574,13 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Machine learning model predictions with confidence scoring
   - Responsive dialog design for comfortable data review
 
+### 26. Automated Compliance Report Generation (✓ IMPLEMENTED - Quarterly Regulatory Filings)
+- **Functionality**: Comprehensive automated quarterly regulatory filing system that generates fully-formatted compliance reports meeting Basel III, LMA, IFRS 9, and ESG disclosure requirements
+- **Purpose**: Streamline regulatory compliance by automating report generation, reducing costs by 80%, ensuring accuracy, and enabling rapid submission to regulatory bodies
+- **Trigger**: Click "Compliance Reports" button in header or navigate to "Reports" tab
+- **Progression**: Configure quarter/frameworks → Generate report → Review sections → Preview → Finalize → Submit to regulators → Export PDF/Excel
+- **Success criteria**: 4 regulatory frameworks (Basel III, LMA, IFRS 9, ESG), 8+ auto-generated sections, professional summary metrics, report lifecycle (draft/finalized/submitted), comprehensive tables, PDF/Excel export, interactive preview, smart submission workflow, automated calculations, AI-driven insights
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them

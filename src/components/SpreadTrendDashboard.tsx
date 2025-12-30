@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Loan } from '../lib/types'
 import { Button } from './ui/button'
-import { ChartLine, TrendUp, Trend
-interface SpreadTrendDashboardProps 
-}
-export function SpreadTrendDashboard({ loans }: SpreadTrendDashboardProps) {
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Badge } from './ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+import { ChartLine, TrendUp, TrendDown } from '@phosphor-icons/react'
 
 interface SpreadTrendDashboardProps {
   loans: Loan[]
@@ -14,58 +14,51 @@ export function SpreadTrendDashboard({ loans }: SpreadTrendDashboardProps) {
   const [selectedLoan, setSelectedLoan] = useState<string>('all')
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
 
-    const older = history.slice(-14, -7)
+  const loansWithPricing = loans.filter(loan => loan.priceHistory && loan.priceHistory.length > 0)
 
-    
+  const selectedLoanData = selectedLoan === 'all'
+    ? loansWithPricing
+    : loansWithPricing.filter(loan => loan.id === selectedLoan)
+
+  const calculateSpreadTrend = (loan: Loan) => {
+    if (!loan.priceHistory || loan.priceHistory.length < 2) return { trend: 'stable', change: 0 }
+
+    const history = loan.priceHistory.slice(-30)
+    const older = history.slice(0, 15)
+    const recent = history.slice(-15)
+
+    const oldAvg = older.reduce((sum, p) => sum + (p.spread || 0), 0) / older.length
+    const recentAvg = recent.reduce((sum, p) => sum + (p.spread || 0), 0) / recent.length
+
+    const change = ((recentAvg - oldAvg) / oldAvg) * 100
+
+    if (change > 5) return { trend: 'widening', change }
+    if (change < -5) return { trend: 'tightening', change }
+    return { trend: 'stable', change }
   }
-  const selectedLoanData = selecte
-    : loansWithPricing.filter(loan => loan.id === selectedL
+
   return (
-      <div className="fl
-       
-   
-
-        <div className="flex items-center gap-3"
-            <SelectTrigger className="w-32"
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-bold">Spread Trend Analysis</h3>
+          <p className="text-sm text-muted-foreground">Historical credit spread movements and patterns</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Select value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
             </SelectTrigger>
-    
-              <SelectItem value="90d
+            <SelectContent>
+              <SelectItem value="7d">7 Days</SelectItem>
+              <SelectItem value="30d">30 Days</SelectItem>
+              <SelectItem value="90d">90 Days</SelectItem>
+            </SelectContent>
           </Select>
-    
-            </SelectTrigger>
-              <SelectItem value="all">All Loans</SelectItem>
-    
-                </SelectItem>
-   
 
-
-        <Card>
-            <CardTitle className="text-sm font-medium text-mute
-
-          
-            <p className="text-
-        </Card>
-        <Card
-            <CardTitle className="text-sm font-medium text-muted-fore
-          <CardContent>
-              {selectedLoanData.f
-            <p 
-        </Card>
-        <Card>
-            <CardTitle className="text-sm font-me
-          <CardContent>
-              {selectedLoanData.filter(l => 
-            <p className="tex
-        </Card>
-        <Card>
-            <CardTitle className="text-sm font-medium te
-          <CardContent>
-              {selectedLoanData.filter(l => Math.abs(calcu
-            <p className="te
-          </Select>
           <Select value={selectedLoan} onValueChange={setSelectedLoan}>
             <SelectTrigger className="w-64">
-              <SelectValue placeholder="Select loan" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Loans</SelectItem>
@@ -79,132 +72,82 @@ export function SpreadTrendDashboard({ loans }: SpreadTrendDashboardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Spread</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Widening Spreads</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">
-              {(selectedLoanData.reduce((sum, l) => sum + (l.marketPricing?.bidAskSpread || 0), 0) / selectedLoanData.length).toFixed(2)}%
+            <div className="text-3xl font-bold text-destructive">
+              {selectedLoanData.filter(l => calculateSpreadTrend(l).trend === 'widening').length}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Across portfolio</p>
-          </CardContent>
-               
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Widening Loans</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-warning">
-              {selectedLoanData.filter(l => calculateSpreadTrend(l) > 10).length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Trend deteriorating</p>
+            <p className="text-xs text-muted-foreground mt-2">Loans showing spread widening</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Tightening Loans</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Stable Spreads</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono text-success">
-              {selectedLoanData.filter(l => calculateSpreadTrend(l) < -10).length}
+            <div className="text-3xl font-bold">
+              {selectedLoanData.filter(l => calculateSpreadTrend(l).trend === 'stable').length}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Trend improving</p>
+            <p className="text-xs text-muted-foreground mt-2">Loans with stable spreads</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Stable Loans</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Tightening Spreads</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold font-mono">
-              {selectedLoanData.filter(l => Math.abs(calculateSpreadTrend(l)) <= 10).length}
+            <div className="text-3xl font-bold text-success">
+              {selectedLoanData.filter(l => calculateSpreadTrend(l).trend === 'tightening').length}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Minimal change</p>
+            <p className="text-xs text-muted-foreground mt-2">Loans showing spread tightening</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-          <CardContent className="py-12
-          const trend = calculateSpreadTrend(loan)
-            <p className="text-muted-f
-          
-      )}
-            <Card key={loan.id}>
-}
-                <div className="flex items-center justify-between">
-  return (
-                    <CardTitle className="text-lg">{loan.borrowerName}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{loan.industry}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Spread Movements</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {selectedLoanData.map(loan => {
+              const { trend, change } = calculateSpreadTrend(loan)
+              return (
+                <div key={loan.id} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div>
+                    <div className="font-medium">{loan.borrowerName}</div>
+                    <div className="text-sm text-muted-foreground">{loan.industry}</div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-sm text-muted-foreground">Current Spread</div>
-                      <div className="text-xl font-bold font-mono">
-                        {(loan.marketPricing?.bidAskSpread || 0).toFixed(2)}%
+                      <div className="font-mono text-sm">
+                        Current: {loan.marketPricing?.spread.toFixed(0) || 0} bps
+                      </div>
+                      <div className={`text-xs ${change > 0 ? 'text-destructive' : change < 0 ? 'text-success' : 'text-muted-foreground'}`}>
+                        {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prior period
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm text-muted-foreground">7d Trend</div>
-                      <div className={`text-xl font-bold font-mono flex items-center gap-1 ${
-                        isWidening ? 'text-warning' : 'text-success'
-                      }`}>
-                        {isWidening ? <CaretUp size={20} weight="bold" /> : <CaretDown size={20} weight="bold" />}
-                        {Math.abs(trend).toFixed(1)}%
-                      </div>
-                    </div>
-                    <Badge variant={
-                      loan.riskLevel === 'low' ? 'default' :
-                      loan.riskLevel === 'medium' ? 'secondary' :
-                      loan.riskLevel === 'high' ? 'destructive' : 'destructive'
-                    }>
-                      {loan.riskLevel}
-
+                    <Badge variant={trend === 'widening' ? 'destructive' : trend === 'tightening' ? 'default' : 'secondary'} className="gap-1.5">
+                      {trend === 'widening' && <TrendUp size={14} />}
+                      {trend === 'tightening' && <TrendDown size={14} />}
+                      {trend === 'stable' && <ChartLine size={14} />}
+                      {trend.charAt(0).toUpperCase() + trend.slice(1)}
+                    </Badge>
                   </div>
-
-              </CardHeader>
-              <CardContent>
-                <div className="h-32 flex items-end justify-between gap-1">
-                  {(loan.priceHistory || []).slice(-30).map((point, i) => {
-                    const maxSpread = Math.max(...(loan.priceHistory || []).map(p => loan.marketPricing?.bidAskSpread || 1))
-                    const height = ((loan.marketPricing?.bidAskSpread || 0) / maxSpread) * 100
-                    
-
-                      <div
-                        key={i}
-                        className="flex-1 bg-accent rounded-t transition-all hover:bg-accent/80"
-
-                        title={`${new Date(point.timestamp).toLocaleDateString()}: ${(loan.marketPricing?.bidAskSpread || 0).toFixed(2)}%`}
-
-                    )
-                  })}
                 </div>
-                <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                  <span>{timeRange} ago</span>
-                  <span>Today</span>
-                </div>
-
-            </Card>
-
-        })}
-
-
-      {selectedLoanData.length === 0 && (
-        <Card>
-
-            <ChartLine size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No spread data available</h3>
-            <p className="text-muted-foreground">Loans need pricing data to display spread trends</p>
-          </CardContent>
-        </Card>
-
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
     </div>
-
+  )
 }
 
 export function SpreadTrendDashboardTrigger({ onClick }: { onClick: () => void }) {
@@ -212,5 +155,6 @@ export function SpreadTrendDashboardTrigger({ onClick }: { onClick: () => void }
     <Button variant="outline" size="default" onClick={onClick} className="gap-2">
       <ChartLine size={20} />
       Spread Trends
-
+    </Button>
   )
+}

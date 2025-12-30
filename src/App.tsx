@@ -42,8 +42,9 @@ import { Q3ForecastExport, Q3ForecastExportTrigger } from './components/Q3Foreca
 import { ComparativeAnalysis, ComparativeAnalysisTrigger } from './components/ComparativeAnalysis'
 import { SpreadWideningMonitor, SpreadWideningMonitorTrigger } from './components/SpreadWideningMonitor'
 import { SpreadTrendDashboard, SpreadTrendDashboardTrigger } from './components/SpreadTrendDashboard'
+import { ComplianceReportGenerator, ComplianceReportGeneratorTrigger } from './components/ComplianceReportGenerator'
 import { Alert } from './lib/alertTypes'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -73,6 +74,7 @@ function App() {
   const [comparativeAnalysisOpen, setComparativeAnalysisOpen] = useState(false)
   const [spreadMonitorOpen, setSpreadMonitorOpen] = useState(false)
   const [spreadTrendsOpen, setSpreadTrendsOpen] = useState(false)
+  const [complianceReportOpen, setComplianceReportOpen] = useState(false)
   const [alerts, setAlerts] = useKV<Alert[]>('alerts', [])
 
   useEffect(() => {
@@ -371,6 +373,7 @@ function App() {
               <ComparativeAnalysisTrigger onClick={() => setComparativeAnalysisOpen(true)} />
               <SpreadWideningMonitorTrigger onClick={() => setSpreadMonitorOpen(true)} />
               <SpreadTrendDashboardTrigger onClick={() => setSpreadTrendsOpen(true)} />
+              <ComplianceReportGeneratorTrigger onClick={() => setComplianceReportOpen(true)} />
               <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
                 <Download size={20} />
                 Export
@@ -396,7 +399,7 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-15">
+          <TabsList className="grid w-full grid-cols-16">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
@@ -436,6 +439,10 @@ function App() {
             <TabsTrigger value="compliance" className="gap-2" data-tutorial="compliance-tab">
               <ShieldCheck size={18} />
               Compliance
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="gap-2" data-tutorial="reports-tab">
+              <FileDoc size={18} />
+              Reports
             </TabsTrigger>
             <TabsTrigger value="esg" className="gap-2" data-tutorial="esg-tab">
               <Leaf size={18} />
@@ -699,6 +706,10 @@ function App() {
             <ComplianceChecker loans={loans || []} />
           </TabsContent>
 
+          <TabsContent value="reports" className="space-y-4">
+            <ComplianceReportGenerator loans={loans || []} alerts={alerts || []} />
+          </TabsContent>
+
           <TabsContent value="esg">
             <div className="space-y-6">
               <QuickHelp tip={quickHelpTips.esg} className="mb-6" />
@@ -894,6 +905,18 @@ function App() {
             </DialogDescription>
           </DialogHeader>
           <SpreadTrendDashboard loans={loans || []} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={complianceReportOpen} onOpenChange={setComplianceReportOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Compliance Report Generator</DialogTitle>
+            <DialogDescription>
+              Automated quarterly regulatory filings with comprehensive portfolio analysis
+            </DialogDescription>
+          </DialogHeader>
+          <ComplianceReportGenerator loans={loans || []} alerts={alerts || []} />
         </DialogContent>
       </Dialog>
     </div>
