@@ -345,7 +345,7 @@ function App() {
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center">
                 <Brain size={24} weight="bold" className="text-white" />
@@ -355,38 +355,28 @@ function App() {
                 <p className="text-sm text-muted-foreground">Intelligent Loan Management & Trading Platform</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <AlertAnalyticsTrigger onClick={() => setAlertAnalyticsOpen(true)} />
-              <AlertCenterTrigger
-                onClick={() => setAlertCenterOpen(true)}
-                alertCount={activeAlertCount}
-              />
-              <AlertSettingsTrigger onClick={() => setAlertSettingsOpen(true)} />
-              <AIChatbotTrigger onClick={() => setChatbotOpen(true)} />
-              <HelpCenterTrigger />
-              <TutorialTrigger />
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 rounded-lg border">
+                <AlertCenterTrigger
+                  onClick={() => setAlertCenterOpen(true)}
+                  alertCount={activeAlertCount}
+                />
+                <Separator orientation="vertical" className="h-6" />
+                <AIChatbotTrigger onClick={() => setChatbotOpen(true)} />
+                <Separator orientation="vertical" className="h-6" />
+                <HelpCenterTrigger />
+                <TutorialTrigger />
+              </div>
+              
               {(loans || []).length === 0 && (
                 <Button variant="secondary" size="default" onClick={handleLoadSampleData} className="gap-2">
                   <Sparkle size={20} />
-                  Load Demo Data
+                  Load Demo
                 </Button>
               )}
-              <Q3ForecastExportTrigger onClick={() => setQ3ForecastOpen(true)} />
-              <ComparativeAnalysisTrigger onClick={() => setComparativeAnalysisOpen(true)} />
-              <SpreadWideningMonitorTrigger onClick={() => setSpreadMonitorOpen(true)} />
-              <SpreadTrendDashboardTrigger onClick={() => setSpreadTrendsOpen(true)} />
-              <ComplianceReportGeneratorTrigger onClick={() => setComplianceReportOpen(true)} />
-              <MultiPeriodComparisonTrigger onClick={() => setMultiPeriodOpen(true)} />
-              <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
-                <Download size={20} />
-                Export
-              </Button>
-              <Button variant="outline" size="default" onClick={() => setBatchUploadDialogOpen(true)} className="gap-2">
-                <Stack size={20} />
-                Batch Upload
-              </Button>
+              
               <Button size="lg" onClick={() => setUploadDialogOpen(true)} className="gap-2" data-tutorial="upload-button">
-                <UploadSimple size={20} />
+                <UploadSimple size={20} weight="bold" />
                 Upload Document
               </Button>
             </div>
@@ -402,72 +392,261 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-16">
-            <TabsTrigger value="portfolio" className="gap-2">
-              <FileText size={18} />
-              Portfolio
-            </TabsTrigger>
-            <TabsTrigger value="pricing" className="gap-2" data-tutorial="pricing-tab">
-              <CurrencyDollar size={18} />
-              Pricing
-            </TabsTrigger>
-            <TabsTrigger value="trading" className="gap-2" data-tutorial="trading-tab">
-              <Handshake size={18} />
-              Trading
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2" data-tutorial="analytics-tab">
-              <ChartLine size={18} />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="alerts" className="gap-2">
-              <Lightning size={18} />
-              Alerts
-            </TabsTrigger>
-            <TabsTrigger value="spread-monitor" className="gap-2" data-tutorial="spread-monitor-tab">
-              <TrendUp size={18} />
-              Spreads
-            </TabsTrigger>
-            <TabsTrigger value="spread-trends" className="gap-2" data-tutorial="spread-trends-tab">
-              <ChartLine size={18} />
-              Trends
-            </TabsTrigger>
-            <TabsTrigger value="stress-test" className="gap-2" data-tutorial="stress-test-tab">
-              <Lightning size={18} />
-              Stress Test
-            </TabsTrigger>
-            <TabsTrigger value="market" className="gap-2" data-tutorial="market-tab">
-              <Globe size={18} />
-              Market
-            </TabsTrigger>
-            <TabsTrigger value="compliance" className="gap-2" data-tutorial="compliance-tab">
-              <ShieldCheck size={18} />
-              Compliance
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="gap-2" data-tutorial="reports-tab">
-              <FileDoc size={18} />
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="esg" className="gap-2" data-tutorial="esg-tab">
-              <Leaf size={18} />
-              ESG
-            </TabsTrigger>
-            <TabsTrigger value="team" className="gap-2" data-tutorial="team-tab">
-              <Users size={18} />
-              Team
-            </TabsTrigger>
-            <TabsTrigger value="performance" className="gap-2" data-tutorial="performance-tab">
-              <Trophy size={18} />
-              Performance
-            </TabsTrigger>
-            <TabsTrigger value="routing" className="gap-2" data-tutorial="routing-tab">
-              <GitBranch size={18} />
-              Routing
-            </TabsTrigger>
-            <TabsTrigger value="assignments" className="gap-2" data-tutorial="assignments-tab">
-              <FolderOpen size={18} />
-              Assignments
-            </TabsTrigger>
-          </TabsList>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-muted-foreground">Navigation</h2>
+                <Badge variant="outline" className="font-mono">
+                  {(loans || []).length} Loans
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" onClick={() => setBatchUploadDialogOpen(true)} className="gap-2">
+                  <Stack size={18} />
+                  Batch Upload
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleExportPortfolio} className="gap-2">
+                  <Download size={18} />
+                  Export Portfolio
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-3">
+              <Card className="p-3 nav-card-hover">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Portfolio Management</h3>
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant={activeTab === 'portfolio' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('portfolio')}
+                    className="justify-start gap-2 w-full"
+                  >
+                    <FileText size={18} />
+                    Portfolio Overview
+                  </Button>
+                  <Button
+                    variant={activeTab === 'assignments' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('assignments')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="assignments-tab"
+                  >
+                    <FolderOpen size={18} />
+                    Loan Assignments
+                  </Button>
+                  <Button
+                    variant={activeTab === 'esg' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('esg')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="esg-tab"
+                  >
+                    <Leaf size={18} />
+                    ESG & Green
+                  </Button>
+                </div>
+              </Card>
+
+              <Card className="p-3 nav-card-hover">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Market & Trading</h3>
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant={activeTab === 'pricing' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('pricing')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="pricing-tab"
+                  >
+                    <CurrencyDollar size={18} />
+                    Real-Time Pricing
+                  </Button>
+                  <Button
+                    variant={activeTab === 'trading' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('trading')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="trading-tab"
+                  >
+                    <Handshake size={18} />
+                    Trading Hub
+                  </Button>
+                  <Button
+                    variant={activeTab === 'market' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('market')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="market-tab"
+                  >
+                    <Globe size={18} />
+                    Market Intelligence
+                  </Button>
+                </div>
+              </Card>
+
+              <Card className="p-3 nav-card-hover">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Risk & Analytics</h3>
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant={activeTab === 'analytics' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('analytics')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="analytics-tab"
+                  >
+                    <ChartLine size={18} />
+                    Analytics
+                  </Button>
+                  <Button
+                    variant={activeTab === 'spread-monitor' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('spread-monitor')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="spread-monitor-tab"
+                  >
+                    <TrendUp size={18} />
+                    Spread Monitor
+                  </Button>
+                  <Button
+                    variant={activeTab === 'spread-trends' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('spread-trends')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="spread-trends-tab"
+                  >
+                    <ChartLine size={18} />
+                    Spread Trends
+                  </Button>
+                  <Button
+                    variant={activeTab === 'stress-test' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('stress-test')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="stress-test-tab"
+                  >
+                    <Lightning size={18} />
+                    Stress Testing
+                  </Button>
+                  <Button
+                    variant={activeTab === 'alerts' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('alerts')}
+                    className="justify-start gap-2 w-full relative"
+                  >
+                    <Lightning size={18} />
+                    Alert Analytics
+                    {activeAlertCount > 0 && (
+                      <Badge variant="destructive" className="ml-auto h-5 px-1.5 text-xs">
+                        {activeAlertCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </div>
+              </Card>
+
+              <Card className="p-3 nav-card-hover">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Compliance & Teams</h3>
+                <div className="flex flex-col gap-1">
+                  <Button
+                    variant={activeTab === 'compliance' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('compliance')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="compliance-tab"
+                  >
+                    <ShieldCheck size={18} />
+                    Compliance
+                  </Button>
+                  <Button
+                    variant={activeTab === 'reports' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('reports')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="reports-tab"
+                  >
+                    <FileDoc size={18} />
+                    Reports
+                  </Button>
+                  <Button
+                    variant={activeTab === 'team' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('team')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="team-tab"
+                  >
+                    <Users size={18} />
+                    Team Management
+                  </Button>
+                  <Button
+                    variant={activeTab === 'performance' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('performance')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="performance-tab"
+                  >
+                    <Trophy size={18} />
+                    Performance
+                  </Button>
+                  <Button
+                    variant={activeTab === 'routing' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveTab('routing')}
+                    className="justify-start gap-2 w-full"
+                    data-tutorial="routing-tab"
+                  >
+                    <GitBranch size={18} />
+                    Alert Routing
+                  </Button>
+                </div>
+              </Card>
+            </div>
+
+            <Card className="p-4 bg-accent/5 border-accent/20">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                  <Sparkle size={20} className="text-accent" weight="bold" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold mb-1">Quick Actions & Reports</h3>
+                  <p className="text-sm text-muted-foreground mb-3">Generate insights, export data, and access advanced analysis tools</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setQ3ForecastOpen(true)} className="gap-2">
+                      <ChartLine size={16} />
+                      Q3 Forecast
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setComparativeAnalysisOpen(true)} className="gap-2">
+                      <ChartLine size={16} />
+                      Comparative Analysis
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setSpreadMonitorOpen(true)} className="gap-2">
+                      <TrendUp size={16} />
+                      Spread Monitor
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setSpreadTrendsOpen(true)} className="gap-2">
+                      <ChartLine size={16} />
+                      Spread Trends
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setComplianceReportOpen(true)} className="gap-2">
+                      <FileDoc size={16} />
+                      Compliance Report
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setMultiPeriodOpen(true)} className="gap-2">
+                      <ChartLine size={16} />
+                      Multi-Period Compare
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setAlertAnalyticsOpen(true)} className="gap-2">
+                      <Lightning size={16} />
+                      Alert Analytics
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setAlertSettingsOpen(true)} className="gap-2">
+                      <Lightning size={16} />
+                      Alert Settings
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
 
           <TabsContent value="portfolio" className="space-y-8">
             <QuickHelp tip={quickHelpTips.portfolio} />

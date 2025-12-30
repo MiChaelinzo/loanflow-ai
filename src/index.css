@@ -91,3 +91,14 @@ h1, h2, h3, h4, h5, h6 {
 .font-mono {
   font-family: var(--font-mono);
 }
+
+@layer components {
+  .nav-card-hover {
+    transition: all 0.2s ease;
+  }
+  
+  .nav-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+}

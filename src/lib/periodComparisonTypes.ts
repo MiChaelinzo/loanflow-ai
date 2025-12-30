@@ -47,22 +47,47 @@ export interface QuarterlyMetrics {
     carbonReduction: number
   }
   
-    expectedShor
-    sectorDiversi
+  marketMetrics: {
+    expectedShortfall: number
+    sectorDiversification: number
+  }
+
+  riskMetrics: {
+    valueAtRisk: number
+    expectedShortfall: number
+  }
 }
-export interface PeriodCompar
+
+export interface PeriodComparisonProps {
   trends: {
     category: string
-   
- 
-
+    value: number
+    change: number
     title: string
-    severity: 'high' | 'mediu
+    severity: 'high' | 'medium' | 'low'
   }[]
 
-  quarters: Quarter[
-  categories: ('port
-  showInsights: bo
+  quarters: Quarter[]
+  categories: ('portfolio' | 'trading' | 'team' | 'compliance' | 'esg')[]
+  showInsights: boolean
+}
+
+export interface PeriodComparison {
+  quarters: QuarterlyMetrics[]
+  insights: {
+    category: string
+    title: string
+    description: string
+    severity: 'high' | 'medium' | 'low'
+    trend: 'up' | 'down' | 'stable'
+  }[]
+}
+
+export interface ComparisonFilters {
+  quarters: Quarter[]
+  categories: ('portfolio' | 'trading' | 'team' | 'compliance' | 'esg')[]
+  showInsights: boolean
+}
 
 
 
