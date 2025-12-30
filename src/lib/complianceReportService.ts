@@ -148,6 +148,7 @@ class ComplianceReportService {
       id: reportId,
       reportType: 'quarterly',
       quarter,
+      reportingPeriod: quarter,
       fiscalYear,
       generatedDate: now.toISOString(),
       reportingPeriodStart: periodStart,

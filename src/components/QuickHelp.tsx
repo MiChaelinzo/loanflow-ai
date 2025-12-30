@@ -163,4 +163,9 @@ export const quickHelpTips = {
     title: 'Spread Trend Visualization',
     message: 'Analyze historical credit spread movements with advanced charting tools. View aggregate trends, industry comparisons, volatility patterns, and risk-based distributions. Track widening vs tightening days and export data for external analysis. Use scatter plots to identify outliers and compare spreads across multiple dimensions.',
   },
+  multiPeriod: {
+    id: 'multi-period-help',
+    title: 'Multi-Period Report Comparison',
+    message: 'Compare portfolio performance across Q1, Q2, and Q3 to identify trends and patterns. Analyze metrics across six categories: Portfolio, Trading, Team, Compliance, ESG, and Risk. Get automated insights on significant changes and export comprehensive trend reports in CSV format for board presentations.',
+  },
 }

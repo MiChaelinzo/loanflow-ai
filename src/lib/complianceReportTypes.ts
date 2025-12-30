@@ -1,18 +1,19 @@
 export interface ComplianceReport {
-  reportType
+  id: string
+  reportType: 'quarterly' | 'annual' | 'regulatory' | 'audit'
   fiscalYear: number
-  reportingPeriod
-  fiscalYear: number
+  quarter?: string
+  reportingPeriod: string
   generatedDate: string
   reportingPeriodStart: string
   reportingPeriodEnd: string
-export interface ComplianceReportSection {
-  sectionNumber: string
-  content: string
-  charts?: ComplianceChart[]
-  status: 'complete' | 'incomplete
+  sections: ComplianceReportSection[]
+  summary: ComplianceReportSummary
+  metadata: ComplianceReportMetadata
+  status?: 'draft' | 'review' | 'approved' | 'submitted'
+  submittedDate?: string
+  submittedBy?: string
 }
-e
 
 export interface ComplianceReportSection {
   id: string
@@ -30,92 +31,79 @@ export interface ComplianceTable {
   id: string
   title: string
   headers: string[]
-  averageRiskScore: number
+  rows: any[][]
   footer?: string
   notes?: string
 }
 
 export interface ComplianceChart {
-  nonPerform
+  id: string
   title: string
   type: 'bar' | 'line' | 'pie' | 'area'
   data: any[]
-export interface Comp
+  description?: string
 }
 
 export interface ComplianceReportSummary {
-  approvedBy?: strin
   totalExposure: number
-  certificationStatement?:
+  loanCount: number
+  totalLoans?: number
+  averageRiskScore: number
   covenantComplianceRate: number
-export interface Regu
   newLoansOriginated: number
   loansMatured: number
   defaultCount: number
+  breachCount?: number
   averageESGScore: string
   capitalAdequacyRatio: number
-}
   nonPerformingLoanRatio: number
   provisions: number
+  liquidityRatio?: number
   keyFindings: string[]
   riskMitigationActions: string[]
 }
 
 export interface ComplianceReportMetadata {
+  preparedBy: string
+  reviewedBy?: string
+  approvedBy?: string
+  institution?: string
+  reportingEntity?: string
+  regulatoryFrameworks?: string[]
+  version?: string
+  confidentialityLevel: 'public' | 'internal' | 'confidential' | 'restricted'
+  distributionList: string[]
+  filingAuthority?: string
+  regulatoryReference?: string
+  certificationStatement?: string
+}
 
+export interface RegulatoryRequirement {
+  id: string
+  name: string
+  authority: string
+  frequency: 'quarterly' | 'semi-annual' | 'annual'
+  nextDueDate: string
+  requiredSections: string[]
+  status: 'upcoming' | 'in-progress' | 'submitted' | 'approved'
+}
 
+export interface RegulatoryFramework {
+  id: string
+  name: string
+  shortName?: string
+  description?: string
+  jurisdiction: string
+  applicableTo: string[]
+  requiredSections?: string[]
+  requirements: RegulatoryRequirement[]
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export interface ReportSchedule {
+  id: string
+  reportType: string
+  frequency: string
+  nextDueDate: string
+  lastSubmitted?: string
+  status: 'current' | 'overdue' | 'upcoming'
+}

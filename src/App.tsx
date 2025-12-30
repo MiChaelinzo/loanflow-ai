@@ -43,6 +43,7 @@ import { ComparativeAnalysis, ComparativeAnalysisTrigger } from './components/Co
 import { SpreadWideningMonitor, SpreadWideningMonitorTrigger } from './components/SpreadWideningMonitor'
 import { SpreadTrendDashboard, SpreadTrendDashboardTrigger } from './components/SpreadTrendDashboard'
 import { ComplianceReportGenerator, ComplianceReportGeneratorTrigger } from './components/ComplianceReportGenerator'
+import { MultiPeriodComparison, MultiPeriodComparisonTrigger } from './components/MultiPeriodComparison'
 import { Alert } from './lib/alertTypes'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc } from '@phosphor-icons/react'
 import { toast } from 'sonner'
@@ -75,6 +76,7 @@ function App() {
   const [spreadMonitorOpen, setSpreadMonitorOpen] = useState(false)
   const [spreadTrendsOpen, setSpreadTrendsOpen] = useState(false)
   const [complianceReportOpen, setComplianceReportOpen] = useState(false)
+  const [multiPeriodOpen, setMultiPeriodOpen] = useState(false)
   const [alerts, setAlerts] = useKV<Alert[]>('alerts', [])
 
   useEffect(() => {
@@ -374,6 +376,7 @@ function App() {
               <SpreadWideningMonitorTrigger onClick={() => setSpreadMonitorOpen(true)} />
               <SpreadTrendDashboardTrigger onClick={() => setSpreadTrendsOpen(true)} />
               <ComplianceReportGeneratorTrigger onClick={() => setComplianceReportOpen(true)} />
+              <MultiPeriodComparisonTrigger onClick={() => setMultiPeriodOpen(true)} />
               <Button variant="outline" size="default" onClick={handleExportPortfolio} className="gap-2">
                 <Download size={20} />
                 Export
@@ -917,6 +920,22 @@ function App() {
             </DialogDescription>
           </DialogHeader>
           <ComplianceReportGenerator loans={loans || []} alerts={alerts || []} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={multiPeriodOpen} onOpenChange={setMultiPeriodOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Multi-Period Report Comparison</DialogTitle>
+            <DialogDescription>
+              Analyze trends and performance across Q1, Q2, and Q3
+            </DialogDescription>
+          </DialogHeader>
+          <MultiPeriodComparison 
+            loans={loans || []} 
+            alerts={alerts || []} 
+            teamMembers={teamMembers || []}
+          />
         </DialogContent>
       </Dialog>
     </div>
