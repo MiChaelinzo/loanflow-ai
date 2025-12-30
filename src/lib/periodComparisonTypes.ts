@@ -42,35 +42,35 @@ export interface QuarterlyMetrics {
   
   esgMetrics: {
     averageESGScore: number
-    greenLoanCount: number
     greenExposure: number
-    carbonReduction: number
   }
-  
   marketMetrics: {
-    expectedShortfall: number
-    sectorDiversification: number
+   
+
+    valueAtRisk: n
   }
 
-  riskMetrics: {
-    valueAtRisk: number
-    expectedShortfall: number
-  }
-}
+  t
 
-export interface PeriodComparisonProps {
-  trends: {
-    category: string
-    value: number
-    change: number
-    title: string
-    severity: 'high' | 'medium' | 'low'
+    title: strin
   }[]
-
   quarters: Quarter[]
-  categories: ('portfolio' | 'trading' | 'team' | 'compliance' | 'esg')[]
-  showInsights: boolean
+  s
+
+
+    category: string
+    descrip
+    trend: 'up' | 'd
 }
+export interface C
+  categories: ('p
+}
+
+
+
+
+
+
 
 export interface PeriodComparison {
   quarters: QuarterlyMetrics[]
@@ -88,22 +88,5 @@ export interface ComparisonFilters {
   categories: ('portfolio' | 'trading' | 'team' | 'compliance' | 'esg')[]
   showInsights: boolean
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
