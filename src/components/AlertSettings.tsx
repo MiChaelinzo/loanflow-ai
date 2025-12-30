@@ -49,7 +49,31 @@ const ALERT_TYPE_LABELS: Record<AlertType, { label: string; description: string 
   },
   esg_score_downgrade: {
     label: 'ESG Score Downgrade',
-    description: 'When ESG score falls to D or F rating',
+    description: 'When ESG rating decreases',
+  },
+  price_above_threshold: {
+    label: 'Price Above Threshold',
+    description: 'When loan price exceeds set threshold',
+  },
+  price_below_threshold: {
+    label: 'Price Below Threshold',
+    description: 'When loan price falls below set threshold',
+  },
+  price_spike: {
+    label: 'Price Spike',
+    description: 'When loan price increases rapidly',
+  },
+  price_drop: {
+    label: 'Price Drop',
+    description: 'When loan price decreases rapidly',
+  },
+  spread_widening: {
+    label: 'Spread Widening',
+    description: 'When credit spread widens significantly',
+  },
+  spread_tightening: {
+    label: 'Spread Tightening',
+    description: 'When credit spread tightens significantly',
   },
 }
 

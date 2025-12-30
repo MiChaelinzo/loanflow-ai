@@ -14,22 +14,22 @@ export class LoanPricingEngine {
   static getInstance(): LoanPricingEngine {
     if (!LoanPricingEngine.instance) {
       LoanPricingEngine.instance = new LoanPricingEngine()
-  }
-  private initializeMarketFactors(): 
-   
-
-      macroeconomic: 0.5,
     }
+    return LoanPricingEngine.instance
+  }
 
-    setInterval(() => {
-      this.marketFactors.cred
-      this.marketFacto
-    }, 5000)
+  private initializeMarketFactors(): MarketFactors {
+    return {
+      baseRate: 4.5,
+      creditSpread: 2.5,
+      liquidityPremium: 0.5,
+      sectorRisk: 1.0,
+      macroeconomic: 0.5,
+      volatility: 0.15,
+    }
+  }
 
-    c
-   
-
-    const currentPrice = fairValue 
+  private startMarketSimulation(): void {
     setInterval(() => {
       this.marketFactors.baseRate += (Math.random() - 0.5) * 0.02
       this.marketFactors.creditSpread += (Math.random() - 0.5) * 0.05
@@ -62,297 +62,214 @@ export class LoanPricingEngine {
 
     return {
       fairValue,
-    const yearsToMa
-    
-      cashFlows.push(loan.am
-    cashFlows
-    const discountRate = (
-      this.mark
-      this.marke
-
-      return pv + cf / Math.pow(1
-
+      currentPrice,
+      priceChange24h,
+      priceChangePercent24h,
+      spread,
+      yieldToMaturity: ytm,
+      duration,
+      convexity,
+      liquidityScore,
+      marketSentiment: sentiment,
+      lastUpdated: new Date().toISOString(),
+      confidenceLevel,
+      pricingModel: 'hybrid',
+      benchmarkRate: this.marketFactors.baseRate,
+      creditSpread: spread,
+    }
   }
-  private calculateComparable
+
+  private calculateDCFPrice(loan: Loan): number {
+    const yearsToMaturity = this.getYearsToMaturity(loan)
+    const cashFlows: number[] = []
     
+    for (let i = 1; i <= yearsToMaturity; i++) {
+      cashFlows.push(loan.amount * (loan.interestRate / 100))
+    }
+    cashFlows[cashFlows.length - 1] += loan.amount
+
+    const discountRate = (
+      this.marketFactors.baseRate +
+      this.marketFactors.creditSpread +
+      (loan.riskScore / 10) * 2
+    ) / 100
+
+    const pv = cashFlows.reduce((pv, cf, i) => {
+      return pv + cf / Math.pow(1 + discountRate, i + 1)
+    }, 0)
+
+    return pv
+  }
+
+  private calculateComparablePrice(loan: Loan, allLoans: Loan[]): number {
+    const comparables = this.findComparableLoans(loan, allLoans)
+    
+    if (comparables.length === 0) {
       return this.calculateDCFPrice(loan)
+    }
 
-   
-
-      const adjustmentFactor = loan.amount / comp
-      
+    const weightedPrice = comparables.reduce((sum, comp) => {
+      const adjustmentFactor = loan.amount / comp.currentPrice
+      return sum + (comp.currentPrice * comp.similarity * adjustmentFactor)
     }, 0)
     
+    const totalWeight = comparables.reduce((sum, comp) => sum + comp.similarity, 0)
+    return weightedPrice / totalWeight
   }
+
   private calculateRegressionPrice(loan: Loan): number {
+    const basePrice = loan.amount * 0.98
+    const interestAdjustment = 1 + ((loan.interestRate - 5) / 100)
+    const riskAdjustment = 1 - (loan.riskScore / 20)
+    const maturityAdjustment = 1 - (this.getYearsToMaturity(loan) / 30)
     
-    const interestAdjustment = 1 + ((loan.interest
-
-
+    return basePrice * interestAdjustment * riskAdjustment * maturityAdjustment
   }
-  private findComparableLoans(loan: Loan, allLoans: Loan[]): C
-      .filter(l => l.id !== loan.id && l.cu
+
+  private findComparableLoans(loan: Loan, allLoans: Loan[]): ComparableLoans[] {
+    return allLoans
+      .filter(l => l.id !== loan.id && l.currency === loan.currency && l.marketPricing)
+      .map(l => {
         let similarity = 1.0
-        if 
-
         
+        const amountRatio = Math.min(loan.amount, l.amount) / Math.max(loan.amount, l.amount)
         similarity *= amountRatio
-        c
+        
+        const riskDiff = Math.abs(loan.riskScore - l.riskScore)
+        similarity *= Math.max(0, 1 - (riskDiff / 10))
+        
+        if (loan.industry === l.industry) {
+          similarity *= 1.2
+        }
 
-
-   
-
-          spread: l.marketPricing?.spread || this.calculateSpread(l),
+        return {
+          loanId: l.id,
+          borrowerName: l.borrowerName,
+          similarity,
+          currentPrice: l.marketPricing!.currentPrice,
+          spread: l.marketPricing!.spread,
+        }
       })
-    
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 5)
   }
-  private calculateSpread(loan: Loan): nu
-    c
 
-    return baseSpread + riskPremium + liquidityPremium + indu
+  private calculateSpread(loan: Loan): number {
+    const baseSpread = 100
+    const riskPremium = (loan.riskScore / 10) * 50
+    const liquidityPremium = this.marketFactors.liquidityPremium * 100
+    return baseSpread + riskPremium + liquidityPremium
+  }
 
+  private calculateYieldToMaturity(loan: Loan, price: number): number {
+    const annualInterest = loan.amount * (loan.interestRate / 100)
     const yearsToMaturity = this.getYearsToMaturity(loan)
-    const couponRate = loan.int
-
-
-      (annualCoupon + (faceValue - currentPrice) / yearsToMaturity) /
-
-  }
-  private
-
-
-
-   
-
-    return Math.min(macaulayDuration, yearsToMaturity)
-
+    const capitalGainLoss = (loan.amount - price) / yearsToMaturity
+    const avgValue = (loan.amount + price) / 2
     
-    
+    return ((annualInterest + capitalGainLoss) / avgValue) * 100
   }
+
+  private calculateDuration(loan: Loan): number {
+    const yearsToMaturity = this.getYearsToMaturity(loan)
+    return yearsToMaturity * 0.85
+  }
+
+  private calculateConvexity(loan: Loan): number {
+    const yearsToMaturity = this.getYearsToMaturity(loan)
+    return yearsToMaturity * 0.5
+  }
+
   private calculateLiquidityScore(loan: Loan): number {
-
-    else if (loan.amount < 50000000) score -= 10
-
-    const yearsToMaturity = this.getYearsToMaturity(loan)
-   
-
-
-    score += Math.m
-    return Math.max(0, Math.min(100, score))
-
-    const threshold = loan.a
-
-    return 'neutral'
-
-    let confidence = 75
-    const comparables = this.findComparableLoans(loan, 
-
+    let score = 50
     
-      loan.predictiveAnalytics,
-      lo
-    confidence += dataCompleteness * 2
-    const marketVolatility = this.marketFactors.volatility
-
+    if (loan.amount > 50000000) score += 20
+    else if (loan.amount > 10000000) score += 10
+    
+    if (loan.riskLevel === 'low') score += 20
+    else if (loan.riskLevel === 'medium') score += 10
+    
+    score -= this.getYearsToMaturity(loan) * 2
+    
+    return Math.max(0, Math.min(100, score))
   }
 
-    const now = 
-    const diffYears = d
+  private determineMarketSentiment(loan: Loan, priceChange: number): 'bullish' | 'neutral' | 'bearish' {
+    if (priceChange > loan.amount * 0.02) return 'bullish'
+    if (priceChange < -loan.amount * 0.02) return 'bearish'
+    return 'neutral'
   }
-  private getESGMulti
-    return esgMap[loan.esgScore.overall] || 1.0
 
-    const
-    cons
-    let currentPrice = basePrice * (1 - vola
+  private calculateConfidenceLevel(loan: Loan, allLoans: Loan[]): number {
+    let confidence = 60
+    
+    const comparables = this.findComparableLoans(loan, allLoans)
+    confidence += Math.min(30, comparables.length * 5)
+    
+    if (loan.marketPricing) {
+      confidence += 10
+    }
+    
+    return Math.min(100, confidence)
+  }
+
+  private getYearsToMaturity(loan: Loan): number {
+    const maturity = new Date(loan.maturityDate)
+    const now = new Date()
+    const years = (maturity.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 365)
+    return Math.max(0.1, years)
+  }
+
+  generatePriceHistory(loan: Loan, days: number): PriceHistory[] {
+    const history: PriceHistory[] = []
+    const currentPrice = loan.marketPricing?.currentPrice || loan.amount * 0.98
+    
     for (let i = days; i >= 0; i--) {
+      const date = new Date()
+      date.setDate(date.getDate() - i)
       
-   
-
-
-      const spread = this.calculateSpread(loan) + (Mat
+      const volatility = 0.01 + (loan.riskScore / 100) * 0.02
+      const drift = -0.0001
+      const randomChange = (Math.random() - 0.5) * 2 * volatility
+      const priceChange = 1 + drift + randomChange
+      
+      const price = currentPrice * priceChange
+      
       history.push({
-        price: Math.max(basePrice * 0.8, Math.min(basePrice * 1.
-        spread,
+        timestamp: date.toISOString(),
+        price,
+        volume: Math.floor(Math.random() * 1000000) + 100000,
+        spread: this.calculateSpread(loan),
+      })
+    }
     
     return history
-
-
-    const intervalId = window.setInterval(() => {
-    }, 10000)
-    this.updateIntervals.set(loan
-    return () => {
-      const id = this.updateIntervals.get(loanI
-
-      }
-
-  private getCurrentPricin
-      fairValue: 0,
-      priceChange24h: 0,
-
-      duration: 0,
-   
-
-      pricingModel: 'hybrid',
-      creditSpread: this.marketFactors.creditSpread,
   }
-  getMarketFactors(): MarketFactors {
 
-  getComparableLoans(loan: Loan, allLoans: Loan[
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  subscribeToPriceUpdates(loanId: string, callback: (pricing: MarketPricing) => void): void {
+    this.priceUpdateCallbacks.set(loanId, callback)
+  }
+
+  unsubscribeFromPriceUpdates(loanId: string): void {
+    this.priceUpdateCallbacks.delete(loanId)
+    const intervalId = this.updateIntervals.get(loanId)
+    if (intervalId) {
+      clearInterval(intervalId)
+      this.updateIntervals.delete(loanId)
+    }
+  }
+
+  startRealTimePricing(loan: Loan, allLoans: Loan[]): void {
+    const intervalId = window.setInterval(() => {
+      const pricing = this.calculateMarketPricing(loan, allLoans)
+      const callback = this.priceUpdateCallbacks.get(loan.id)
+      if (callback) {
+        callback(pricing)
+      }
+    }, 10000)
+    
+    this.updateIntervals.set(loan.id, intervalId)
+  }
+}
+
+export const pricingEngine = LoanPricingEngine.getInstance()

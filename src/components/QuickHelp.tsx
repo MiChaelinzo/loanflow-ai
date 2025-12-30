@@ -81,7 +81,7 @@ export const quickHelpTips = {
   pricing: {
     id: 'pricing-help',
     title: 'Real-Time Loan Pricing',
-    message: 'View dynamic market-based valuations using hybrid pricing models (DCF, comparable loans, regression). Track real-time price movements, yield curves, and liquidity scores. Pricing updates automatically every 10 seconds based on market conditions.',
+    message: 'View dynamic market-based valuations using hybrid pricing models (DCF, comparable loans, regression). Track real-time price movements, yield curves, and liquidity scores. Set price alerts to get notified when loans cross important thresholds. Pricing updates automatically every 10 seconds based on market conditions.',
   },
   trading: {
     id: 'trading-help',

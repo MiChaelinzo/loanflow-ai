@@ -371,6 +371,12 @@ function getRecommendedActions(alert: Alert): string {
     maturity_approaching: '• Contact borrower regarding refinancing plans<br>• Review repayment capacity and intentions<br>• Prepare extension documentation if needed<br>• Assess market conditions for refinancing',
     lma_compliance_gap: '• Schedule legal review of documentation gaps<br>• Prepare amendment proposals<br>• Assess materiality of compliance issues<br>• Document remediation timeline',
     esg_score_downgrade: '• Review ESG improvement plan with borrower<br>• Assess alignment with internal ESG policies<br>• Consider impact on pricing and terms<br>• Document sustainability action items',
+    price_above_threshold: '• Review pricing model and market conditions<br>• Consider selling position if target reached<br>• Reassess valuation assumptions<br>• Document pricing rationale',
+    price_below_threshold: '• Investigate reasons for price decline<br>• Review loan fundamentals and credit quality<br>• Assess if buying opportunity exists<br>• Update risk assessment',
+    price_spike: '• Analyze market drivers of price movement<br>• Review comparable loan pricing<br>• Consider profit-taking opportunities<br>• Reassess fair value estimate',
+    price_drop: '• Conduct immediate credit review<br>• Assess market sentiment and news flow<br>• Review position size and risk limits<br>• Engage with borrower if needed',
+    spread_widening: '• Monitor credit fundamentals for deterioration<br>• Review sector-wide trends<br>• Assess liquidity in secondary market<br>• Consider hedging strategies',
+    spread_tightening: '• Document improved credit profile<br>• Review pricing relative to peers<br>• Assess refinancing opportunities<br>• Update valuation models',
   }
 
   return actions[alert.type] || '• Review loan details in dashboard<br>• Assess required actions<br>• Update monitoring plan'

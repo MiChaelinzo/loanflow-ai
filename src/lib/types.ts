@@ -121,6 +121,18 @@ export interface ComparableLoans {
   spread: number
 }
 
+export interface PriceAlertThreshold {
+  id: string
+  loanId: string
+  type: 'price_above' | 'price_below' | 'spread_above' | 'spread_below' | 'price_change_percent'
+  value: number
+  enabled: boolean
+  triggered: boolean
+  lastTriggeredAt?: string
+  createdAt: string
+  note?: string
+}
+
 export interface Loan {
   id: string
   borrowerName: string
@@ -143,4 +155,5 @@ export interface Loan {
   tradeListing?: TradeListing
   marketPricing?: MarketPricing
   priceHistory?: PriceHistory[]
+  priceAlerts?: PriceAlertThreshold[]
 }

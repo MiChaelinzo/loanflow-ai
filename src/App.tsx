@@ -4,6 +4,7 @@ import { Loan, PredictiveAnalytics, LMACompliance, TradeListing, TradeBid, Marke
 import { TeamMember } from './lib/teamTypes'
 import { sampleLoans } from './lib/sampleLoans'
 import { pricingEngine } from './lib/pricingEngine'
+import { priceAlertService } from './lib/priceAlertService'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select'
@@ -68,7 +69,34 @@ function App() {
   const [alertAnalyticsOpen, setAlertAnalyticsOpen] = useState(false)
   const [q3ForecastOpen, setQ3ForecastOpen] = useState(false)
   const [comparativeAnalysisOpen, setComparativeAnalysisOpen] = useState(false)
-  const [alerts] = useKV<Alert[]>('alerts', [])
+  const [alerts, setAlerts] = useKV<Alert[]>('alerts', [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if ((loans || []).length > 0 && (alerts || []).length >= 0) {
+        const priceAlertChecks = priceAlertService.checkPriceAlerts(loans || [], alerts || [])
+        
+        if (priceAlertChecks.length > 0) {
+          const newAlerts: Alert[] = []
+          priceAlertChecks.forEach(check => {
+            newAlerts.push(...check.triggeredAlerts)
+          })
+
+          if (newAlerts.length > 0) {
+            setAlerts((currentAlerts) => [...(currentAlerts || []), ...newAlerts])
+            
+            newAlerts.forEach(alert => {
+              toast.warning(`Price Alert: ${alert.loanName}`, {
+                description: alert.message,
+              })
+            })
+          }
+        }
+      }
+    }, 60000)
+
+    return () => clearInterval(interval)
+  }, [loans, alerts])
 
   useEffect(() => {
     if ((loans || []).length > 0) {
@@ -198,6 +226,15 @@ function App() {
   const handleLoanClick = (loan: Loan) => {
     setSelectedLoan(loan)
     setDetailDialogOpen(true)
+  }
+
+  const handleLoanUpdate = (updatedLoan: Loan) => {
+    setLoans((currentLoans) =>
+      (currentLoans || []).map((loan) =>
+        loan.id === updatedLoan.id ? updatedLoan : loan
+      )
+    )
+    setSelectedLoan(updatedLoan)
   }
 
   const handleCreateListing = (loanId: string, askPrice: number) => {
@@ -753,6 +790,7 @@ function App() {
         loan={selectedLoan}
         open={detailDialogOpen}
         onOpenChange={setDetailDialogOpen}
+        onUpdateLoan={handleLoanUpdate}
       />
 
       <ExportDialog

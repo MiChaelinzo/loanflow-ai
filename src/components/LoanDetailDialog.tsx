@@ -4,21 +4,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
-import { Loan, CovenantStatus } from '@/lib/types'
+import { Loan, CovenantStatus, PriceAlertThreshold } from '@/lib/types'
 import { RiskGauge } from './RiskGauge'
 import { AIInsightCard } from './AIInsightCard'
 import { AILoanSummarizer } from './AILoanSummarizer'
-import { CheckCircle, Warning, XCircle, Leaf, TrendUp, ShieldWarning, Brain } from '@phosphor-icons/react'
+import { PriceAlertsManager } from './PriceAlertsManager'
+import { CheckCircle, Warning, XCircle, Leaf, TrendUp, ShieldWarning, Brain, Bell } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 interface LoanDetailDialogProps {
   loan: Loan | null
   open: boolean
   onOpenChange: (open: boolean) => void
+  onUpdateLoan?: (loan: Loan) => void
 }
 
-export function LoanDetailDialog({ loan, open, onOpenChange }: LoanDetailDialogProps) {
+export function LoanDetailDialog({ loan, open, onOpenChange, onUpdateLoan }: LoanDetailDialogProps) {
   if (!loan) return null
+
+  const handlePriceAlertsUpdate = (alerts: PriceAlertThreshold[]) => {
+    if (onUpdateLoan) {
+      onUpdateLoan({ ...loan, priceAlerts: alerts })
+    }
+  }
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -86,7 +94,7 @@ export function LoanDetailDialog({ loan, open, onOpenChange }: LoanDetailDialogP
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="mt-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="ai-summary" className="gap-1.5">
               <Brain size={16} />
@@ -95,6 +103,10 @@ export function LoanDetailDialog({ loan, open, onOpenChange }: LoanDetailDialogP
             <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
             <TabsTrigger value="covenants">Covenants</TabsTrigger>
             <TabsTrigger value="esg">ESG Score</TabsTrigger>
+            <TabsTrigger value="price-alerts" className="gap-1.5">
+              <Bell size={16} />
+              Price Alerts
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
@@ -327,6 +339,20 @@ export function LoanDetailDialog({ loan, open, onOpenChange }: LoanDetailDialogP
               }`}
               type="success"
             />
+          </TabsContent>
+
+          <TabsContent value="price-alerts" className="space-y-6 mt-6">
+            {loan.marketPricing ? (
+              <PriceAlertsManager loan={loan} onUpdate={handlePriceAlertsUpdate} />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">
+                    Market pricing data not available for this loan. Price alerts require active pricing data.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>

@@ -7,6 +7,12 @@ export type AlertType =
   | 'maturity_approaching'
   | 'lma_compliance_gap'
   | 'esg_score_downgrade'
+  | 'price_above_threshold'
+  | 'price_below_threshold'
+  | 'price_spike'
+  | 'price_drop'
+  | 'spread_widening'
+  | 'spread_tightening'
 
 export type AlertSeverity = 'critical' | 'high' | 'medium' | 'low'
 export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'dismissed'
@@ -96,6 +102,36 @@ export const DEFAULT_ALERT_PREFERENCES: AlertPreferences = {
       severity: 'medium',
     },
     esg_score_downgrade: {
+      enabled: true,
+      emailEnabled: false,
+      severity: 'low',
+    },
+    price_above_threshold: {
+      enabled: true,
+      emailEnabled: true,
+      severity: 'medium',
+    },
+    price_below_threshold: {
+      enabled: true,
+      emailEnabled: true,
+      severity: 'medium',
+    },
+    price_spike: {
+      enabled: true,
+      emailEnabled: true,
+      severity: 'high',
+    },
+    price_drop: {
+      enabled: true,
+      emailEnabled: true,
+      severity: 'high',
+    },
+    spread_widening: {
+      enabled: true,
+      emailEnabled: true,
+      severity: 'medium',
+    },
+    spread_tightening: {
       enabled: true,
       emailEnabled: false,
       severity: 'low',
