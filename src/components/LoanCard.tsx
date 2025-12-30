@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Loan, LoanStatus, RiskLevel } from '@/lib/types'
 import { TrendUp, TrendDown, FileText, Calendar } from '@phosphor-icons/react'
+import { LoanPriceWidget } from './LoanPriceWidget'
 import { cn } from '@/lib/utils'
 
 interface LoanCardProps {
@@ -76,6 +77,13 @@ export function LoanCard({ loan, onClick }: LoanCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {loan.marketPricing && (
+          <div className="pb-3 border-b">
+            <p className="text-xs text-muted-foreground mb-2">Market Price</p>
+            <LoanPriceWidget loan={loan} compact />
+          </div>
+        )}
+        
         <div className="grid grid-cols-2 gap-4">
           <div>
             <p className="text-xs text-muted-foreground mb-1">Loan Amount</p>

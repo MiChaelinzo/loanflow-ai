@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Loan, PredictiveAnalytics, LMACompliance, TradeListing, TradeBid } from './lib/types'
+import { Loan, PredictiveAnalytics, LMACompliance, TradeListing, TradeBid, MarketPricing } from './lib/types'
 import { TeamMember } from './lib/teamTypes'
 import { sampleLoans } from './lib/sampleLoans'
+import { pricingEngine } from './lib/pricingEngine'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select'
@@ -21,6 +22,7 @@ import { AnalyticsDashboard } from './components/AnalyticsDashboard'
 import { ComplianceChecker } from './components/ComplianceChecker'
 import { StressTestDashboard } from './components/StressTestDashboard'
 import { MarketIntelligence } from './components/MarketIntelligence'
+import { RealTimePricingDashboard } from './components/RealTimePricingDashboard'
 import { ExportDialog } from './components/ExportDialog'
 import { TutorialWalkthrough, TutorialTrigger } from './components/TutorialWalkthrough'
 import { HelpCenterTrigger } from './components/HelpCenter'
@@ -38,7 +40,7 @@ import { TeamPerformanceDashboard } from './components/TeamPerformanceDashboard'
 import { Q3ForecastExport, Q3ForecastExportTrigger } from './components/Q3ForecastExport'
 import { ComparativeAnalysis, ComparativeAnalysisTrigger } from './components/ComparativeAnalysis'
 import { Alert } from './lib/alertTypes'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -67,6 +69,31 @@ function App() {
   const [q3ForecastOpen, setQ3ForecastOpen] = useState(false)
   const [comparativeAnalysisOpen, setComparativeAnalysisOpen] = useState(false)
   const [alerts] = useKV<Alert[]>('alerts', [])
+
+  useEffect(() => {
+    if ((loans || []).length > 0) {
+      const updatedLoans = (loans || []).map(loan => {
+        if (!loan.marketPricing) {
+          const pricing = pricingEngine.calculateMarketPricing(loan, loans || [])
+          const priceHistory = pricingEngine.generatePriceHistory(loan, 30)
+          return { ...loan, marketPricing: pricing, priceHistory }
+        }
+        return loan
+      })
+      
+      if (updatedLoans.some((l, i) => l !== (loans || [])[i])) {
+        setLoans(updatedLoans)
+      }
+    }
+  }, [loans?.length])
+
+  const handlePricingUpdate = (loanId: string, pricing: MarketPricing) => {
+    setLoans((currentLoans) =>
+      (currentLoans || []).map((loan) =>
+        loan.id === loanId ? { ...loan, marketPricing: pricing } : loan
+      )
+    )
+  }
 
   const handleUploadComplete = async (extractedData: any) => {
     const riskScore = (
@@ -326,10 +353,14 @@ function App() {
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-12">
+          <TabsList className="grid w-full grid-cols-13">
             <TabsTrigger value="portfolio" className="gap-2">
               <FileText size={18} />
               Portfolio
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="gap-2" data-tutorial="pricing-tab">
+              <CurrencyDollar size={18} />
+              Pricing
             </TabsTrigger>
             <TabsTrigger value="trading" className="gap-2" data-tutorial="trading-tab">
               <Handshake size={18} />
@@ -558,6 +589,14 @@ function App() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="pricing" className="space-y-4">
+            <QuickHelp tip={quickHelpTips.pricing} />
+            <RealTimePricingDashboard 
+              loans={loans || []} 
+              onPricingUpdate={handlePricingUpdate}
+            />
           </TabsContent>
 
           <TabsContent value="trading" className="space-y-4">

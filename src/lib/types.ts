@@ -79,6 +79,48 @@ export interface TradeBid {
   status: 'pending' | 'accepted' | 'rejected' | 'withdrawn'
 }
 
+export interface MarketPricing {
+  fairValue: number
+  currentPrice: number
+  priceChange24h: number
+  priceChangePercent24h: number
+  spread: number
+  yieldToMaturity: number
+  duration: number
+  convexity: number
+  liquidityScore: number
+  marketSentiment: 'bullish' | 'neutral' | 'bearish'
+  lastUpdated: string
+  confidenceLevel: number
+  pricingModel: 'dcf' | 'comparable' | 'regression' | 'hybrid'
+  benchmarkRate: number
+  creditSpread: number
+}
+
+export interface PriceHistory {
+  timestamp: string
+  price: number
+  volume?: number
+  spread?: number
+}
+
+export interface MarketFactors {
+  baseRate: number
+  creditSpread: number
+  liquidityPremium: number
+  sectorRisk: number
+  macroeconomic: number
+  volatility: number
+}
+
+export interface ComparableLoans {
+  loanId: string
+  borrowerName: string
+  similarity: number
+  currentPrice: number
+  spread: number
+}
+
 export interface Loan {
   id: string
   borrowerName: string
@@ -99,4 +141,6 @@ export interface Loan {
   predictiveAnalytics?: PredictiveAnalytics
   lmaCompliance?: LMACompliance
   tradeListing?: TradeListing
+  marketPricing?: MarketPricing
+  priceHistory?: PriceHistory[]
 }

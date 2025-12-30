@@ -78,6 +78,11 @@ export const quickHelpTips = {
     title: 'Portfolio Overview',
     message: 'Your portfolio dashboard shows aggregated metrics across all loans. Use filters to narrow down your view by status, risk level, currency, or industry. Click the "Alerts" button to set up automated notifications for covenant breaches and high-risk events.',
   },
+  pricing: {
+    id: 'pricing-help',
+    title: 'Real-Time Loan Pricing',
+    message: 'View dynamic market-based valuations using hybrid pricing models (DCF, comparable loans, regression). Track real-time price movements, yield curves, and liquidity scores. Pricing updates automatically every 10 seconds based on market conditions.',
+  },
   trading: {
     id: 'trading-help',
     title: 'Loan Trading Hub',
