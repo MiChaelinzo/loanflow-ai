@@ -18,6 +18,7 @@ export class PeriodComparisonService {
     const teamMetrics = this.calculateTeamMetrics(alerts, teamMembers || [])
     const complianceMetrics = this.calculateComplianceMetrics(loans, alerts)
     const esgMetrics = this.calculateESGMetrics(loans)
+    const marketMetrics = this.calculateMarketMetrics(loans)
     const riskMetrics = this.calculateRiskMetrics(loans)
     
     return {
@@ -30,6 +31,7 @@ export class PeriodComparisonService {
       teamMetrics,
       complianceMetrics,
       esgMetrics,
+      marketMetrics,
       riskMetrics,
     }
   }
@@ -42,6 +44,7 @@ export class PeriodComparisonService {
     const insights = this.generateInsights(trends, periods)
     
     return {
+      quarters: periods,
       periods,
       trends,
       insights,
@@ -213,6 +216,27 @@ export class PeriodComparisonService {
       greenLoanCount,
       greenExposure,
       carbonReduction,
+    }
+  }
+  
+  private calculateMarketMetrics(loans: Loan[]) {
+    const loansWithPricing = loans.filter(l => l.marketPricing)
+    const averageSpreadChange = loansWithPricing.reduce((sum, loan) => {
+      return sum + (loan.marketPricing?.spreadChange || 0)
+    }, 0) / Math.max(loansWithPricing.length, 1)
+    
+    const volatilityIndex = loansWithPricing.reduce((sum, loan) => {
+      return sum + (loan.marketPricing?.volatility || 0)
+    }, 0) / Math.max(loansWithPricing.length, 1)
+    
+    const valueAtRisk = loans.reduce((sum, loan) => {
+      return sum + (loan.amount * (loan.riskScore / 100))
+    }, 0)
+    
+    return {
+      averageSpreadChange,
+      volatilityIndex,
+      valueAtRisk,
     }
   }
   

@@ -43,6 +43,8 @@ export interface QuarterlyMetrics {
   esgMetrics: {
     averageESGScore: number
     greenExposure: number
+    greenLoanCount?: number
+    carbonReduction?: number
   }
   
   marketMetrics: {
@@ -50,25 +52,45 @@ export interface QuarterlyMetrics {
     volatilityIndex: number
     valueAtRisk: number
   }
+  
+  riskMetrics?: {
+    var95?: number
+    var99?: number
+    expectedShortfall?: number
+    concentrationRisk?: number
+    sectorDiversification?: number
+    averageRiskScore?: number
+    highRiskLoans?: number
+    defaultRate?: number
+  }
 }
 
-
+export interface TrendItem {
+  category: string
+  metric?: string
+  title: string
+  description: string
+  severity: 'high' | 'medium' | 'low'
+  trend: 'up' | 'down' | 'stable'
+  status?: 'improving' | 'declining' | 'stable'
+  values?: number[]
+  change?: number
+  changePercent?: number
+}
 
 export interface PeriodComparison {
   quarters: QuarterlyMetrics[]
-  insights: {
-    category: string
-    title: string
-    description: string
-    severity: 'high' | 'medium' | 'low'
-    trend: 'up' | 'down' | 'stable'
-  }[]
+  periods?: QuarterlyMetrics[]
+  insights: TrendItem[]
+  trends?: TrendItem[]
 }
 
 export interface ComparisonFilters {
   quarters: Quarter[]
-  categories: ('portfolio' | 'trading' | 'team' | 'compliance' | 'esg')[]
+  year?: number
+  categories: ('portfolio' | 'trading' | 'team' | 'compliance' | 'esg' | 'risk')[]
   showInsights: boolean
+  showTrends?: boolean
 }
 
 

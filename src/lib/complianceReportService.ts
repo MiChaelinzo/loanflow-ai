@@ -211,6 +211,7 @@ class ComplianceReportService {
     const riskMitigationActions = this.generateRiskMitigationActions(loans, alerts)
 
     return {
+      loanCount: loans.length,
       totalLoans: loans.length,
       totalExposure,
       averageRiskScore,
@@ -905,6 +906,8 @@ Forward-looking ECL incorporates:
       }),
       preparedBy: 'Compliance Team',
       version: '1.0',
+      confidentialityLevel: 'confidential',
+      distributionList: ['Compliance Team', 'Risk Management', 'Senior Leadership'],
       attachments: [],
       certificationStatement: 'The undersigned certify that this report accurately reflects the loan portfolio status and regulatory compliance as of the reporting date.',
     }

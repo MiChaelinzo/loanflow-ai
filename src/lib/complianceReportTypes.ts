@@ -10,7 +10,7 @@ export interface ComplianceReport {
   sections: ComplianceReportSection[]
   summary: ComplianceReportSummary
   metadata: ComplianceReportMetadata
-  status?: 'draft' | 'review' | 'approved' | 'submitted'
+  status?: 'draft' | 'review' | 'approved' | 'submitted' | 'finalized'
   submittedDate?: string
   submittedBy?: string
 }
@@ -76,6 +76,7 @@ export interface ComplianceReportMetadata {
   filingAuthority?: string
   regulatoryReference?: string
   certificationStatement?: string
+  attachments?: string[]
 }
 
 export interface RegulatoryRequirement {
@@ -88,15 +89,25 @@ export interface RegulatoryRequirement {
   status: 'upcoming' | 'in-progress' | 'submitted' | 'approved'
 }
 
+export interface RequiredSection {
+  sectionId: string
+  title: string
+  description: string
+  mandatory: boolean
+  dataPoints: string[]
+}
+
 export interface RegulatoryFramework {
   id: string
   name: string
   shortName?: string
   description?: string
   jurisdiction: string
-  applicableTo: string[]
-  requiredSections?: string[]
-  requirements: RegulatoryRequirement[]
+  applicableTo?: string[]
+  requiredSections?: RequiredSection[]
+  requirements?: RegulatoryRequirement[]
+  frequency?: string
+  submissionDeadline?: string
 }
 
 export interface ReportSchedule {

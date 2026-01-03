@@ -187,8 +187,8 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
                 'Alert Analytics',
                 activeAlertCount > 0 && activeTab !== 'alerts' ? (
                   <Badge variant="destructive" className="ml-auto h-5 px-1.5 text-xs">
-              </Button>
-              <Button
+                    {activeAlertCount}
+                  </Badge>
                 ) : undefined
               )}
             </div>

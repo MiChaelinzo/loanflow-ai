@@ -301,9 +301,9 @@ export function ComplianceReportGenerator({ loans, alerts }: ComplianceReportGen
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         Report Summary
-                        <Badge variant={getStatusColor(generatedReport.status)}>
-                          {getStatusIcon(generatedReport.status)}
-                          {generatedReport.status.toUpperCase()}
+                        <Badge variant={getStatusColor(generatedReport.status || 'draft')}>
+                          {getStatusIcon(generatedReport.status || 'draft')}
+                          {(generatedReport.status || 'draft').toUpperCase()}
                         </Badge>
                       </CardTitle>
                       <CardDescription>
