@@ -76,7 +76,7 @@ export const quickHelpTips = {
   portfolio: {
     id: 'portfolio-help',
     title: 'Portfolio Overview',
-    message: 'Your portfolio dashboard shows aggregated metrics across all loans. Use filters to narrow down your view by status, risk level, currency, or industry. Click the "Alerts" button to set up automated notifications for covenant breaches and high-risk events.',
+    message: 'Your portfolio dashboard shows aggregated metrics across all loans. Use filters to narrow down your view by status, risk level, currency, or industry. Click any section\'s star icon to add it to your Favorites bar for quick access.',
   },
   pricing: {
     id: 'pricing-help',
@@ -167,5 +167,10 @@ export const quickHelpTips = {
     id: 'multi-period-help',
     title: 'Multi-Period Report Comparison',
     message: 'Compare portfolio performance across Q1, Q2, and Q3 to identify trends and patterns. Analyze metrics across six categories: Portfolio, Trading, Team, Compliance, ESG, and Risk. Get automated insights on significant changes and export comprehensive trend reports in CSV format for board presentations.',
+  },
+  favorites: {
+    id: 'favorites-help',
+    title: 'Favorites System',
+    message: 'Pin your most frequently used sections to the Quick Access bar at the top of the page. Hover over any navigation button and click the star icon to add it to your favorites. Click the X button in the favorites bar to remove sections you no longer need quick access to.',
   },
 }

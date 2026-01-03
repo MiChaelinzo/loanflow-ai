@@ -46,6 +46,7 @@ import { ComplianceReportGenerator, ComplianceReportGeneratorTrigger } from './c
 import { MultiPeriodComparison, MultiPeriodComparisonTrigger } from './components/MultiPeriodComparison'
 import { Alert } from './lib/alertTypes'
 import { NavSection } from './components/NavSection'
+import { FavoritesBar } from './components/FavoritesBar'
 import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -394,6 +395,12 @@ function App() {
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="space-y-4">
+            <FavoritesBar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab}
+              activeAlertCount={activeAlertCount}
+            />
+            
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-semibold text-muted-foreground">Navigation</h2>

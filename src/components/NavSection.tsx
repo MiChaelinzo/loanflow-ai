@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { Card } from './ui/card'
@@ -18,7 +19,8 @@ import {
   Trophy, 
   GitBranch,
   CaretDown,
-  CaretUp
+  CaretUp,
+  Star
 } from '@phosphor-icons/react'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Loan } from '@/lib/types'
@@ -35,6 +37,7 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
   const [marketOpen, setMarketOpen] = useState(true)
   const [riskOpen, setRiskOpen] = useState(true)
   const [complianceOpen, setComplianceOpen] = useState(true)
+  const [favorites, setFavorites] = useKV<string[]>('favorite-tabs', [])
 
   const portfolioTabs = ['portfolio', 'assignments', 'esg']
   const marketTabs = ['pricing', 'trading', 'market']
@@ -45,6 +48,57 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
   const isMarketActive = marketTabs.includes(activeTab)
   const isRiskActive = riskTabs.includes(activeTab)
   const isComplianceActive = complianceTabs.includes(activeTab)
+
+  const toggleFavorite = (tab: string) => {
+    setFavorites((current) => {
+      const currentFavorites = current || []
+      if (currentFavorites.includes(tab)) {
+        return currentFavorites.filter((t) => t !== tab)
+      } else {
+        return [...currentFavorites, tab]
+      }
+    })
+  }
+
+  const isFavorite = (tab: string) => {
+    return (favorites || []).includes(tab)
+  }
+
+  const renderNavButton = (tab: string, icon: any, label: string, badgeContent?: React.ReactNode) => {
+    const Icon = icon
+    const isActive = activeTab === tab
+    const favorited = isFavorite(tab)
+
+    return (
+      <div key={tab} className="relative group">
+        <Button
+          variant={isActive ? 'default' : 'ghost'}
+          size="sm"
+          onClick={() => setActiveTab(tab)}
+          className="justify-start gap-2 w-full pr-8"
+          data-tutorial={`${tab}-tab`}
+        >
+          <Icon size={18} />
+          {label}
+          {badgeContent}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation()
+            toggleFavorite(tab)
+          }}
+          className={`absolute right-0 top-0 h-full px-2 transition-opacity ${
+            favorited ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+          }`}
+          title={favorited ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <Star size={16} weight={favorited ? 'fill' : 'regular'} className={favorited ? 'text-accent' : ''} />
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -66,35 +120,9 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="px-3 pb-3 flex flex-col gap-1">
-              <Button
-                variant={activeTab === 'portfolio' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('portfolio')}
-                className="justify-start gap-2 w-full"
-              >
-                <FileText size={18} />
-                Portfolio Overview
-              </Button>
-              <Button
-                variant={activeTab === 'assignments' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('assignments')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="assignments-tab"
-              >
-                <FolderOpen size={18} />
-                Loan Assignments
-              </Button>
-              <Button
-                variant={activeTab === 'esg' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('esg')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="esg-tab"
-              >
-                <Leaf size={18} />
-                ESG & Green
-              </Button>
+              {renderNavButton('portfolio', FileText, 'Portfolio Overview')}
+              {renderNavButton('assignments', FolderOpen, 'Loan Assignments')}
+              {renderNavButton('esg', Leaf, 'ESG & Green')}
             </div>
           </CollapsibleContent>
         </Card>
@@ -118,36 +146,9 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="px-3 pb-3 flex flex-col gap-1">
-              <Button
-                variant={activeTab === 'pricing' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('pricing')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="pricing-tab"
-              >
-                <CurrencyDollar size={18} />
-                Real-Time Pricing
-              </Button>
-              <Button
-                variant={activeTab === 'trading' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('trading')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="trading-tab"
-              >
-                <Handshake size={18} />
-                Trading Hub
-              </Button>
-              <Button
-                variant={activeTab === 'market' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('market')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="market-tab"
-              >
-                <Globe size={18} />
-                Market Intelligence
-              </Button>
+              {renderNavButton('pricing', CurrencyDollar, 'Real-Time Pricing')}
+              {renderNavButton('trading', Handshake, 'Trading Hub')}
+              {renderNavButton('market', Globe, 'Market Intelligence')}
             </div>
           </CollapsibleContent>
         </Card>
@@ -176,60 +177,20 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="px-3 pb-3 flex flex-col gap-1">
-              <Button
-                variant={activeTab === 'analytics' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('analytics')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="analytics-tab"
-              >
-                <ChartLine size={18} />
-                Analytics
-              </Button>
-              <Button
-                variant={activeTab === 'spread-monitor' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('spread-monitor')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="spread-monitor-tab"
-              >
-                <TrendUp size={18} />
-                Spread Monitor
-              </Button>
-              <Button
-                variant={activeTab === 'spread-trends' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('spread-trends')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="spread-trends-tab"
-              >
-                <ChartLine size={18} />
-                Spread Trends
-              </Button>
-              <Button
-                variant={activeTab === 'stress-test' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('stress-test')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="stress-test-tab"
-              >
-                <Lightning size={18} />
-                Stress Testing
-              </Button>
-              <Button
-                variant={activeTab === 'alerts' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('alerts')}
-                className="justify-start gap-2 w-full"
-              >
-                <Lightning size={18} />
-                Alert Analytics
-                {activeAlertCount > 0 && activeTab !== 'alerts' && (
+              {renderNavButton('analytics', ChartLine, 'Analytics')}
+              {renderNavButton('spread-monitor', TrendUp, 'Spread Monitor')}
+              {renderNavButton('spread-trends', ChartLine, 'Spread Trends')}
+              {renderNavButton('stress-test', Lightning, 'Stress Testing')}
+              {renderNavButton(
+                'alerts',
+                Lightning,
+                'Alert Analytics',
+                activeAlertCount > 0 && activeTab !== 'alerts' ? (
                   <Badge variant="destructive" className="ml-auto h-5 px-1.5 text-xs">
                     {activeAlertCount}
                   </Badge>
-                )}
-              </Button>
+                ) : undefined
+              )}
             </div>
           </CollapsibleContent>
         </Card>
@@ -253,56 +214,11 @@ export function NavSection({ loans, activeTab, setActiveTab, activeAlertCount }:
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="px-3 pb-3 flex flex-col gap-1">
-              <Button
-                variant={activeTab === 'compliance' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('compliance')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="compliance-tab"
-              >
-                <ShieldCheck size={18} />
-                Compliance
-              </Button>
-              <Button
-                variant={activeTab === 'reports' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('reports')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="reports-tab"
-              >
-                <FileDoc size={18} />
-                Reports
-              </Button>
-              <Button
-                variant={activeTab === 'team' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('team')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="team-tab"
-              >
-                <Users size={18} />
-                Team Management
-              </Button>
-              <Button
-                variant={activeTab === 'performance' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('performance')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="performance-tab"
-              >
-                <Trophy size={18} />
-                Performance
-              </Button>
-              <Button
-                variant={activeTab === 'routing' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveTab('routing')}
-                className="justify-start gap-2 w-full"
-                data-tutorial="routing-tab"
-              >
-                <GitBranch size={18} />
-                Alert Routing
-              </Button>
+              {renderNavButton('compliance', ShieldCheck, 'Compliance')}
+              {renderNavButton('reports', FileDoc, 'Reports')}
+              {renderNavButton('team', Users, 'Team Management')}
+              {renderNavButton('performance', Trophy, 'Performance')}
+              {renderNavButton('routing', GitBranch, 'Alert Routing')}
             </div>
           </CollapsibleContent>
         </Card>
