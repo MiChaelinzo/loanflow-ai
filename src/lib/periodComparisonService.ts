@@ -1,7 +1,7 @@
 import { Loan } from './types'
 import { Alert } from './alertTypes'
 import { TeamMember } from './teamTypes'
-import { QuarterlyMetrics, PeriodComparison, Quarter, ComparisonFilters } from './periodComparisonTypes'
+import { QuarterlyMetrics, PeriodComparison, Quarter, ComparisonFilters, TrendItem } from './periodComparisonTypes'
 
 export class PeriodComparisonService {
   generateQuarterlyMetrics(
@@ -321,15 +321,15 @@ export class PeriodComparisonService {
         break
       case 'esg':
         trends.push(this.createTrend('Average ESG Score', 'esg', periods.map(p => p.esgMetrics.averageESGScore)))
-        trends.push(this.createTrend('Green Loan Count', 'esg', periods.map(p => p.esgMetrics.greenLoanCount)))
+        trends.push(this.createTrend('Green Loan Count', 'esg', periods.map(p => p.esgMetrics.greenLoanCount ?? 0)))
         trends.push(this.createTrend('Green Exposure', 'esg', periods.map(p => p.esgMetrics.greenExposure)))
-        trends.push(this.createTrend('Carbon Reduction', 'esg', periods.map(p => p.esgMetrics.carbonReduction)))
+        trends.push(this.createTrend('Carbon Reduction', 'esg', periods.map(p => p.esgMetrics.carbonReduction ?? 0)))
         break
       case 'risk':
-        trends.push(this.createTrend('VaR 95%', 'risk', periods.map(p => p.riskMetrics.var95)))
-        trends.push(this.createTrend('VaR 99%', 'risk', periods.map(p => p.riskMetrics.var99)))
-        trends.push(this.createTrend('Expected Shortfall', 'risk', periods.map(p => p.riskMetrics.expectedShortfall)))
-        trends.push(this.createTrend('Concentration Risk', 'risk', periods.map(p => p.riskMetrics.concentrationRisk)))
+        trends.push(this.createTrend('VaR 95%', 'risk', periods.map(p => p.riskMetrics?.var95 ?? 0)))
+        trends.push(this.createTrend('VaR 99%', 'risk', periods.map(p => p.riskMetrics?.var99 ?? 0)))
+        trends.push(this.createTrend('Expected Shortfall', 'risk', periods.map(p => p.riskMetrics?.expectedShortfall ?? 0)))
+        trends.push(this.createTrend('Concentration Risk', 'risk', periods.map(p => p.riskMetrics?.concentrationRisk ?? 0)))
         break
     }
     
@@ -340,7 +340,7 @@ export class PeriodComparisonService {
     metric: string,
     category: string,
     values: number[]
-  ): PeriodComparison['trends'][0] {
+  ): TrendItem {
     if (values.length < 2) {
       return {
         metric,
@@ -349,7 +349,10 @@ export class PeriodComparisonService {
         change: 0,
         changePercent: 0,
         trend: 'stable',
-        status: 'neutral',
+        status: 'stable',
+        title: metric,
+        description: 'No significant change',
+        severity: 'low',
       }
     }
     
@@ -377,14 +380,17 @@ export class PeriodComparisonService {
       changePercent,
       trend,
       status,
+      title: metric,
+      description: `${trend === 'up' ? 'Increased' : trend === 'down' ? 'Decreased' : 'Stable'} by ${Math.abs(changePercent).toFixed(1)}%`,
+      severity: Math.abs(changePercent) > 10 ? 'high' : Math.abs(changePercent) > 5 ? 'medium' : 'low',
     }
   }
   
   private determineTrendStatus(
     metric: string,
     trend: 'up' | 'down' | 'stable'
-  ): 'positive' | 'negative' | 'neutral' {
-    if (trend === 'stable') return 'neutral'
+  ): 'improving' | 'declining' | 'stable' {
+    if (trend === 'stable') return 'stable'
     
     const positiveUpMetrics = [
       'Total Exposure',
@@ -417,42 +423,48 @@ export class PeriodComparisonService {
     ]
     
     if (positiveUpMetrics.includes(metric)) {
-      return trend === 'up' ? 'positive' : 'negative'
+      return trend === 'up' ? 'improving' : 'declining'
     }
     
     if (positiveDownMetrics.includes(metric)) {
-      return trend === 'down' ? 'positive' : 'negative'
+      return trend === 'down' ? 'improving' : 'declining'
     }
     
-    return 'neutral'
+    return 'stable'
   }
   
-  private generateInsights(trends: PeriodComparison['trends'], periods: QuarterlyMetrics[]) {
-    const insights: PeriodComparison['insights'] = []
+  private generateInsights(trends: PeriodComparison['trends'], periods: QuarterlyMetrics[]): TrendItem[] {
+    const insights: TrendItem[] = []
+    
+    if (!trends) return insights
     
     const negativeSignificantTrends = trends.filter(
-      t => t.status === 'negative' && Math.abs(t.changePercent) > 10
+      t => t.status === 'declining' && Math.abs(t.changePercent ?? 0) > 10
     )
     
     const positiveSignificantTrends = trends.filter(
-      t => t.status === 'positive' && Math.abs(t.changePercent) > 10
+      t => t.status === 'improving' && Math.abs(t.changePercent ?? 0) > 10
     )
     
     negativeSignificantTrends.forEach(trend => {
       insights.push({
         title: `${trend.metric} Declining`,
-        description: `${trend.metric} has ${trend.trend === 'down' ? 'decreased' : 'increased'} by ${Math.abs(trend.changePercent).toFixed(1)}% over the analysis period. This requires immediate attention.`,
-        severity: Math.abs(trend.changePercent) > 25 ? 'high' : 'medium',
+        description: `${trend.metric} has ${trend.trend === 'down' ? 'decreased' : 'increased'} by ${Math.abs(trend.changePercent ?? 0).toFixed(1)}% over the analysis period. This requires immediate attention.`,
+        severity: Math.abs(trend.changePercent ?? 0) > 25 ? 'high' : 'medium',
         category: trend.category,
+        trend: trend.trend,
+        status: 'declining',
       })
     })
     
     positiveSignificantTrends.forEach(trend => {
       insights.push({
         title: `${trend.metric} Improving`,
-        description: `${trend.metric} has ${trend.trend === 'up' ? 'increased' : 'decreased'} by ${Math.abs(trend.changePercent).toFixed(1)}% over the analysis period. Performance is trending positively.`,
+        description: `${trend.metric} has ${trend.trend === 'up' ? 'increased' : 'decreased'} by ${Math.abs(trend.changePercent ?? 0).toFixed(1)}% over the analysis period. Performance is trending positively.`,
         severity: 'low',
         category: trend.category,
+        trend: trend.trend,
+        status: 'improving',
       })
     })
     
@@ -466,6 +478,8 @@ export class PeriodComparisonService {
           description: `Covenant breaches have increased from ${previousPeriod.complianceMetrics.covenantBreaches} to ${latestPeriod.complianceMetrics.covenantBreaches}. Enhanced monitoring recommended.`,
           severity: 'high',
           category: 'compliance',
+          trend: 'up',
+          status: 'declining',
         })
       }
       
@@ -475,6 +489,8 @@ export class PeriodComparisonService {
           description: `Default rate has increased by ${(latestPeriod.portfolioMetrics.defaultRate - previousPeriod.portfolioMetrics.defaultRate).toFixed(2)}%. Review credit assessment processes.`,
           severity: 'high',
           category: 'portfolio',
+          trend: 'up',
+          status: 'declining',
         })
       }
       
@@ -484,6 +500,8 @@ export class PeriodComparisonService {
           description: `Team utilization at ${latestPeriod.teamMetrics.teamUtilization.toFixed(1)}%. Consider expanding team capacity to prevent burnout.`,
           severity: 'medium',
           category: 'team',
+          trend: 'stable',
+          status: 'stable',
         })
       }
     }

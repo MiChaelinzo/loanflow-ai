@@ -85,6 +85,8 @@ export interface MarketPricing {
   priceChange24h: number
   priceChangePercent24h: number
   spread: number
+  spreadChange?: number
+  volatility?: number
   yieldToMaturity: number
   duration: number
   convexity: number

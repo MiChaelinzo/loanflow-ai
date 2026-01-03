@@ -3,7 +3,7 @@ import { useKV } from '@github/spark/hooks'
 import { Loan } from '@/lib/types'
 import { Alert } from '@/lib/alertTypes'
 import { TeamMember } from '@/lib/teamTypes'
-import { QuarterlyMetrics, PeriodComparison, Quarter, ComparisonFilters } from '@/lib/periodComparisonTypes'
+import { QuarterlyMetrics, PeriodComparison, Quarter, ComparisonFilters, TrendItem } from '@/lib/periodComparisonTypes'
 import { periodComparisonService } from '@/lib/periodComparisonService'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'
 import { Button } from './ui/button'
@@ -125,13 +125,15 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
   }
 
   const generateCSVData = (comparison: PeriodComparison): string => {
-    const headers = ['Metric', 'Category', ...comparison.periods.map(p => p.quarter), 'Change', 'Change %', 'Trend', 'Status']
-    const rows = comparison.trends.map(trend => [
+    const periods = comparison.periods ?? comparison.quarters
+    const trends = comparison.trends ?? []
+    const headers = ['Metric', 'Category', ...periods.map(p => p.quarter), 'Change', 'Change %', 'Trend', 'Status']
+    const rows = trends.map(trend => [
       trend.metric,
       trend.category,
-      ...trend.values.map(v => v.toFixed(2)),
-      trend.change.toFixed(2),
-      trend.changePercent.toFixed(2),
+      ...(trend.values ?? []).map(v => v.toFixed(2)),
+      (trend.change ?? 0).toFixed(2),
+      (trend.changePercent ?? 0).toFixed(2),
       trend.trend,
       trend.status,
     ])
@@ -148,9 +150,9 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
     return <Minus size={16} />
   }
 
-  const getTrendColor = (status: 'positive' | 'negative' | 'neutral') => {
-    if (status === 'positive') return 'text-success'
-    if (status === 'negative') return 'text-destructive'
+  const getTrendColor = (status?: 'improving' | 'declining' | 'stable') => {
+    if (status === 'improving') return 'text-success'
+    if (status === 'declining') return 'text-destructive'
     return 'text-muted-foreground'
   }
 
@@ -160,13 +162,16 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
     return 'secondary'
   }
 
-  const prepareChartData = (trends: PeriodComparison['trends']) => {
-    if (!comparison) return []
+  const prepareChartData = (trends?: TrendItem[]) => {
+    if (!comparison || !trends) return []
 
-    return comparison.periods.map((period, index) => {
+    const periods = comparison.periods ?? comparison.quarters
+    return periods.map((period, index) => {
       const dataPoint: any = { quarter: period.quarter }
       trends.forEach(trend => {
-        dataPoint[trend.metric] = trend.values[index]
+        if (trend.values) {
+          dataPoint[trend.metric ?? trend.title] = trend.values[index]
+        }
       })
       return dataPoint
     })
@@ -322,26 +327,26 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
 
             {selectedCategories.map(category => (
               <TabsContent key={category} value={category} className="space-y-6">
-                {comparison.trends.filter(t => t.category === category).map((trend, index) => {
+                {(comparison.trends ?? []).filter(t => t.category === category).map((trend, index) => {
                   const chartData = prepareChartData([trend])
                   
                   return (
                     <Card key={index}>
                       <CardHeader>
                         <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">{trend.metric}</CardTitle>
+                          <CardTitle className="text-lg">{trend.metric ?? trend.title}</CardTitle>
                           <div className="flex items-center gap-2">
                             <span className={`flex items-center gap-1 font-semibold ${getTrendColor(trend.status)}`}>
                               {getTrendIcon(trend.trend)}
-                              {trend.changePercent > 0 ? '+' : ''}{trend.changePercent.toFixed(1)}%
+                              {(trend.changePercent ?? 0) > 0 ? '+' : ''}{(trend.changePercent ?? 0).toFixed(1)}%
                             </span>
-                            <Badge variant={trend.status === 'positive' ? 'default' : trend.status === 'negative' ? 'destructive' : 'secondary'}>
+                            <Badge variant={trend.status === 'improving' ? 'default' : trend.status === 'declining' ? 'destructive' : 'secondary'}>
                               {trend.status}
                             </Badge>
                           </div>
                         </div>
                         <CardDescription>
-                          Change: {trend.change > 0 ? '+' : ''}{trend.change.toFixed(2)}
+                          Change: {(trend.change ?? 0) > 0 ? '+' : ''}{(trend.change ?? 0).toFixed(2)}
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -377,12 +382,15 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
                         </ResponsiveContainer>
 
                         <div className="mt-4 grid grid-cols-3 gap-4">
-                          {trend.values.map((value, idx) => (
-                            <div key={idx} className="text-center">
-                              <p className="text-xs text-muted-foreground">{comparison.periods[idx].quarter}</p>
-                              <p className="text-lg font-bold font-mono">{value.toFixed(2)}</p>
-                            </div>
-                          ))}
+                          {(trend.values ?? []).map((value, idx) => {
+                            const periods = comparison.periods ?? comparison.quarters
+                            return (
+                              <div key={idx} className="text-center">
+                                <p className="text-xs text-muted-foreground">{periods[idx]?.quarter}</p>
+                                <p className="text-lg font-bold font-mono">{value.toFixed(2)}</p>
+                              </div>
+                            )
+                          })}
                         </div>
                       </CardContent>
                     </Card>
@@ -404,7 +412,7 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
                     <tr className="border-b">
                       <th className="text-left p-3 font-semibold">Metric</th>
                       <th className="text-left p-3 font-semibold">Category</th>
-                      {comparison.periods.map(period => (
+                      {(comparison.periods ?? comparison.quarters).map(period => (
                         <th key={period.quarter} className="text-right p-3 font-semibold">
                           {period.quarter}
                         </th>
@@ -414,21 +422,21 @@ export function MultiPeriodComparison({ loans, alerts, teamMembers }: MultiPerio
                     </tr>
                   </thead>
                   <tbody>
-                    {comparison.trends.map((trend, index) => (
+                    {(comparison.trends ?? []).map((trend, index) => (
                       <tr key={index} className="border-b hover:bg-muted/50">
-                        <td className="p-3">{trend.metric}</td>
+                        <td className="p-3">{trend.metric ?? trend.title}</td>
                         <td className="p-3">
                           <Badge variant="outline" className="text-xs">
                             {trend.category}
                           </Badge>
                         </td>
-                        {trend.values.map((value, idx) => (
+                        {(trend.values ?? []).map((value, idx) => (
                           <td key={idx} className="p-3 text-right font-mono text-sm">
                             {value.toFixed(2)}
                           </td>
                         ))}
                         <td className={`p-3 text-right font-semibold ${getTrendColor(trend.status)}`}>
-                          {trend.change > 0 ? '+' : ''}{trend.changePercent.toFixed(1)}%
+                          {(trend.change ?? 0) > 0 ? '+' : ''}{(trend.changePercent ?? 0).toFixed(1)}%
                         </td>
                         <td className="p-3 text-center">
                           <span className={getTrendColor(trend.status)}>
