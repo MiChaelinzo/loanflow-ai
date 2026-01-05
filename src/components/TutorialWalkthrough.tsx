@@ -147,20 +147,18 @@ interface TutorialWalkthroughProps {
 }
 
 export function TutorialWalkthrough({ onComplete }: TutorialWalkthroughProps) {
-  const [hasSeenTutorial, setHasSeenTutorial] = useKV<boolean>('tutorial-completed', false)
+  const [tutorialActive, setTutorialActive] = useKV<boolean>('tutorial-active', false)
   const [currentStep, setCurrentStep] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
   const [highlightedElement, setHighlightedElement] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
-    if (!hasSeenTutorial) {
-      const timer = setTimeout(() => setIsVisible(true), 500)
-      return () => clearTimeout(timer)
+    if (tutorialActive) {
+      setCurrentStep(0)
     }
-  }, [hasSeenTutorial])
+  }, [tutorialActive])
 
   useEffect(() => {
-    if (!isVisible) return
+    if (!tutorialActive) return
 
     const step = tutorialSteps[currentStep]
     if (step.targetElement) {
@@ -172,7 +170,7 @@ export function TutorialWalkthrough({ onComplete }: TutorialWalkthroughProps) {
     } else {
       setHighlightedElement(null)
     }
-  }, [currentStep, isVisible])
+  }, [currentStep, tutorialActive])
 
   const handleNext = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -193,33 +191,18 @@ export function TutorialWalkthrough({ onComplete }: TutorialWalkthroughProps) {
   }
 
   const completeTutorial = () => {
-    setIsVisible(false)
-    setHasSeenTutorial(currentValue => true)
+    setTutorialActive((currentValue) => false)
     onComplete?.()
   }
 
   const restartTutorial = () => {
     setCurrentStep(0)
-    setIsVisible(true)
-    setHasSeenTutorial(currentValue => false)
+    setTutorialActive((currentValue) => true)
   }
 
-  if (hasSeenTutorial && !isVisible) {
-    return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={restartTutorial}
-        className="fixed bottom-6 right-6 gap-2 shadow-lg bg-card border z-50"
-        data-tutorial="restart-button"
-      >
-        <Sparkle size={18} weight="fill" className="text-accent" />
-        Tutorial
-      </Button>
-    )
+  if (!tutorialActive) {
+    return null
   }
-
-  if (!isVisible) return null
 
   const step = tutorialSteps[currentStep]
   const Icon = step.icon
@@ -267,34 +250,103 @@ export function TutorialWalkthrough({ onComplete }: TutorialWalkthroughProps) {
       }
     : getTooltipPosition()
 
+  const getArrowPosition = () => {
+    if (!highlightedElement || step.position === 'center') return null
+    
+    const rect = highlightedElement.getBoundingClientRect()
+    
+    switch (step.position) {
+      case 'bottom':
+        return {
+          top: rect.bottom + 8,
+          left: rect.left + rect.width / 2,
+          rotation: 180
+        }
+      case 'top':
+        return {
+          top: rect.top - 8,
+          left: rect.left + rect.width / 2,
+          rotation: 0
+        }
+      case 'right':
+        return {
+          top: rect.top + rect.height / 2,
+          left: rect.right + 8,
+          rotation: 270
+        }
+      case 'left':
+        return {
+          top: rect.top + rect.height / 2,
+          left: rect.left - 8,
+          rotation: 90
+        }
+      default:
+        return null
+    }
+  }
+
+  const arrowPos = getArrowPosition()
+
   return (
     <>
       <AnimatePresence>
-        {isVisible && (
+        {tutorialActive && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+              className="fixed inset-0 bg-black/40 z-[90]"
               onClick={handleSkip}
             />
 
             {highlightedElement && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed z-[101] pointer-events-none"
-                style={{
-                  top: highlightedElement.getBoundingClientRect().top - 8,
-                  left: highlightedElement.getBoundingClientRect().left - 8,
-                  width: highlightedElement.offsetWidth + 16,
-                  height: highlightedElement.offsetHeight + 16,
-                  borderRadius: 'var(--radius-lg)',
-                  boxShadow: '0 0 0 4px oklch(var(--color-accent) / 0.4), 0 0 0 9999px rgba(0, 0, 0, 0.6)'
-                }}
-              />
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed z-[91] pointer-events-none"
+                  style={{
+                    top: highlightedElement.getBoundingClientRect().top - 8,
+                    left: highlightedElement.getBoundingClientRect().left - 8,
+                    width: highlightedElement.offsetWidth + 16,
+                    height: highlightedElement.offsetHeight + 16,
+                    borderRadius: 'var(--radius-lg)',
+                    boxShadow: '0 0 0 4px oklch(var(--color-accent) / 0.6), 0 0 0 9999px rgba(0, 0, 0, 0.4)'
+                  }}
+                />
+                
+                {arrowPos && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0 }}
+                    transition={{ delay: 0.2, type: 'spring', damping: 15 }}
+                    className="fixed z-[92] pointer-events-none"
+                    style={{
+                      top: arrowPos.top,
+                      left: arrowPos.left,
+                      transform: `translate(-50%, -50%) rotate(${arrowPos.rotation}deg)`,
+                    }}
+                  >
+                    <motion.div
+                      animate={{ y: [0, -8, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <path
+                          d="M16 4L16 24M16 24L10 18M16 24L22 18"
+                          stroke="oklch(var(--color-accent))"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </>
             )}
 
             <motion.div
@@ -303,7 +355,7 @@ export function TutorialWalkthrough({ onComplete }: TutorialWalkthroughProps) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: -20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed z-[102]"
+              className="fixed z-[92]"
               style={tooltipStyle}
             >
               <Card className={cn(
@@ -426,13 +478,17 @@ export function TutorialWalkthrough({ onComplete }: TutorialWalkthroughProps) {
 }
 
 export function TutorialTrigger() {
-  const [, setHasSeenTutorial] = useKV<boolean>('tutorial-completed', false)
+  const [, setTutorialActive] = useKV<boolean>('tutorial-active', false)
+
+  const handleClick = () => {
+    setTutorialActive((currentValue) => true)
+  }
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
-      onClick={() => setHasSeenTutorial(currentValue => false)}
+      onClick={handleClick}
       className="gap-2"
     >
       <Sparkle size={18} weight="fill" className="text-accent" />

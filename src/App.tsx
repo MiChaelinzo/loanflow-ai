@@ -87,7 +87,7 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false)
-    }, 100)
+    }, 800)
     return () => clearTimeout(timer)
   }, [])
 
@@ -454,7 +454,7 @@ function App() {
               <p className="text-muted-foreground">Loading LoanFlow AI...</p>
             </div>
           </div>
-        ) : !hasSeenWelcome && (loans || []).length === 0 ? (
+        ) : !hasSeenWelcome ? (
           <WelcomeDashboard 
             onLoadDemo={handleLoadSampleData}
             onUpload={() => setUploadDialogOpen(true)}
