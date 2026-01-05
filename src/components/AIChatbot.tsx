@@ -64,7 +64,6 @@ export function AIChatbot({ open, onClose }: { open: boolean; onClose: () => voi
   const [isLoading, setIsLoading] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -74,7 +73,9 @@ export function AIChatbot({ open, onClose }: { open: boolean; onClose: () => voi
   }, [open])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
   }, [messages, isLoading])
 
   const systemContext = `You are an AI assistant for LoanFlow AI, an intelligent loan document analysis and risk management platform. You help users understand how to use the platform's features including:
@@ -222,8 +223,8 @@ Provide a helpful, concise response that addresses the user's question about the
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
-            <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4" ref={scrollRef}>
+            <div className="space-y-4 min-h-full">
               {(messages || []).length === 0 && (
                 <div className="space-y-6 py-8">
                   <div className="text-center space-y-2">
@@ -330,7 +331,6 @@ Provide a helpful, concise response that addresses the user's question about the
                   </div>
                 </div>
               )}
-              <div ref={messagesEndRef} />
             </div>
           </div>
 
