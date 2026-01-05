@@ -3,8 +3,6 @@ import { useKV } from '@github/spark/hooks'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
-import { ScrollArea } from './ui/scroll-area'
-import { Badge } from './ui/badge'
 import { Separator } from './ui/separator'
 import { 
   X, 
@@ -66,6 +64,7 @@ export function AIChatbot({ open, onClose }: { open: boolean; onClose: () => voi
   const [isLoading, setIsLoading] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -75,10 +74,8 @@ export function AIChatbot({ open, onClose }: { open: boolean; onClose: () => voi
   }, [open])
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, isLoading])
 
   const systemContext = `You are an AI assistant for LoanFlow AI, an intelligent loan document analysis and risk management platform. You help users understand how to use the platform's features including:
 
@@ -225,7 +222,7 @@ Provide a helpful, concise response that addresses the user's question about the
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-          <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+          <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
             <div className="space-y-4">
               {(messages || []).length === 0 && (
                 <div className="space-y-6 py-8">
@@ -333,8 +330,9 @@ Provide a helpful, concise response that addresses the user's question about the
                   </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+          </div>
 
           <div className="border-t p-4 bg-card">
             {(messages || []).length > 0 && (
