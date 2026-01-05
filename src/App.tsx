@@ -13,6 +13,7 @@ import { Badge } from './components/ui/badge'
 import { Separator } from './components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './components/ui/dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 import { LoanCard } from './components/LoanCard'
 import { DocumentUploadDialog } from './components/DocumentUploadDialog'
 import { BatchUploadDialog } from './components/BatchUploadDialog'
@@ -47,7 +48,7 @@ import { MultiPeriodComparison, MultiPeriodComparisonTrigger } from './component
 import { Alert } from './lib/alertTypes'
 import { NavSection } from './components/NavSection'
 import { FavoritesBar } from './components/FavoritesBar'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc, DotsThree, Trash, ArrowClockwise, House } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -58,6 +59,8 @@ declare const spark: {
 function App() {
   const [loans, setLoans] = useKV<Loan[]>('loans', [])
   const [teamMembers] = useKV<TeamMember[]>('team-members', [])
+  const [hasSeenWelcome, setHasSeenWelcome] = useKV<boolean>('has-seen-welcome', false)
+  const [isLoading, setIsLoading] = useState(true)
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
   const [batchUploadDialogOpen, setBatchUploadDialogOpen] = useState(false)
@@ -80,6 +83,13 @@ function App() {
   const [complianceReportOpen, setComplianceReportOpen] = useState(false)
   const [multiPeriodOpen, setMultiPeriodOpen] = useState(false)
   const [alerts, setAlerts] = useKV<Alert[]>('alerts', [])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -134,6 +144,7 @@ function App() {
   }
 
   const handleUploadComplete = async (extractedData: any) => {
+    setHasSeenWelcome(true)
     const riskScore = (
       (extractedData.riskFactors?.credit || 3) +
       (extractedData.riskFactors?.market || 3) +
@@ -300,8 +311,30 @@ function App() {
 
   const handleLoadSampleData = () => {
     setLoans(sampleLoans)
+    setHasSeenWelcome(true)
     toast.success('Sample loans loaded successfully', {
       description: `${sampleLoans.length} demo loan documents added to portfolio`,
+    })
+  }
+
+  const handleClearAllData = () => {
+    setLoans([])
+    setAlerts([])
+    setHasSeenWelcome(false)
+    toast.success('All data cleared', {
+      description: 'Your portfolio has been reset',
+    })
+  }
+
+  const handleShowWelcome = () => {
+    setHasSeenWelcome(false)
+    toast.info('Welcome screen restored')
+  }
+
+  const handleDismissWelcome = () => {
+    setHasSeenWelcome(true)
+    toast.info('Welcome dismissed', {
+      description: 'You can restore it from the menu anytime',
     })
   }
 
@@ -369,28 +402,63 @@ function App() {
                 <HelpCenterTrigger />
                 <TutorialTrigger />
               </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <DotsThree size={24} weight="bold" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={handleShowWelcome} className="gap-2">
+                    <House size={18} />
+                    Show Welcome Screen
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLoadSampleData} className="gap-2">
+                    <Sparkle size={18} />
+                    Load Demo Data
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleClearAllData} className="gap-2 text-destructive focus:text-destructive">
+                    <Trash size={18} />
+                    Clear All Data
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               
-              {(loans || []).length === 0 && (
+              {!hasSeenWelcome && (loans || []).length === 0 && (
                 <Button variant="secondary" size="default" onClick={handleLoadSampleData} className="gap-2">
                   <Sparkle size={20} />
                   Load Demo
                 </Button>
               )}
               
-              <Button size="lg" onClick={() => setUploadDialogOpen(true)} className="gap-2" data-tutorial="upload-button">
-                <UploadSimple size={20} weight="bold" />
-                Upload Document
-              </Button>
+              {hasSeenWelcome && (
+                <Button size="lg" onClick={() => setUploadDialogOpen(true)} className="gap-2" data-tutorial="upload-button">
+                  <UploadSimple size={20} weight="bold" />
+                  Upload Document
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-6 py-8">
-        {(loans || []).length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mx-auto animate-pulse">
+                <Brain size={32} weight="bold" className="text-white" />
+              </div>
+              <p className="text-muted-foreground">Loading LoanFlow AI...</p>
+            </div>
+          </div>
+        ) : !hasSeenWelcome && (loans || []).length === 0 ? (
           <WelcomeDashboard 
             onLoadDemo={handleLoadSampleData}
             onUpload={() => setUploadDialogOpen(true)}
+            onDismiss={handleDismissWelcome}
           />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

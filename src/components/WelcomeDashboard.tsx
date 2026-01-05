@@ -8,9 +8,10 @@ import { HelpCenterTrigger } from './HelpCenter'
 interface WelcomeDashboardProps {
   onLoadDemo: () => void
   onUpload: () => void
+  onDismiss?: () => void
 }
 
-export function WelcomeDashboard({ onLoadDemo, onUpload }: WelcomeDashboardProps) {
+export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDashboardProps) {
   const features = [
     {
       icon: Brain,
@@ -145,6 +146,14 @@ export function WelcomeDashboard({ onLoadDemo, onUpload }: WelcomeDashboardProps
               Upload Your First Document
             </Button>
           </div>
+
+          {onDismiss && (
+            <div className="pt-4">
+              <Button variant="ghost" size="sm" onClick={onDismiss} className="text-muted-foreground hover:text-foreground">
+                Skip and start with empty portfolio
+              </Button>
+            </div>
+          )}
 
           <div className="pt-6">
             <p className="text-sm text-muted-foreground mb-3">New to LoanFlow AI? Start with our interactive tutorial</p>
