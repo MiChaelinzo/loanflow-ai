@@ -45,10 +45,14 @@ import { SpreadWideningMonitor, SpreadWideningMonitorTrigger } from './component
 import { SpreadTrendDashboard, SpreadTrendDashboardTrigger } from './components/SpreadTrendDashboard'
 import { ComplianceReportGenerator, ComplianceReportGeneratorTrigger } from './components/ComplianceReportGenerator'
 import { MultiPeriodComparison, MultiPeriodComparisonTrigger } from './components/MultiPeriodComparison'
+import { LoanComparison } from './components/LoanComparison'
+import { PortfolioRebalancing } from './components/PortfolioRebalancing'
+import { AdvancedSearch, SearchFilters } from './components/AdvancedSearch'
+import { BulkActions, LoanSelectionCheckbox } from './components/BulkActions'
 import { Alert } from './lib/alertTypes'
 import { NavSection } from './components/NavSection'
 import { FavoritesBar } from './components/FavoritesBar'
-import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc, DotsThree, Trash, ArrowClockwise, House } from '@phosphor-icons/react'
+import { UploadSimple, MagnifyingGlass, Brain, ChartLine, ShieldCheck, Leaf, Funnel, Handshake, FileText, Download, Sparkle, Lightning, Globe, Stack, Users, GitBranch, FolderOpen, Trophy, CurrencyDollar, TrendUp, FileDoc, DotsThree, Trash, ArrowClockwise, House, Scales } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 declare const spark: {
@@ -66,11 +70,22 @@ function App() {
   const [batchUploadDialogOpen, setBatchUploadDialogOpen] = useState(false)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
   const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [loanComparisonOpen, setLoanComparisonOpen] = useState(false)
+  const [rebalancingOpen, setRebalancingOpen] = useState(false)
+  const [selectedLoanIds, setSelectedLoanIds] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [riskFilter, setRiskFilter] = useState<string>('all')
   const [currencyFilter, setCurrencyFilter] = useState<string>('all')
   const [industryFilter, setIndustryFilter] = useState<string>('all')
+  const [filters, setFilters] = useState<SearchFilters>({
+    searchQuery: '',
+    statusFilter: 'all',
+    riskFilter: 'all',
+    currencyFilter: 'all',
+    industryFilter: 'all',
+    esgScoreFilter: 'all',
+  })
   const [activeTab, setActiveTab] = useState('portfolio')
   const [chatbotOpen, setChatbotOpen] = useState(false)
   const [alertCenterOpen, setAlertCenterOpen] = useState(false)
@@ -342,17 +357,73 @@ function App() {
     setExportDialogOpen(true)
   }
 
+  const handleBulkDelete = (loanIds: string[]) => {
+    setLoans((currentLoans) =>
+      (currentLoans || []).filter((loan) => !loanIds.includes(loan.id))
+    )
+    setSelectedLoanIds([])
+  }
+
+  const handleBulkExport = (loanIds: string[]) => {
+    const selectedLoans = (loans || []).filter((loan) => loanIds.includes(loan.id))
+    const csvContent = [
+      ['Borrower', 'Amount', 'Currency', 'Interest Rate', 'Risk Score', 'Status', 'Industry'].join(','),
+      ...selectedLoans.map((loan) =>
+        [
+          loan.borrowerName,
+          loan.amount,
+          loan.currency,
+          loan.interestRate,
+          loan.riskScore,
+          loan.status,
+          loan.industry,
+        ].join(',')
+      ),
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `loans-export-${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
+    window.URL.revokeObjectURL(url)
+  }
+
+  const handleBulkStatusChange = (loanIds: string[], newStatus: string) => {
+    setLoans((currentLoans) =>
+      (currentLoans || []).map((loan) =>
+        loanIds.includes(loan.id) ? { ...loan, status: newStatus as any } : loan
+      )
+    )
+    setSelectedLoanIds([])
+  }
+
   const uniqueCurrencies = [...new Set((loans || []).map(loan => loan.currency))].sort()
   const uniqueIndustries = [...new Set((loans || []).map(loan => loan.industry))].sort()
 
   const filteredLoans = (loans || []).filter((loan) => {
-    const matchesSearch = loan.borrowerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         loan.industry.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || loan.status === statusFilter
-    const matchesRisk = riskFilter === 'all' || loan.riskLevel === riskFilter
-    const matchesCurrency = currencyFilter === 'all' || loan.currency === currencyFilter
-    const matchesIndustry = industryFilter === 'all' || loan.industry === industryFilter
-    return matchesSearch && matchesStatus && matchesRisk && matchesCurrency && matchesIndustry
+    const matchesSearch = loan.borrowerName.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+                         loan.industry.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+                         loan.id.toLowerCase().includes(filters.searchQuery.toLowerCase())
+    const matchesStatus = filters.statusFilter === 'all' || loan.status === filters.statusFilter
+    const matchesRisk = filters.riskFilter === 'all' || loan.riskLevel === filters.riskFilter
+    const matchesCurrency = filters.currencyFilter === 'all' || loan.currency === filters.currencyFilter
+    const matchesIndustry = filters.industryFilter === 'all' || loan.industry === filters.industryFilter
+    const matchesEsg = filters.esgScoreFilter === 'all' || loan.esgScore.overall === filters.esgScoreFilter
+    const matchesMinAmount = !filters.minAmount || loan.amount >= filters.minAmount
+    const matchesMaxAmount = !filters.maxAmount || loan.amount <= filters.maxAmount
+    const matchesMinRisk = !filters.minRisk || loan.riskScore >= filters.minRisk
+    const matchesMaxRisk = !filters.maxRisk || loan.riskScore <= filters.maxRisk
+    
+    const matchesMaturityFrom = !filters.maturityDateFrom || 
+      new Date(loan.maturityDate) >= new Date(filters.maturityDateFrom)
+    const matchesMaturityTo = !filters.maturityDateTo || 
+      new Date(loan.maturityDate) <= new Date(filters.maturityDateTo)
+
+    return matchesSearch && matchesStatus && matchesRisk && matchesCurrency && 
+           matchesIndustry && matchesEsg && matchesMinAmount && matchesMaxAmount &&
+           matchesMinRisk && matchesMaxRisk && matchesMaturityFrom && matchesMaturityTo
   })
 
   const totalExposure = (loans || []).reduce((sum, loan) => {
@@ -499,6 +570,14 @@ function App() {
                   <h3 className="font-semibold mb-1">Quick Actions & Reports</h3>
                   <p className="text-sm text-muted-foreground mb-3">Generate insights, export data, and access advanced analysis tools</p>
                   <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setLoanComparisonOpen(true)} className="gap-2">
+                      <GitBranch size={16} />
+                      Compare Loans
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setRebalancingOpen(true)} className="gap-2">
+                      <Scales size={16} />
+                      Rebalancing
+                    </Button>
                     <Button variant="outline" size="sm" onClick={() => setQ3ForecastOpen(true)} className="gap-2">
                       <ChartLine size={16} />
                       Q3 Forecast
@@ -619,67 +698,21 @@ function App() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex flex-wrap gap-4">
-                  <div className="relative flex-1 min-w-64">
-                    <MagnifyingGlass size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Search by borrower or industry..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-44">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="defaulted">Defaulted</SelectItem>
-                      <SelectItem value="paid-off">Paid Off</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={riskFilter} onValueChange={setRiskFilter}>
-                    <SelectTrigger className="w-44">
-                      <SelectValue placeholder="Risk Level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Risk Levels</SelectItem>
-                      <SelectItem value="low">Low Risk</SelectItem>
-                      <SelectItem value="medium">Medium Risk</SelectItem>
-                      <SelectItem value="high">High Risk</SelectItem>
-                      <SelectItem value="critical">Critical Risk</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={currencyFilter} onValueChange={setCurrencyFilter}>
-                    <SelectTrigger className="w-36">
-                      <SelectValue placeholder="Currency" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Currencies</SelectItem>
-                      {uniqueCurrencies.map((currency) => (
-                        <SelectItem key={currency} value={currency}>
-                          {currency}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={industryFilter} onValueChange={setIndustryFilter}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Industry" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Industries</SelectItem>
-                      {uniqueIndustries.map((industry) => (
-                        <SelectItem key={industry} value={industry}>
-                          {industry}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <AdvancedSearch
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  uniqueCurrencies={uniqueCurrencies}
+                  uniqueIndustries={uniqueIndustries}
+                />
+
+                <BulkActions
+                  loans={filteredLoans}
+                  selectedLoanIds={selectedLoanIds}
+                  onSelectionChange={setSelectedLoanIds}
+                  onBulkDelete={handleBulkDelete}
+                  onBulkExport={handleBulkExport}
+                  onBulkStatusChange={handleBulkStatusChange}
+                />
 
                 <Separator />
 
@@ -712,7 +745,20 @@ function App() {
                 {filteredLoans.length > 0 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredLoans.map((loan) => (
-                      <LoanCard key={loan.id} loan={loan} onClick={() => handleLoanClick(loan)} />
+                      <div key={loan.id} className="relative">
+                        <LoanSelectionCheckbox
+                          loanId={loan.id}
+                          selected={selectedLoanIds.includes(loan.id)}
+                          onToggle={(id) => {
+                            if (selectedLoanIds.includes(id)) {
+                              setSelectedLoanIds(selectedLoanIds.filter(sid => sid !== id))
+                            } else {
+                              setSelectedLoanIds([...selectedLoanIds, id])
+                            }
+                          }}
+                        />
+                        <LoanCard loan={loan} onClick={() => handleLoanClick(loan)} />
+                      </div>
                     ))}
                   </div>
                 )}
@@ -1006,6 +1052,18 @@ function App() {
           />
         </DialogContent>
       </Dialog>
+
+      <LoanComparison
+        open={loanComparisonOpen}
+        onOpenChange={setLoanComparisonOpen}
+        loans={loans || []}
+      />
+
+      <PortfolioRebalancing
+        open={rebalancingOpen}
+        onOpenChange={setRebalancingOpen}
+        loans={loans || []}
+      />
     </div>
   )
 }

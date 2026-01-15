@@ -581,6 +581,90 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
 - **Progression**: Configure quarter/frameworks → Generate report → Review sections → Preview → Finalize → Submit to regulators → Export PDF/Excel
 - **Success criteria**: 4 regulatory frameworks (Basel III, LMA, IFRS 9, ESG), 8+ auto-generated sections, professional summary metrics, report lifecycle (draft/finalized/submitted), comprehensive tables, PDF/Excel export, interactive preview, smart submission workflow, automated calculations, AI-driven insights
 
+### 27. Advanced Search & Saved Filters (✓ IMPLEMENTED - Enhanced Discovery)
+- **Functionality**: Advanced portfolio search with 11+ filter criteria, saved filter configurations, favorite filters, and instant filter application
+- **Purpose**: Enable power users to quickly find specific loans in large portfolios using complex multi-criteria searches and save frequently-used searches for instant access
+- **Trigger**: Click "Advanced" button in portfolio view; expand advanced filters panel
+- **Progression**: Basic search input → Toggle advanced filters → Set multiple criteria (status/risk/ESG/amount/dates) → Apply filters → Save configuration → Star favorites → Quick-load saved searches
+- **Success criteria**:
+  - **11 Filter Criteria**: Search query, status, risk level, ESG score, currency, industry, amount range (min/max), risk score range (min/max), maturity date range
+  - **Saved Filters**: Name and save filter configurations, manage saved filters library, delete unwanted filters
+  - **Favorites System**: Star frequently-used filters for top-of-list placement, one-click filter application
+  - **Real-Time Filtering**: Instant results as filters change, filter count badges showing active filters
+  - **Clear Filters**: One-click reset to show all loans
+  - **Persistent Storage**: Saved filters stored in useKV for cross-session access
+  - Active filter count badge on Advanced button
+  - Collapsible advanced panel to save screen space
+  - Professional filter cards with metadata (created date)
+
+### 28. Bulk Actions & Selection (✓ IMPLEMENTED - Batch Operations)
+- **Functionality**: Multi-loan selection with checkboxes, bulk operations (delete, export, status change), selection summary metrics, and confirmation workflows
+- **Purpose**: Dramatically improve portfolio management efficiency by enabling batch operations on multiple loans simultaneously rather than one-at-a-time actions
+- **Trigger**: Check loan selection boxes in portfolio view; select all via header checkbox
+- **Progression**: Select loans (individual or all) → View selection summary → Choose bulk action → Confirm with impact preview → Execute operation → Clear selection
+- **Success criteria**:
+  - **Selection UI**: Checkboxes on every loan card, select-all checkbox in header, visual selection count badge
+  - **3 Bulk Operations**:
+    - Bulk Delete: Remove multiple loans with confirmation dialog
+    - Bulk Export: Export selected loans to CSV format
+    - Bulk Status Change: Update status for all selected loans simultaneously
+  - **Selection Summary Bar**: Shows selected count, total exposure, average risk score for selected loans
+  - **Confirmation Dialogs**: Preview action impact before execution, show affected loan count and metrics
+  - **Selection Management**: Clear selection button, deselect individual loans
+  - **Action Safety**: Destructive actions (delete) require explicit confirmation with red button styling
+  - CSV export includes all key loan fields (borrower, amount, currency, rate, risk, status, industry)
+  - Toast notifications for successful operations
+  - Selected state persists during page navigation
+
+### 29. Side-by-Side Loan Comparison (✓ IMPLEMENTED - Comparative Analysis)
+- **Functionality**: Compare 2-3 loans simultaneously across 5 tabbed dimensions (Overview, Risk, Covenants, ESG, Financial) with metric-by-metric comparison and visual indicators
+- **Purpose**: Enable informed lending decisions by providing clear side-by-side analysis highlighting strengths/weaknesses of multiple loan opportunities
+- **Trigger**: Click "Compare Loans" in Quick Actions; select loans from dropdown menus
+- **Progression**: Open comparison dialog → Select 2-3 loans from dropdowns → Navigate tabs to compare dimensions → Review AI recommendation → Make decision
+- **Success criteria**:
+  - **5 Comparison Tabs**:
+    - Overview: Borrower, amount, currency, rate, dates, status, industry
+    - Risk Analysis: Risk scores, default probabilities, risk factors breakdown
+    - Covenants: Total covenants, compliance rate, at-risk/breached counts
+    - ESG: Overall scores, environmental/social/governance sub-scores
+    - Financial: LMA compliance level, score, gaps, standard version
+  - **Visual Indicators**: Checkmarks for better metrics, warnings for worse metrics, equals signs for equivalent
+  - **Color-Coded Metrics**: Risk levels in severity colors, ESG scores in green/yellow/red
+  - **Smart Recommendation**: AI identifies lowest-risk loan and recommends strongest option
+  - **Flexible Selection**: 2-3 loan comparison supported, graceful handling of missing data
+  - **Professional Layout**: 4-column grid (metric + 3 loans), clear headers, organized sections
+  - Responsive dialog with max-width constraint and scrolling
+  - Empty state guidance when fewer than 2 loans selected
+  - All numeric metrics formatted with appropriate currency/percentage/decimal notation
+
+### 30. AI-Powered Portfolio Rebalancing (✓ IMPLEMENTED - Strategic Optimization)
+- **Functionality**: GPT-4-powered strategic analysis generating 4-6 actionable rebalancing recommendations based on industry concentration, risk distribution, ESG quality, currency exposure, and compliance gaps
+- **Purpose**: Provide institutional-grade portfolio optimization guidance helping portfolio managers proactively address concentration risks, improve diversification, and meet regulatory/ESG requirements
+- **Trigger**: Click "Rebalancing" in Quick Actions; click "Generate Recommendations" button
+- **Progression**: Open rebalancing dialog → Click generate → AI analyzes portfolio → Review prioritized recommendations → Examine action items → Export recommendations → Implement changes
+- **Success criteria**:
+  - **AI-Powered Analysis**: GPT-4o analyzes portfolio structure across 5 dimensions (industry concentration, risk levels, ESG ratings, currency mix, compliance)
+  - **5 Recommendation Types**:
+    - Reduce Exposure: Flag over-concentrated industries (>30%)
+    - Increase Diversity: Suggest additional industry/geography exposure
+    - Risk Adjustment: Reduce high-risk loan concentration
+    - ESG Improvement: Upgrade ESG portfolio quality (target >70% A/B rated)
+    - Compliance Gap: Address LMA/regulatory shortfalls
+  - **Prioritization**: Recommendations ranked by severity (high/medium/low) with color-coded borders
+  - **Detailed Guidance**: Each recommendation includes:
+    - Clear title and description (why it matters)
+    - Current vs. target metrics with progress bars
+    - 3+ specific actionable steps to implement
+    - Expected impact statement
+    - List of affected loan IDs
+  - **Smart Fallbacks**: Data-driven recommendations generated even if AI unavailable
+  - **Rebalancing Summary**: Total recommendations count, high-priority count, affected loans count
+  - **Export Functionality**: Copy all recommendations to clipboard for sharing with stakeholders
+  - **Regenerate Option**: Re-run analysis to get updated recommendations
+  - Beautiful gradient empty state encouraging first-time use
+  - Professional card-based layout with severity-based left border colors
+  - Action icons and visual hierarchy for scannability
+
 ## Edge Case Handling
 - **Missing Document Data**: AI flags incomplete extractions with confidence scores; allows manual data entry with validation
 - **Non-Standard Loan Terms**: System highlights unusual clauses for human review rather than misinterpreting them
