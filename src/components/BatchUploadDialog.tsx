@@ -139,7 +139,7 @@ Extract and return the following information in JSON format:
 
 Generate realistic sample data based on the filename pattern.`
 
-    const response = await spark.llm(prompt, 'gpt-4o-mini', true)
+    const response = await spark.llm(prompt, 'amazon.nova-lite-v1:0', true)
     return JSON.parse(response)
   }
 

@@ -73,7 +73,7 @@ Return ONLY a valid JSON object with this structure:
   "marketPosition": "one sentence about competitive positioning"
 }`
 
-      const aiResponse = await spark.llm(prompt, 'gpt-4o', true)
+      const aiResponse = await spark.llm(prompt, 'amazon.nova-pro-v1:0', true)
       const insightsData = JSON.parse(aiResponse)
       
       setInsights(insightsData)

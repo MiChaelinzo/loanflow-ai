@@ -109,7 +109,7 @@ Return a JSON object with a single "recommendations" property containing an arra
   ]
 }`
 
-      const response = await spark.llm(prompt, 'gpt-4o', true)
+      const response = await spark.llm(prompt, 'amazon.nova-pro-v1:0', true)
       const data = JSON.parse(response)
       
       const enrichedRecommendations = data.recommendations.map((rec: any, idx: number) => ({

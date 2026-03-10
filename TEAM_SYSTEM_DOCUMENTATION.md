@@ -6,7 +6,7 @@ The Team Management and Alert Routing System is a comprehensive multi-user colla
 
 ## Business Value
 
-### For the LMA EDGE Hackathon
+### For the Amazon Nova AI Hackathon
 
 This system directly addresses multiple judging criteria:
 
@@ -463,6 +463,6 @@ The platform includes sample data for demonstration:
 
 ## Conclusion
 
-The Team Management & Alert Routing System transforms LoanFlow AI from a single-user tool into an enterprise-grade collaborative platform. By automating alert distribution, tracking assignments, and monitoring team performance, it enables organizations to manage large loan portfolios efficiently while maintaining accountability and responsiveness.
+The Team Management & Alert Routing System transforms NovaFlow AI from a single-user tool into an enterprise-grade collaborative platform. By automating alert distribution, tracking assignments, and monitoring team performance, it enables organizations to manage large loan portfolios efficiently while maintaining accountability and responsiveness.
 
-This system directly addresses the LMA EDGE Hackathon's focus on **scalability**, **efficiency gains**, and **commercial viability** by providing the operational foundation necessary for institutional adoption.
+This system directly addresses the Amazon Nova AI Hackathon's focus on **scalability**, **efficiency gains**, and **commercial viability** by providing the operational foundation necessary for institutional adoption.

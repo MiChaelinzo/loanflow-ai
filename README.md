@@ -1,23 +1,21 @@
-# LoanFlow AI - Intelligent Loan Management & Trading Platform
+# NovaFlow AI - Intelligent Loan Management & Trading Platform
 
-**LMA Edge Hackathon Submission 2025**
+**Amazon Nova AI Hackathon Submission 2025**
 
 ## 🎯 Executive Summary
 
-LoanFlow AI is a comprehensive, AI-powered loan management and trading platform that revolutionizes how financial institutions originate, document, monitor, and trade loans. Built specifically for the LMA Edge Hackathon, this platform addresses multiple challenge categories with a commercially viable, desktop-based solution that demonstrates significant potential for industry-wide impact.
+NovaFlow AI is a comprehensive, AI-powered loan management and trading platform that revolutionizes how financial institutions originate, document, monitor, and trade loans. Built specifically for the Amazon Nova AI Hackathon, this platform addresses multiple challenge categories with a commercially viable, desktop-based solution that demonstrates significant potential for industry-wide impact.
 
-### Challenge Categories Addressed
+### Amazon Nova Focus Areas Addressed
 
-1. **Digital Loans** - AI-powered document analysis and automated data extraction
-2. **Loan Documents** - LMA standards compliance checking and gap analysis
-3. **Transparent Loan Trading** - Secondary market marketplace with transparent pricing
-4. **Keeping Loans on Track** - Predictive analytics and early warning systems
-5. **Greener Lending** - Comprehensive ESG scoring and green lending frameworks
+1. **Agentic AI** - Agents powered by Amazon Nova reasoning capabilities tackle complex loan analysis, risk assessment, and compliance checking
+2. **Multimodal Understanding** - Rich document processing across text, PDFs, and structured data using Amazon Nova for extraction and analysis
+3. **Freestyle** - Comprehensive AI-powered loan management and trading platform leveraging Amazon Nova foundation models on AWS
 
 ## 🚀 Key Features
 
-### 1. AI Document Analysis (GPT-4 Integration)
-- **Real-time document processing** using OpenAI GPT-4
+### 1. AI Document Analysis (Amazon Nova Integration)
+- **Real-time document processing** using Amazon Nova on AWS
 - Automatic extraction of loan terms, covenants, and risk factors
 - Structured data output for immediate portfolio integration
 - **Impact**: Reduces document review time by 80%+, eliminates manual errors
@@ -93,13 +91,13 @@ LoanFlow AI is a comprehensive, AI-powered loan management and trading platform 
 ### Technology Stack
 - **Frontend**: React 19 + TypeScript
 - **UI Framework**: shadcn/ui (v4) + Tailwind CSS v4
-- **AI/ML**: OpenAI GPT-4 for document analysis and insights
+- **AI/ML**: Amazon Nova (via Amazon Bedrock) for document analysis and insights
 - **State Management**: React Hooks + Key-Value persistence
 - **Icons**: Phosphor Icons
 - **Notifications**: Sonner toast library
 
 ### Key Technical Innovations
-1. **Real AI Integration**: Actual GPT-4 calls for document analysis (not mock data)
+1. **Real AI Integration**: Actual Amazon Nova calls for document analysis (not mock data)
 2. **Persistent Storage**: All data persists between sessions using KV store
 3. **Responsive Design**: Desktop-optimized with mobile considerations
 4. **Type-Safe**: Full TypeScript implementation
@@ -130,7 +128,7 @@ LoanFlow AI is a comprehensive, AI-powered loan management and trading platform 
 ## 🎯 Competitive Advantages
 
 1. **Comprehensive Solution**: Addresses 5 hackathon categories in one integrated platform
-2. **Real AI**: Actual GPT-4 integration, not simulated
+2. **Real AI**: Actual Amazon Nova integration, not simulated
 3. **Commercial Focus**: Built for real-world banking operations
 4. **LMA Alignment**: Deep integration with LMA standards and frameworks
 5. **User Experience**: Institutional-grade design with modern UX
@@ -159,7 +157,7 @@ LoanFlow AI is a comprehensive, AI-powered loan management and trading platform 
 - Real-time market data feeds
 - API ecosystem for third-party integrations
 
-## 🏆 Why LoanFlow AI Deserves to Win
+## 🏆 Why NovaFlow AI Deserves to Win
 
 ### Design Excellence
 - Professional, banking-grade interface
@@ -216,10 +214,10 @@ LoanFlow AI is a comprehensive, AI-powered loan management and trading platform 
 
 ## 📄 License
 
-This project is submitted for the LMA Edge Hackathon 2025.
+This project is submitted for the Amazon Nova AI Hackathon 2025.
 
 ---
 
-**Built with ❤️ for the Loan Market Association Edge Hackathon**
+**Built with ❤️ for the Amazon Nova AI Hackathon**
 
 *Reimagining loan markets: practical, commercial, and scalable solutions for the multi-trillion dollar loan market.*

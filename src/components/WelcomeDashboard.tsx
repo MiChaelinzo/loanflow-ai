@@ -16,7 +16,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
     {
       icon: Brain,
       title: 'AI Document Analysis',
-      description: 'GPT-4 powered extraction of loan terms, covenants, and risk factors with 95%+ accuracy',
+      description: 'Amazon Nova powered extraction of loan terms, covenants, and risk factors with 95%+ accuracy',
       color: 'text-accent',
       category: 'Digital Loans',
     },
@@ -115,7 +115,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
         
         <div className="relative text-center space-y-6 py-16 px-8">
           <Badge variant="outline" className="mb-4 px-4 py-1.5 text-sm font-semibold">
-            LMA Edge Hackathon 2025 Submission
+            Amazon Nova AI Hackathon 2025 Submission
           </Badge>
           
           <div className="w-28 h-28 bg-gradient-to-br from-accent via-primary to-accent/80 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl rotate-3 hover:rotate-0 transition-transform">
@@ -123,17 +123,17 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
           </div>
           
           <h1 className="text-6xl font-bold tracking-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-            LoanFlow AI
+            NovaFlow AI
           </h1>
           
           <p className="text-2xl font-semibold text-foreground max-w-3xl mx-auto">
-            Intelligent Loan Management & Trading Platform
+            Intelligent Loan Management Intelligent Loan Management & Trading Platform Trading Platform · Powered by Amazon Nova
           </p>
           
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Transform the $4.5 trillion loan market with AI-powered document processing, real-time risk analytics, 
             transparent secondary trading, and automated compliance monitoring. A comprehensive solution addressing 
-            all five LMA Edge Hackathon categories.
+            all Amazon Nova AI Hackathon focus areas.
           </p>
           
           <div className="flex items-center justify-center gap-4 pt-8">
@@ -156,7 +156,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
           )}
 
           <div className="pt-6">
-            <p className="text-sm text-muted-foreground mb-3">New to LoanFlow AI? Start with our interactive tutorial</p>
+            <p className="text-sm text-muted-foreground mb-3">New to NovaFlow AI? Start with our interactive tutorial</p>
             <div className="flex items-center justify-center gap-3">
               <HelpCenterTrigger />
               <Button variant="ghost" size="sm" className="gap-2">
@@ -170,7 +170,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
 
       <div>
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-3">Why LoanFlow AI?</h2>
+          <h2 className="text-3xl font-bold mb-3">Why NovaFlow AI?</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Built for commercial viability with clear value proposition, scalability, and measurable impact
           </p>
@@ -224,7 +224,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
       <div>
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-3">Comprehensive Platform Features</h2>
-          <p className="text-muted-foreground text-lg">Addressing all five LMA Edge Hackathon categories</p>
+          <p className="text-muted-foreground text-lg">Addressing all Amazon Nova AI Hackathon focus areas</p>
         </div>
         
         <div className="grid grid-cols-3 gap-6">
@@ -256,7 +256,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
             </div>
             
             <p className="text-muted-foreground max-w-4xl mx-auto text-lg leading-relaxed">
-              LoanFlow AI delivers a <span className="font-semibold text-foreground">commercially viable, scalable solution</span> for the multi-trillion dollar loan market. 
+              NovaFlow AI delivers a <span className="font-semibold text-foreground">commercially viable, scalable solution</span> for the multi-trillion dollar loan market. 
               Our platform demonstrates <span className="font-semibold text-foreground">clear value proposition</span> with measurable efficiency gains, 
               significant <span className="font-semibold text-foreground">risk mitigation capabilities</span>, and drives <span className="font-semibold text-foreground">industry-wide standardization</span> through 
               LMA compliance automation.
@@ -317,7 +317,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
             <BookOpen size={48} className="mx-auto text-muted-foreground" weight="duotone" />
             <h3 className="text-xl font-bold">Ready to Explore?</h3>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Load our demo portfolio to see LoanFlow AI in action with sample loan documents, 
+              Load our demo portfolio to see NovaFlow AI in action with sample loan documents, 
               real-time analytics, trading features, and comprehensive reporting tools.
             </p>
             <div className="flex items-center justify-center gap-3 pt-4">

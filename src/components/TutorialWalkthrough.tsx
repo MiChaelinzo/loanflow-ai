@@ -36,7 +36,7 @@ interface TutorialStep {
 const tutorialSteps: TutorialStep[] = [
   {
     id: 'welcome',
-    title: 'Welcome to LoanFlow AI',
+    title: 'Welcome to NovaFlow AI',
     description: 'Your intelligent platform for loan document analysis, risk management, and trading. Let\'s take a quick tour to get you started.',
     icon: Brain,
     position: 'center',

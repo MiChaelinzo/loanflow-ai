@@ -78,7 +78,7 @@ export function AIChatbot({ open, onClose }: { open: boolean; onClose: () => voi
     }
   }, [messages, isLoading])
 
-  const systemContext = `You are an AI assistant for LoanFlow AI, an intelligent loan document analysis and risk management platform. You help users understand how to use the platform's features including:
+  const systemContext = `You are an AI assistant for NovaFlow AI, an intelligent loan document analysis and risk management platform. You help users understand how to use the platform's features including:
 
 - **Document Upload**: Upload loan documents (PDF/Word) for AI-powered analysis and data extraction
 - **Portfolio Management**: View and manage loan portfolios with advanced filtering by currency, industry, status, and risk level
@@ -94,7 +94,7 @@ export function AIChatbot({ open, onClose }: { open: boolean; onClose: () => voi
 - **Export & Reporting**: Generate reports in PDF, Excel, and JSON formats
 
 Key platform capabilities:
-- AI-powered document extraction using GPT-4
+- AI-powered document extraction using Amazon Nova
 - Predictive analytics for default probability and covenant breaches
 - LMA compliance scoring and gap identification
 - Real-time covenant monitoring with status indicators
@@ -123,9 +123,9 @@ Be helpful, concise, and professional. Provide step-by-step guidance when explai
 
 User question: ${text}
 
-Provide a helpful, concise response that addresses the user's question about the LoanFlow AI platform. If the question is about a specific feature, explain how to use it step-by-step. Keep your response focused and practical.`
+Provide a helpful, concise response that addresses the user's question about the NovaFlow AI platform. If the question is about a specific feature, explain how to use it step-by-step. Keep your response focused and practical.`
 
-      const response = await spark.llm(prompt, 'gpt-4o-mini')
+      const response = await spark.llm(prompt, 'amazon.nova-lite-v1:0')
 
       const assistantMessage: Message = {
         id: `msg-${Date.now()}-assistant`,
@@ -194,7 +194,7 @@ Provide a helpful, concise response that addresses the user's question about the
               <div>
                 <CardTitle className="text-lg">AI Assistant</CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Ask me anything about LoanFlow AI
+                  Ask me anything about NovaFlow AI
                 </p>
               </div>
             </div>
@@ -233,7 +233,7 @@ Provide a helpful, concise response that addresses the user's question about the
                     </div>
                     <h3 className="font-semibold text-lg">Welcome to AI Assistant!</h3>
                     <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                      I can help you understand and use all features of LoanFlow AI. Ask me anything!
+                      I can help you understand and use all features of NovaFlow AI. Ask me anything!
                     </p>
                   </div>
 
