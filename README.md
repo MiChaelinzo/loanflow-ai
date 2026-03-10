@@ -1,6 +1,6 @@
 # NovaFlow AI - Intelligent Loan Management & Trading Platform
 
-**Amazon Nova AI Hackathon Submission 2025**
+**Amazon Nova AI Hackathon Submission 2026**
 
 ## 🎯 Executive Summary
 
@@ -214,7 +214,7 @@ NovaFlow AI is a comprehensive, AI-powered loan management and trading platform 
 
 ## 📄 License
 
-This project is submitted for the Amazon Nova AI Hackathon 2025.
+This project is submitted for the Amazon Nova AI Hackathon 2026.
 
 ---
 
