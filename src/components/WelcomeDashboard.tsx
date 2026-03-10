@@ -127,7 +127,7 @@ export function WelcomeDashboard({ onLoadDemo, onUpload, onDismiss }: WelcomeDas
           </h1>
           
           <p className="text-2xl font-semibold text-foreground max-w-3xl mx-auto">
-            Intelligent Loan Management Intelligent Loan Management & Trading Platform Trading Platform · Powered by Amazon Nova
+            Intelligent Loan Management & Trading Platform · Powered by Amazon Nova
           </p>
           
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">

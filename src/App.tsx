@@ -458,7 +458,7 @@ function App() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">NovaFlow AI</h1>
-                <p className="text-sm text-muted-foreground">Intelligent Loan Management Intelligent Loan Management & Trading Platform Trading Platform · Powered by Amazon Nova</p>
+                <p className="text-sm text-muted-foreground">Intelligent Loan Management & Trading Platform · Powered by Amazon Nova</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
