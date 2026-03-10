@@ -457,8 +457,8 @@ function App() {
                 <Brain size={24} weight="bold" className="text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">LoanFlow AI</h1>
-                <p className="text-sm text-muted-foreground">Intelligent Loan Management & Trading Platform</p>
+                <h1 className="text-2xl font-bold tracking-tight">NovaFlow AI</h1>
+                <p className="text-sm text-muted-foreground">Intelligent Loan Management & Trading Platform · Powered by Amazon Nova</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -522,7 +522,7 @@ function App() {
               <div className="w-16 h-16 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center mx-auto animate-pulse">
                 <Brain size={32} weight="bold" className="text-white" />
               </div>
-              <p className="text-muted-foreground">Loading LoanFlow AI...</p>
+              <p className="text-muted-foreground">Loading NovaFlow AI...</p>
             </div>
           </div>
         ) : !hasSeenWelcome ? (

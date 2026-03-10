@@ -100,7 +100,7 @@ Extract and return ONLY a valid JSON object with the following structure (no add
 
 If you cannot extract real data from the document, generate realistic sample data for a loan agreement.`
 
-      const aiResponse = await spark.llm(prompt, 'gpt-4o', true)
+      const aiResponse = await spark.llm(prompt, 'amazon.nova-pro-v1:0', true)
       const extractedData = JSON.parse(aiResponse)
 
       clearInterval(progressInterval)

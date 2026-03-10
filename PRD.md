@@ -1,4 +1,4 @@
-# LoanFlow AI - Intelligent Loan Document Analysis & Risk Management Platform
+# NovaFlow AI - Intelligent Loan Document Analysis & Risk Management Platform
 
 A cutting-edge AI-powered platform that revolutionizes loan document processing, covenant tracking, and risk assessment for the multi-trillion dollar loan market.
 
@@ -20,10 +20,10 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
 - **Success criteria**: Fair value calculation within 2% accuracy, real-time price updates, comprehensive pricing breakdown, confidence scoring, comparable loan identification
 
 ### 2. AI Document Upload & Analysis (✓ IMPLEMENTED + ENHANCED)
-- **Functionality**: Drag-and-drop loan document upload with real AI extraction of key terms, covenants, financial metrics, and risk indicators using GPT-4
+- **Functionality**: Drag-and-drop loan document upload with real AI extraction of key terms, covenants, financial metrics, and risk indicators using Amazon Nova
 - **Purpose**: Eliminate manual document review, reduce errors, and accelerate loan onboarding by 80%+
 - **Trigger**: User drops PDF/Word loan agreement onto upload zone
-- **Progression**: File upload → AI processing indicator → GPT-4 structured data extraction → Covenant identification → Risk scoring → Results dashboard
+- **Progression**: File upload → AI processing indicator → Amazon Nova structured data extraction → Covenant identification → Risk scoring → Results dashboard
 - **Success criteria**: Extracts 95%+ of standard loan terms (amount, rate, maturity, covenants) within 10 seconds; presents structured, actionable data
 
 ### 2. Covenant Monitoring Dashboard (✓ IMPLEMENTED)
@@ -133,12 +133,12 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - Video duration indicators and thumbnail previews
 
 ### 16. AI-Powered Chatbot (✓ IMPLEMENTED - Real-Time Help)
-- **Functionality**: Interactive AI assistant using GPT-4o-mini for real-time help and question answering about platform features
+- **Functionality**: Interactive AI assistant using Amazon Nova Lite for real-time help and question answering about platform features
 - **Purpose**: Provide instant, contextual assistance and reduce friction in learning complex platform capabilities
 - **Trigger**: Click "AI Chat" button in header or floating help menu
 - **Progression**: Chatbot opens → User asks question or selects quick action → AI processes with platform context → Response with step-by-step guidance → Follow-up questions → Chat history persists
 - **Success criteria**: 
-  - Real-time AI responses using GPT-4o-mini with comprehensive platform context
+  - Real-time AI responses using Amazon Nova Lite with comprehensive platform context
   - Quick action prompts for common questions (upload, risk scoring, LMA compliance, trading)
   - Persistent chat history using useKV
   - Copy message functionality for assistant responses
@@ -153,7 +153,7 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
 - **Functionality**: Advanced AI analysis generating executive summaries, risk warnings, opportunities, and strategic recommendations for individual loans and entire portfolios
 - **Purpose**: Transform complex loan data into actionable insights for executives and portfolio managers, enabling faster decision-making
 - **Trigger**: Click "Generate Summary" in loan detail view or "Generate Insights" in portfolio overview
-- **Progression**: Data aggregation → GPT-4 analysis → Multi-dimensional evaluation → Summary generation → Structured insights display → Copy to clipboard option
+- **Progression**: Data aggregation → Amazon Nova analysis → Multi-dimensional evaluation → Summary generation → Structured insights display → Copy to clipboard option
 - **Success criteria**: 
   - **Individual Loan Summaries** with:
     - Executive summary (2-3 sentence high-level overview)
@@ -169,7 +169,7 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
     - Strategic opportunities for growth/optimization
     - Priority actions with specific guidance
     - Market positioning analysis
-  - Real AI analysis using GPT-4o with comprehensive loan context
+  - Real AI analysis using Amazon Nova Pro with comprehensive loan context
   - Graceful fallback to data-driven summaries if AI unavailable
   - Copy to clipboard functionality for sharing with stakeholders
   - Regeneration capability for updated analysis
@@ -638,12 +638,12 @@ This platform handles sophisticated loan document analysis, multi-criteria risk 
   - All numeric metrics formatted with appropriate currency/percentage/decimal notation
 
 ### 30. AI-Powered Portfolio Rebalancing (✓ IMPLEMENTED - Strategic Optimization)
-- **Functionality**: GPT-4-powered strategic analysis generating 4-6 actionable rebalancing recommendations based on industry concentration, risk distribution, ESG quality, currency exposure, and compliance gaps
+- **Functionality**: Amazon Nova-powered strategic analysis generating 4-6 actionable rebalancing recommendations based on industry concentration, risk distribution, ESG quality, currency exposure, and compliance gaps
 - **Purpose**: Provide institutional-grade portfolio optimization guidance helping portfolio managers proactively address concentration risks, improve diversification, and meet regulatory/ESG requirements
 - **Trigger**: Click "Rebalancing" in Quick Actions; click "Generate Recommendations" button
 - **Progression**: Open rebalancing dialog → Click generate → AI analyzes portfolio → Review prioritized recommendations → Examine action items → Export recommendations → Implement changes
 - **Success criteria**:
-  - **AI-Powered Analysis**: GPT-4o analyzes portfolio structure across 5 dimensions (industry concentration, risk levels, ESG ratings, currency mix, compliance)
+  - **AI-Powered Analysis**: Amazon Nova Pro analyzes portfolio structure across 5 dimensions (industry concentration, risk levels, ESG ratings, currency mix, compliance)
   - **5 Recommendation Types**:
     - Reduce Exposure: Flag over-concentrated industries (>30%)
     - Increase Diversity: Suggest additional industry/geography exposure

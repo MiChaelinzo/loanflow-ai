@@ -456,7 +456,7 @@ export function Q3ForecastExport({ open, onOpenChange, teamMembers, alerts, loan
         generatedDate: new Date().toISOString(),
         reportType,
         format: exportFormat,
-        generatedBy: 'LoanFlow AI',
+        generatedBy: 'NovaFlow AI',
         version: '2.0',
         quarterFocus: 'Q3 2024',
         confidence: '87%',

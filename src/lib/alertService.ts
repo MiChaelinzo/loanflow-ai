@@ -306,7 +306,7 @@ export function generateEmailContent(alert: Alert): { subject: string; body: str
         })}
       </p>
       
-      <a href="#" class="cta-button">View in LoanFlow AI</a>
+      <a href="#" class="cta-button">View in NovaFlow AI</a>
       
       <p style="color: #6b7280; font-size: 13px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
         <strong>Recommended Actions:</strong><br>
@@ -315,7 +315,7 @@ export function generateEmailContent(alert: Alert): { subject: string; body: str
     </div>
     
     <div class="footer">
-      <p>This is an automated alert from LoanFlow AI</p>
+      <p>This is an automated alert from NovaFlow AI</p>
       <p>To manage your alert preferences, visit your dashboard settings</p>
     </div>
   </div>
@@ -385,7 +385,7 @@ function getRecommendedActions(alert: Alert): string {
 export function generateDigestEmail(alerts: Alert[], period: string): { subject: string; body: string } {
   const criticalCount = alerts.filter((a) => a.severity === 'critical').length
   const highCount = alerts.filter((a) => a.severity === 'high').length
-  const subject = `LoanFlow AI Alert Digest: ${criticalCount} Critical, ${highCount} High Priority (${period})`
+  const subject = `NovaFlow AI Alert Digest: ${criticalCount} Critical, ${highCount} High Priority (${period})`
 
   const body = `
 <!DOCTYPE html>
@@ -473,7 +473,7 @@ export function generateDigestEmail(alerts: Alert[], period: string): { subject:
     </div>
     
     <div class="footer">
-      <p>This is an automated digest from LoanFlow AI</p>
+      <p>This is an automated digest from NovaFlow AI</p>
       <p>To manage your digest preferences, visit your dashboard settings</p>
     </div>
   </div>

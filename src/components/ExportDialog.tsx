@@ -30,7 +30,7 @@ export function ExportDialog({ open, onOpenChange, loans }: ExportDialogProps) {
         exportDate: new Date().toISOString(),
         reportType,
         format: exportFormat,
-        generatedBy: 'LoanFlow AI',
+        generatedBy: 'NovaFlow AI',
         version: '1.0',
       },
       summary: {

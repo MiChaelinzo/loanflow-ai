@@ -113,7 +113,7 @@ export function HelpCenter({ open, onOpenChange }: HelpCenterProps) {
                   Help Center
                 </DialogTitle>
                 <DialogDescription className="mt-1">
-                  Search FAQs, watch video tutorials, and learn how to use LoanFlow AI
+                  Search FAQs, watch video tutorials, and learn how to use NovaFlow AI
                 </DialogDescription>
               </div>
             </div>

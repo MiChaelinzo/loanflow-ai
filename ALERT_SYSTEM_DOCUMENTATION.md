@@ -2,7 +2,7 @@
 
 ## Overview
 
-The LoanFlow AI Alert System provides comprehensive, automated monitoring of your loan portfolio with instant notifications for critical events such as covenant breaches, high-risk loans, approaching maturities, compliance gaps, and ESG downgrades. This proactive risk management tool ensures you never miss important portfolio events.
+The NovaFlow AI Alert System provides comprehensive, automated monitoring of your loan portfolio with instant notifications for critical events such as covenant breaches, high-risk loans, approaching maturities, compliance gaps, and ESG downgrades. This proactive risk management tool ensures you never miss important portfolio events.
 
 ## Key Features
 

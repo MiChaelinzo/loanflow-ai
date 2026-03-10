@@ -1,4 +1,4 @@
-# LoanFlow AI - Devpost Submission Guide
+# NovaFlow AI - Devpost Submission Guide
 
 ## 📝 Submission Checklist
 
@@ -12,7 +12,7 @@
 ---
 
 ## 📋 Project Title
-**LoanFlow AI - Intelligent Loan Management & Trading Platform**
+**NovaFlow AI - Intelligent Loan Management & Trading Platform**
 
 ---
 
@@ -25,10 +25,10 @@ AI-powered loan document analysis, risk management, and transparent secondary ma
 
 ### What It Does
 
-LoanFlow AI is a comprehensive desktop application that transforms how financial institutions manage the entire loan lifecycle—from origination to trading. Built specifically for the LMA Edge Hackathon, our platform addresses all five competition categories with production-ready solutions:
+NovaFlow AI is a comprehensive desktop application that transforms how financial institutions manage the entire loan lifecycle—from origination to trading. Built using Amazon Nova foundation models on AWS for the Amazon Nova AI Hackathon, our platform demonstrates the power of Nova across multiple focus areas:
 
 **🤖 AI Document Intelligence (Digital Loans + Loan Documents)**
-Upload loan agreements and watch GPT-4 automatically extract borrower information, loan amounts, interest rates, maturity dates, financial covenants, and risk factors with 95%+ accuracy. Our batch processing feature handles multiple documents simultaneously, reducing processing time from hours to seconds.
+Upload loan agreements and watch Amazon Nova automatically extract borrower information, loan amounts, interest rates, maturity dates, financial covenants, and risk factors with 95%+ accuracy. Our batch processing feature handles multiple documents simultaneously, reducing processing time from hours to seconds.
 
 **📊 Predictive Analytics (Keeping Loans on Track)**
 Leverage machine learning to forecast default probabilities over 30/60/90-day horizons, predict covenant breaches before they occur, and receive AI-generated recommendations for risk mitigation. Real-time monitoring ensures you're always ahead of portfolio risks.
@@ -64,8 +64,8 @@ Generate stakeholder reports in multiple formats (JSON, CSV, PDF) with customiza
 - Phosphor Icons for clear visual communication
 
 **AI & Intelligence:**
-- OpenAI GPT-4 for document analysis and data extraction
-- GPT-4 Mini for fast risk scoring and predictions
+- Amazon Nova Pro (via Amazon Bedrock) for document analysis and data extraction
+- Amazon Nova Lite for fast risk scoring and predictions
 - Custom prompts optimized for loan market terminology
 - JSON mode for structured, validated data extraction
 
@@ -108,9 +108,9 @@ Mapping diverse loan structures to LMA templates proved complex:
 
 ### Accomplishments We're Proud Of
 
-🏆 **Comprehensive Solution**: Only submission addressing all five hackathon categories in a single integrated platform
+🏆 **Comprehensive Solution**: Addresses multiple Amazon Nova AI focus areas—Agentic AI, Multimodal Understanding, and Freestyle—in a single integrated platform
 
-⚡ **Real AI Integration**: Genuine GPT-4 document processing, not simulated—actual working AI that extracts data
+⚡ **Real AI Integration**: Genuine Amazon Nova document processing, not simulated—actual working AI that extracts data
 
 📈 **Production Quality**: Not a wireframe or mockup—fully functional application ready for real-world use
 
@@ -132,7 +132,7 @@ Mapping diverse loan structures to LMA templates proved complex:
 
 **Performance is a Feature**: In financial software, speed equals trust. Every optimization that made the app faster increased its perceived professionalism.
 
-### What's Next for LoanFlow AI
+### What's Next for NovaFlow AI
 
 **Immediate (Post-Hackathon):**
 - Multi-language document support (German, French loan documents)
@@ -175,10 +175,10 @@ Mapping diverse loan structures to LMA templates proved complex:
 - "High error rates, compliance risks, opacity"
 
 **0:20-0:50 - Solution Introduction**
-- LoanFlow AI logo animation
-- "Meet LoanFlow AI - Intelligence for Loan Markets"
+- NovaFlow AI logo animation
+- "Meet NovaFlow AI - Intelligence for Loan Markets"
 - Quick tour of main interface
-- Show all five category badges (Digital Loans, Documents, Trading, Tracking, Green)
+- Show all focus area badges (Agentic AI, Multimodal Understanding, Freestyle)
 
 **0:50-1:30 - Core Features Demo**
 - **Document Upload** (15 sec): Drag PDF, watch AI extract data in real-time
@@ -199,14 +199,14 @@ Mapping diverse loan structures to LMA templates proved complex:
   - "80% faster document processing"
   - "95% extraction accuracy"
   - "$4.5T market opportunity"
-  - "All 5 competition categories"
+  - "All Amazon Nova focus areas covered"
 - Show welcome screen with hackathon badge
 
 **2:40-3:00 - Call to Action**
-- "Built for LMA Edge Hackathon 2025"
+- "Built for Amazon Nova AI Hackathon 2025"
 - "Production-ready. AI-powered. Market-changing."
 - URL overlay
-- Thank judges and LMA
+- Thank judges and AWS
 
 ---
 
@@ -229,13 +229,13 @@ Mapping diverse loan structures to LMA templates proved complex:
 
 ## 🎤 Pitch Deck Outline (10-15 slides)
 
-1. **Title Slide**: LoanFlow AI + Team
+1. **Title Slide**: NovaFlow AI + Team
 2. **Problem**: Pain points in loan markets (manual processes, opacity, risk)
 3. **Market Size**: $4.5T syndicated loan market, TAM/SAM/SOM
 4. **Solution**: Platform overview and key differentiators
 5. **Product Demo**: Screenshots of core features
 6. **Technology**: AI architecture and tech stack
-7. **All 5 Categories**: How we address each hackathon category
+7. **Nova Focus Areas**: How we leverage Amazon Nova across Agentic AI, Multimodal Understanding, and Freestyle
 8. **Commercial Model**: Revenue streams and pricing
 9. **Traction Potential**: Pilot partners, growth projections
 10. **Competitive Landscape**: How we compare to alternatives
@@ -261,46 +261,37 @@ Mapping diverse loan structures to LMA templates proved complex:
 - Compliance
 - React
 - TypeScript
-- GPT-4
+- Amazon Nova
 - Loan Markets
 - Banking
 
 ---
 
-## 📊 Competition Category Mapping
+## 📊 Amazon Nova Focus Area Mapping
 
-**Digital Loans:**
-- ✅ AI-powered document extraction
-- ✅ LMA compliance checking
-- ✅ Automated data validation
+**Agentic AI:**
+- ✅ AI-powered agents for complex loan document analysis and reasoning
+- ✅ Automated risk assessment and compliance checking agents
+- ✅ Intelligent portfolio rebalancing recommendations
+- ✅ Covenant monitoring and breach prediction agents
 
-**Loan Documents:**
-- ✅ Intelligent parsing of agreements
-- ✅ Covenant extraction
-- ✅ Document standardization
+**Multimodal Understanding:**
+- ✅ Rich document processing across text, PDFs, and structured data
+- ✅ Automated data extraction from diverse loan document formats
+- ✅ Multi-format export generation (JSON, CSV, PDF)
 
-**Transparent Loan Trading:**
-- ✅ Secondary market marketplace
-- ✅ Transparent pricing
-- ✅ Bid management and execution
-
-**Keeping Loans on Track:**
-- ✅ Covenant monitoring
-- ✅ Default prediction
-- ✅ Breach alerting
-- ✅ Stress testing
-
-**Greener Lending:**
-- ✅ ESG scoring
-- ✅ Green loan tracking
-- ✅ Carbon impact metrics
+**Freestyle:**
+- ✅ End-to-end AI-powered loan management platform
+- ✅ Secondary market trading with AI-powered pricing
+- ✅ ESG scoring and green lending frameworks
+- ✅ Stress testing and predictive analytics
 
 ---
 
 ## 💡 Judges' FAQ Prep
 
 **Q: Is the AI actually working or is it simulated?**
-A: Fully working GPT-4 integration with real API calls. Every document upload triggers actual AI extraction.
+A: Fully working Amazon Nova integration with real API calls. Every document upload triggers actual AI extraction.
 
 **Q: How scalable is this solution?**
 A: Built with cloud-native architecture ready for AWS/Azure. Can handle thousands of concurrent users with horizontal scaling.
